@@ -48,9 +48,12 @@ export async function signup(
   const email = formData.get('email') as string
   const password = formData.get('password') as string
 
-  return {
-    type: "error",
-    resultCode: ResultCode.NotAcceptingNewUsers
+  // TODO: only beta users for now
+  if(email != 'kiv.d.dev@gmail.com'){
+    return {
+      type: "error",
+      resultCode: ResultCode.NotAcceptingNewUsers
+    }
   }
 
   const parsedCredentials = z
