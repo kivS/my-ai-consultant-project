@@ -48,6 +48,11 @@ export async function signup(
   const email = formData.get('email') as string
   const password = formData.get('password') as string
 
+  return {
+    type: "error",
+    resultCode: ResultCode.NotAcceptingNewUsers
+  }
+
   const parsedCredentials = z
     .object({
       email: z.string().email(),

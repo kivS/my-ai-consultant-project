@@ -68,7 +68,9 @@ export enum ResultCode {
   UserAlreadyExists = 'USER_ALREADY_EXISTS',
   UnknownError = 'UNKNOWN_ERROR',
   UserCreated = 'USER_CREATED',
-  UserLoggedIn = 'USER_LOGGED_IN'
+  UserLoggedIn = 'USER_LOGGED_IN',
+  NotAcceptingNewUsers = 'NOT_ACCEPTING_NEW_USERS'
+
 }
 
 export const getMessageFromCode = (resultCode: string) => {
@@ -85,5 +87,7 @@ export const getMessageFromCode = (resultCode: string) => {
       return 'Something went wrong, please try again!'
     case ResultCode.UserLoggedIn:
       return 'Logged in!'
+    case ResultCode.NotAcceptingNewUsers:
+      return 'Not accepting new users. Try again later!'
   }
 }

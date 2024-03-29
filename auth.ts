@@ -21,9 +21,6 @@ export const { auth, signIn, signOut } = NextAuth({
           
           const { email, password } = parsedCredentials.data
 
-          // TODO: for testing only
-          if(email != "kiv.d.dev@gmail.com") return null
-
           const user = await getUser(email)
 
           if (!user) return null
