@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { ChatPanel } from '@/components/chat/panel'
 
+import { useUIState, useActions } from "ai/rsc";
 
 
 export function Chat({ id, className, session, missingKeys }) {
@@ -14,7 +15,8 @@ export function Chat({ id, className, session, missingKeys }) {
   const path = usePathname()
   const [input, setInput] = useState('')
 
-  const messages = []
+  const [messages, _] = useUIState();
+
 
 
   return (
@@ -26,7 +28,11 @@ export function Chat({ id, className, session, missingKeys }) {
     
       >
         {messages.length ? (
-          <span>...</span>
+          messages.map(message => (
+            <div key={message.id}>
+              {message.display}
+            </div>
+          ))
         ) : (
           <EmptyScreen />
         )}

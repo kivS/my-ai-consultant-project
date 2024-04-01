@@ -12,12 +12,18 @@ import {
 } from '@/components/ui/tooltip'
 
 import { useRouter } from 'next/navigation'
+import { useActions, useUIState } from 'ai/rsc'
+import { nanoid } from '@/lib/utils'
 
 
 export function PromptForm({ input, setInput}) {
   const router = useRouter()
  
   const inputRef = React.useRef(null)
+
+
+  const { submitUserMessage } = useActions()
+  const [_, setMessages] = useUIState()
 
 
   React.useEffect(() => {
@@ -42,6 +48,21 @@ export function PromptForm({ input, setInput}) {
         if (!value) return
 
         console.log(value)
+
+        // Optimistically add user message UI
+        // Add user message to UI state
+        setMessages(currentMessages => [
+          ...currentMessages,
+          {
+            id: Date.now(),
+            display: <div>{value}</div>
+          }
+        ])
+
+        // Submit and get response message
+        const responseMessage = await submitUserMessage(value)
+        setMessages(currentMessages => [...currentMessages, responseMessage])
+
       }}
     >
       <div className="relative flex max-h-60 w-full grow flex-col overflow-hidden bg-background px-8 sm:rounded-md sm:border sm:px-12">
