@@ -14,6 +14,7 @@ import {
 import { useRouter } from 'next/navigation'
 import { useActions, useUIState } from 'ai/rsc'
 import { nanoid } from '@/lib/utils'
+import { UserMessage } from '@/components/chat/message'
 
 
 export function PromptForm({ input, setInput}) {
@@ -60,7 +61,7 @@ export function PromptForm({ input, setInput}) {
           ...currentMessages,
           {
             id: Date.now(),
-            display: <div>{value}</div>
+            display: <UserMessage>{value}</UserMessage>
           }
         ])
 
