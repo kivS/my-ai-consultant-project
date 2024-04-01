@@ -1,6 +1,7 @@
 import { OpenAI } from "openai";
 import { createAI, getMutableAIState, render } from "ai/rsc";
 import { z } from "zod";
+import { SpinnerMessage } from "@/components/chat/message";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -55,6 +56,7 @@ async function submitUserMessage(userInput) {
     // model: 'gpt-4-0125-preview',
     model: 'gpt-3.5-turbo',
     provider: openai,
+    initial: <SpinnerMessage />,
     messages: [
       { role: 'system', content: 'You are a flight assistant' },
       ...aiState.get()
