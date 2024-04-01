@@ -8,6 +8,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { ChatPanel } from '@/components/chat/panel'
 
 import { useUIState, useActions } from "ai/rsc";
+import { ChatList } from '@/components/chat/chat-list'
 
 
 export function Chat({ id, className, session, missingKeys }) {
@@ -31,11 +32,7 @@ export function Chat({ id, className, session, missingKeys }) {
     
       >
         {messages.length ? (
-          messages.map(message => (
-            <div key={message.id}>
-              {message.display}
-            </div>
-          ))
+          <ChatList messages={messages} />
         ) : (
           <EmptyScreen />
         )}
