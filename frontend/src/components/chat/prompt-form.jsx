@@ -22,7 +22,12 @@ export function PromptForm({ input, setInput}) {
   const inputRef = React.useRef(null)
 
 
+  /**
+   * 
+   */
   const { submitUserMessage } = useActions()
+
+
   const [_, setMessages] = useUIState()
 
 
@@ -49,7 +54,7 @@ export function PromptForm({ input, setInput}) {
 
         console.log(value)
 
-        // Optimistically add user message UI
+        // Optimistically add user message UI.
         // Add user message to UI state
         setMessages(currentMessages => [
           ...currentMessages,

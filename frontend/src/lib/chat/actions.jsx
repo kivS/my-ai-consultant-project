@@ -36,6 +36,9 @@ async function getFlightInfo(flightNumber) {
 async function submitUserMessage(userInput) {
   'use server';
 
+  /**
+   * Json contenxt for the LLM
+   */
   const aiState = getMutableAIState();
 
   // Update the AI state with the new user message.

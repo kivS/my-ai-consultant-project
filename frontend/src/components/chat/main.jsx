@@ -15,9 +15,12 @@ export function Chat({ id, className, session, missingKeys }) {
   const path = usePathname()
   const [input, setInput] = useState('')
 
+  /**
+   * Data and UI sent by LLM. Client-side only
+   */
   const [messages, _] = useUIState();
 
-
+  console.log({messages})
 
   return (
     <div
