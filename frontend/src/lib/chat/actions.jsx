@@ -1,11 +1,33 @@
+import 'server-only'
+
 import { OpenAI } from "openai";
 import { createAI, getMutableAIState, render } from "ai/rsc";
 import { z } from "zod";
 import { SpinnerMessage } from "@/components/chat/message";
+import Whiteboard from '@/components/whiteboard/whiteboard';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
+
+
+// const system_root_prompt = `\
+// You are a stock trading conversation bot and you can help users buy stocks, step by step.
+// You and the user can discuss stock prices and the user can adjust the amount of stocks they want to buy, or place an order, in the UI.
+
+// Messages inside [] means that it's a UI element or a user event. For example:
+// - "[Price of AAPL = 100]" means that an interface of the stock price of AAPL is shown to the user.
+// - "[User has changed the amount of AAPL to 10]" means that the user has changed the amount of AAPL to 10 in the UI.
+
+// If the user requests purchasing a stock, call \`show_stock_purchase_ui\` to show the purchase UI.
+// If the user just wants the price, call \`show_stock_price\` to show the price.
+// If you want to show trending stocks, call \`list_stocks\`.
+// If you want to show events, call \`get_events\`.
+// If the user wants to sell stock, or complete another impossible task, respond that you are a demo and cannot do that.
+
+// Besides that, you can also chat with users and do some calculations if needed.`
+
+const system_root_prompt = `You are a flight assistant`
 
 // An example of a spinner component. You can also import your own components,
 // or 3rd party component libraries.
@@ -13,17 +35,6 @@ function Spinner() {
   return <div>Loading...</div>;
 }
 
-// An example of a flight card component.
-function FlightCard({ flightInfo }) {
-  return (
-    <div className="border p-2">
-      <h2>Flight Information</h2>
-      <p>Flight Number: {flightInfo.flightNumber}</p>
-      <p>Departure: {flightInfo.departure}</p>
-      <p>Arrival: {flightInfo.arrival}</p>
-    </div>
-  );
-}
 
 // An example of a function that fetches flight information from an external API.
 async function getFlightInfo(flightNumber) {
@@ -58,7 +69,7 @@ async function submitUserMessage(userInput) {
     provider: openai,
     initial: <SpinnerMessage />,
     messages: [
-      { role: 'system', content: 'You are a flight assistant' },
+      { role: 'system', content: system_root_prompt },
       ...aiState.get()
     ],
     // `text` is called when an AI returns a text response (as opposed to a tool call).
@@ -103,7 +114,7 @@ async function submitUserMessage(userInput) {
           ]);
 
           // Return the flight card to the client.
-          return <FlightCard flightInfo={flightInfo} />
+          return <Whiteboard flightInfo={flightInfo} />
         }
       }
     }
