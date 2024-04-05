@@ -1,9 +1,12 @@
 'use client'
+/**
+ *   Different types of message bubbles.
+ */
 
 import { IconOpenAI, IconUser } from '@/components/ui/icons'
 
 
-// Different types of message bubbles.
+
 
 export function UserMessage({ children }) {
   return (
