@@ -15,11 +15,12 @@ import { useRouter } from 'next/navigation'
 import { useActions, useUIState } from 'ai/rsc'
 import { nanoid } from '@/lib/utils'
 import { UserMessage } from '@/components/chat/message'
+import { useEnterSubmit } from '@/hooks/use-enter-submit'
 
 
 export function PromptForm({ input, setInput}) {
   const router = useRouter()
- 
+  const { formRef, onKeyDown } = useEnterSubmit()
   const inputRef = React.useRef(null)
 
 
@@ -40,7 +41,7 @@ export function PromptForm({ input, setInput}) {
 
   return (
     <form
-     
+      ref={formRef}
       onSubmit={async (e) => {
         e.preventDefault()
 
@@ -76,7 +77,7 @@ export function PromptForm({ input, setInput}) {
         <Textarea
           ref={inputRef}
           tabIndex={0}
-         
+          onKeyDown={onKeyDown}
           placeholder="Send a message."
           autoFocus
           spellCheck={false}

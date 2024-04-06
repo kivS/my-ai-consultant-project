@@ -45,7 +45,7 @@ async function submitUserMessage(userInput) {
   'use server';
 
   /**
-   * Json contenxt for the LLM
+   * Json context for the LLM
    */
   const aiState = getMutableAIState();
 
@@ -131,7 +131,15 @@ async function submitUserMessage(userInput) {
             }
           ]);
 
-          return <DatabaseWhiteboard />
+          const initialNodes = [
+            { id: 'db_1', position: { x: 0, y: 0 }, data: { label: 'database 1' } },
+            { id: 'db_2', position: { x: 0, y: 100 }, data: { label: 'database 2' } },
+            { id: 'db_3', position: { x: 0, y: 200 }, data: { label: 'database 2' } },
+          ];
+          const initialEdges = [{ id: 'e1-2', source: 'db_1', target: 'db_2' }];
+
+
+          return <DatabaseWhiteboard initialNodes={initialNodes} initialEdges={initialEdges} />
         }
       }
     }
