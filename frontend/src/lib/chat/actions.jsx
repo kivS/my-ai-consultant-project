@@ -5,32 +5,28 @@ import { createAI, getMutableAIState, render } from "ai/rsc";
 import { z } from "zod";
 import { SpinnerMessage } from "@/components/chat/message";
 import Whiteboard from '@/components/whiteboard/whiteboard';
+import DatabaseWhiteboard from '@/components/database-whiteboard';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
 
-// const system_root_prompt = `\
-// You are a stock trading conversation bot and you can help users buy stocks, step by step.
-// You and the user can discuss stock prices and the user can adjust the amount of stocks they want to buy, or place an order, in the UI.
+const system_root_prompt = `\
+// You are a Ruby-On-Rails software architect conversation bot and you can help users model their database architecture, step by step.
+// You discuss the database modeling in a high level, only going more detailed when the user asks for it.
 
-// Messages inside [] means that it's a UI element or a user event. For example:
-// - "[Price of AAPL = 100]" means that an interface of the stock price of AAPL is shown to the user.
-// - "[User has changed the amount of AAPL to 10]" means that the user has changed the amount of AAPL to 10 in the UI.
-
-// If the user requests purchasing a stock, call \`show_stock_purchase_ui\` to show the purchase UI.
-// If the user just wants the price, call \`show_stock_price\` to show the price.
-// If you want to show trending stocks, call \`list_stocks\`.
-// If you want to show events, call \`get_events\`.
-// If the user wants to sell stock, or complete another impossible task, respond that you are a demo and cannot do that.
+// to show the user the database modeling you can use the database whiteboard by calling \`update_database_whiteboard\`, here
+// you show current state of the database discused with the user: the tables, relationships.
 
 // Besides that, you can also chat with users and do some calculations if needed.`
 
-const system_root_prompt = `You are a flight assistant`
+
 
 // An example of a spinner component. You can also import your own components,
 // or 3rd party component libraries.
+
+
 function Spinner() {
   return <div>Loading...</div>;
 }
@@ -90,6 +86,7 @@ async function submitUserMessage(userInput) {
       return <p>{content}</p>
     },
     tools: {
+
       get_flight_info: {
         description: 'Get the information for a flight',
         parameters: z.object({
@@ -115,6 +112,26 @@ async function submitUserMessage(userInput) {
 
           // Return the flight card to the client.
           return <Whiteboard flightInfo={flightInfo} />
+        }
+      },
+
+      update_database_whiteboard: {
+        description: 'Update the whiteboard for the database modeling',
+        parameters: z.object({}),
+        render: async function* (){
+          yield <Spinner />
+
+          aiState.done([
+            ...aiState.get(),
+            {
+              role: "function",
+              name: "update_database_whiteboard",
+              // Content can be any string to provide context to the LLM in the rest of the conversation.
+              content: 'updaded.',
+            }
+          ]);
+
+          return <DatabaseWhiteboard />
         }
       }
     }
