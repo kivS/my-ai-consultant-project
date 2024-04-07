@@ -13,11 +13,12 @@ const openai = new OpenAI({
 
 
 const system_root_prompt = `\
-// You are a Ruby-On-Rails software architect conversation bot and you can help users model their database architecture, step by step.
+// You are a database architect conversation bot and you can help users model their database architecture, step by step.
 // You discuss the database modeling in a high level, only going more detailed when the user asks for it.
 
-// to show the user the database modeling you can use the database whiteboard by calling \`update_database_whiteboard\`, here
-// you show current state of the database discused with the user: the tables, relationships.
+// When you come up with a table or tables and their connections you show them to the user
+// by calling to show the user by calling  \`update_database_whiteboard\`, here
+// you show current state of the database discused with the user: the tables, relationships, etc.
 
 // Besides that, you can also chat with users and do some calculations if needed.`
 
@@ -86,40 +87,26 @@ async function submitUserMessage(userInput) {
       return <p>{content}</p>
     },
     tools: {
-
-      get_flight_info: {
-        description: 'Get the information for a flight',
-        parameters: z.object({
-          flightNumber: z.string().describe('the number of the flight')
-        }).required(),
-        render: async function* ({ flightNumber }) {
-          // Show a spinner on the client while we wait for the response.
-          yield <Spinner />
-
-          // Fetch the flight information from an external API.
-          const flightInfo = await getFlightInfo(flightNumber)
-
-          // Update the final AI state.
-          aiState.done([
-            ...aiState.get(),
-            {
-              role: "function",
-              name: "get_flight_info",
-              // Content can be any string to provide context to the LLM in the rest of the conversation.
-              content: JSON.stringify(flightInfo),
-            }
-          ]);
-
-          // Return the flight card to the client.
-          return <Whiteboard flightInfo={flightInfo} />
-        }
-      },
-
       update_database_whiteboard: {
-        description: 'Update the whiteboard for the database modeling',
-        parameters: z.object({}),
-        render: async function* (){
+        description: 'Update the whiteboard for the database modeling. it generates the current state of the database based on the conversation context ',
+        parameters: z.object({
+          initialNodes: z.array(
+            z.object({
+              id: z.string().describe('ID for the node, representing the table, eg: table_name'),
+              position: z.object({
+                x: z.number().describe('the position of the node in the x axis'),
+                y: z.number().describe('the position of the node in the y axis')
+              }),
+              data: z.object({
+                label: z.string().describe('the name of the table')
+              })
+            })
+          ).describe('an array of nodes definition for reactflow that\'ll represent the current state of the database')
+        }),
+        render: async function* ({ initialNodes }){
           yield <Spinner />
+        
+          console.log(JSON.stringify({initialNodes}, null, 2))
 
           aiState.done([
             ...aiState.get(),
@@ -127,16 +114,17 @@ async function submitUserMessage(userInput) {
               role: "function",
               name: "update_database_whiteboard",
               // Content can be any string to provide context to the LLM in the rest of the conversation.
-              content: 'updaded.',
+              content: JSON.stringify(initialNodes),
             }
           ]);
 
-          const initialNodes = [
-            { id: 'db_1', position: { x: 0, y: 0 }, data: { label: 'database 1' } },
-            { id: 'db_2', position: { x: 0, y: 100 }, data: { label: 'database 2' } },
-            { id: 'db_3', position: { x: 0, y: 200 }, data: { label: 'database 2' } },
-          ];
-          const initialEdges = [{ id: 'e1-2', source: 'db_1', target: 'db_2' }];
+          // const initialNodes = [
+          //   { id: 'db_1', position: { x: 0, y: 0 }, data: { label: 'database 1' } },
+          //   { id: 'db_2', position: { x: 0, y: 100 }, data: { label: 'database 2' } },
+          //   { id: 'db_3', position: { x: 0, y: 200 }, data: { label: 'database 2' } },
+          // ];
+          // const initialEdges = [{ id: 'e1-2', source: 'db_1', target: 'db_2' }];
+          const initialEdges = [];
 
 
           return <DatabaseWhiteboard initialNodes={initialNodes} initialEdges={initialEdges} />
