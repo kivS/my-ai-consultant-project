@@ -26,7 +26,7 @@ if git diff --name-only HEAD^ HEAD | grep --quiet -e "frontend/"; then
     docker push registry.gitlab.com/kivs/my-ai-consultant-project
     
 
-    echo "🚀 Updating backend on my VPS"
+    echo "🚀 Updating frontend on my VPS"
     ssh $myvps_host -p 54321 "cd /var/www/my-ai-consultant-project/frontend; git pull"
     ssh $myvps_host -p 54321 "docker pull registry.gitlab.com/kivs/my-ai-consultant-project"
     ssh $myvps_host -p 54321 "docker stop ai-consultant-frontend-container; docker rm ai-consultant-frontend-container"
