@@ -35,7 +35,7 @@ if git diff --name-only HEAD^ HEAD | grep --quiet -e "frontend/"; then
     ssh $myvps_host -p 54321 "docker stop ai-consultant-frontend-container; docker rm ai-consultant-frontend-container"
     # -v /var/www/my-ai-consultant-project/frontend:/app --user 0:0
     ssh $myvps_host -p 54321 "docker run -d --restart unless-stopped  -p 5130:3000 --name ai-consultant-frontend-container registry.gitlab.com/kivs/my-ai-consultant-project; docker image  prune -f"
-    ssh $myvps_host -p 54321 "docker ps --latest; docker logs ai-consultant-frontend-container -f"
+    ssh $myvps_host -p 54321 "docker ps --latest; docker logs ai-consultant-frontend-container"
 
 
     echo "🚀 Building docker image locally for arm"
@@ -49,7 +49,7 @@ if git diff --name-only HEAD^ HEAD | grep --quiet -e "frontend/"; then
     ssh $myhelsinkivps_host -p 54321 "docker pull registry.gitlab.com/kivs/my-ai-consultant-project:arm-frontend"
     ssh $myhelsinkivps_host -p 54321 "docker stop ai-db-consultant-frontend-container; docker rm ai-db-consultant-frontend-container"
     ssh $myhelsinkivps_host -p 54321 "docker run -d --restart unless-stopped  -p 3000:3000 --name ai-db-consultant-frontend-container registry.gitlab.com/kivs/my-ai-consultant-project:arm-frontend; docker image  prune -f"
-    ssh $myhelsinkivps_host -p 54321 "docker ps --latest; docker logs ai-db-consultant-frontend-container -f"
+    ssh $myhelsinkivps_host -p 54321 "docker ps --latest; docker logs ai-db-consultant-frontend-container"
 
 
     exit 0
