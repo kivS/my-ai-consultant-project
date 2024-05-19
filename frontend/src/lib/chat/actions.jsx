@@ -6,6 +6,7 @@ import { SpinnerMessage } from "@/components/chat/message";
 import Whiteboard from "@/components/whiteboard/whiteboard";
 import DatabaseWhiteboard from "@/components/database-whiteboard";
 import { openai } from "@ai-sdk/openai";
+import { nanoid } from "nanoid";
 
 const system_root_prompt = `\
 // You are a database architect conversation bot and you can help users model their database architecture, step by step.
@@ -42,6 +43,8 @@ async function submitUserMessage(userInput) {
 	const aiState = getMutableAIState();
 
 	// Update the AI state with the new user message.
+	console.log({ aiState: aiState.get() });
+
 	aiState.update([
 		...aiState.get(),
 		{
@@ -89,6 +92,10 @@ async function submitUserMessage(userInput) {
 									.describe(
 										"ID for the node, representing the table, eg: table_name",
 									),
+								type: z
+									.literal("dbTableNode")
+									.describe("Type of the node used. node types: dbTableNode "),
+
 								position: z.object({
 									x: z
 										.number()
@@ -98,7 +105,17 @@ async function submitUserMessage(userInput) {
 										.describe("the position of the node in the y axis"),
 								}),
 								data: z.object({
-									label: z.string().describe("the name of the table"),
+									name: z.string().describe("the name of the table"),
+									columns: z.array(
+										z.object({
+											id: z
+												.string()
+												.describe(
+													"Numerical id that identifies the column. Unique",
+												),
+											name: z.string().describe("Name of the column"),
+										}),
+									),
 								}),
 							}),
 						)
@@ -109,15 +126,36 @@ async function submitUserMessage(userInput) {
 				generate: async function* ({ initialNodes }) {
 					yield <Spinner />;
 
-					console.log(JSON.stringify({ initialNodes }, null, 2));
+					// console.log(JSON.stringify({ initialNodes }, null, 2));
+
+					const toolCallId = nanoid();
 
 					aiState.done([
 						...aiState.get(),
 						{
+							id: nanoid(),
+							role: "assistant",
+							content: [
+								{
+									type: "tool-call",
+									toolName: "update_database_whiteboard",
+									toolCallId,
+									args: { initialNodes },
+								},
+							],
+						},
+
+						{
+							id: nanoid(),
 							role: "tool",
-							name: "update_database_whiteboard",
-							// Content can be any string to provide context to the LLM in the rest of the conversation.
-							content: JSON.stringify(initialNodes),
+							content: [
+								{
+									type: "tool-result",
+									toolName: "update_database_whiteboard",
+									toolCallId,
+									result: initialNodes,
+								},
+							],
 						},
 					]);
 
