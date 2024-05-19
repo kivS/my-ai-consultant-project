@@ -14,6 +14,9 @@ export default function DatabaseWhiteboard({ initialNodes, initialEdges }) {
 				nodes={initialNodes}
 				edges={initialEdges}
 				nodeTypes={nodeTypes}
+				proOptions={{
+					hideAttribution: true,
+				}}
 			>
 				{/* <Controls /> */}
 				{/* <MiniMap /> */}
