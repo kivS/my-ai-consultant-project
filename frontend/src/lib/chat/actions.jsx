@@ -118,8 +118,6 @@ async function submitUserMessage(userInput) {
 				generate: async function* ({ initialNodes }) {
 					yield <Spinner />;
 
-					// console.log(JSON.stringify({ initialNodes }, null, 2));
-
 					const toolCallId = nanoid();
 
 					aiState.done([
@@ -205,9 +203,7 @@ export const AI = createAI({
 	onSetAIState: async ({ state }) => {
 		"use server";
 
-		console.log(`${new Date().toISOString()} - `, {
-			state: JSON.stringify(state, null, 2),
-		});
+		console.log(`${new Date().toISOString()} - `, { state });
 		// console.log({ state });
 	},
 });
