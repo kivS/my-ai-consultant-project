@@ -203,7 +203,9 @@ export const AI = createAI({
 	onSetAIState: async ({ state }) => {
 		"use server";
 
-		console.log({ state: JSON.stringify(state, null, 2) });
+		console.log(`${new Date().toISOString()} - `, {
+			state: JSON.stringify(state, null, 2),
+		});
 		// console.log({ state });
 	},
 });
