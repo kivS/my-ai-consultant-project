@@ -25,15 +25,6 @@ function Spinner() {
 	return <div>Loading...</div>;
 }
 
-// An example of a function that fetches flight information from an external API.
-async function getFlightInfo(flightNumber) {
-	return {
-		flightNumber,
-		departure: "New York",
-		arrival: "San Francisco",
-	};
-}
-
 async function submitUserMessage(userInput) {
 	"use server";
 
@@ -43,17 +34,16 @@ async function submitUserMessage(userInput) {
 	const aiState = getMutableAIState();
 
 	// Update the AI state with the new user message.
-	console.log({ aiState: aiState.get() });
-
 	aiState.update([
 		...aiState.get(),
 		{
+			id: nanoid(),
 			role: "user",
 			content: userInput,
 		},
 	]);
 
-	// The `render()` creates a generated, streamable UI.
+	//  creates a generated, streamable UI.
 	const result = await streamUI({
 		model: openai("gpt-3.5-turbo"),
 		initial: <SpinnerMessage />,
@@ -71,6 +61,7 @@ async function submitUserMessage(userInput) {
 				aiState.done([
 					...aiState.get(),
 					{
+						id: nanoid(),
 						role: "assistant",
 						content,
 					},
@@ -209,4 +200,10 @@ export const AI = createAI({
 	// it makes sense to have an array of messages. Or you may prefer something like { id: number, messages: Message[] }
 	initialUIState,
 	initialAIState,
+	onSetAIState: async ({ state }) => {
+		"use server";
+
+		console.log({ state: JSON.stringify(state, null, 2) });
+		// console.log({ state });
+	},
 });
