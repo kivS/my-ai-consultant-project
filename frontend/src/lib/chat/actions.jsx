@@ -2,7 +2,7 @@ import "server-only";
 
 import { createAI, getMutableAIState, streamUI } from "ai/rsc";
 import { z } from "zod";
-import { SpinnerMessage } from "@/components/chat/message";
+import { AssistantMessage, SpinnerMessage } from "@/components/chat/message";
 import Whiteboard from "@/components/whiteboard/whiteboard";
 import DatabaseWhiteboard from "@/components/database-whiteboard";
 import { openai } from "@ai-sdk/openai";
@@ -68,7 +68,8 @@ async function submitUserMessage(userInput) {
 				]);
 			}
 
-			return <p>{content}</p>;
+			return <AssistantMessage>{content}</AssistantMessage>;
+			// return <p>{content}</p>;
 		},
 		tools: {
 			update_database_whiteboard: {
@@ -159,10 +160,12 @@ async function submitUserMessage(userInput) {
 					const initialEdges = [];
 
 					return (
-						<DatabaseWhiteboard
-							initialNodes={initialNodes}
-							initialEdges={initialEdges}
-						/>
+						<AssistantMessage>
+							<DatabaseWhiteboard
+								initialNodes={initialNodes}
+								initialEdges={initialEdges}
+							/>
+						</AssistantMessage>
 					);
 				},
 			},
