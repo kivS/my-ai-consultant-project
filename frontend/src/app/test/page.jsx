@@ -4,6 +4,14 @@ import DatabaseWhiteboard from "@/components/database-whiteboard";
 import { redirect } from "next/navigation";
 import { useMemo } from "react";
 import ReactFlow, { MiniMap, Controls, Background } from "reactflow";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "@/components/ui/popover";
 
 import "reactflow/dist/style.css";
 
@@ -26,17 +34,51 @@ export default function Test() {
 	];
 	const initialEdges = [{ id: "e1-2", source: "db_1", target: "db_2" }];
 	return (
-		<div className="flex m-8 w-[800px] h-[400px] border p-2 rounded bg-orange-300 text-black">
-			<ReactFlow
-				nodes={initialNodes}
-				edges={initialEdges}
-				nodeTypes={nodeTypes}
-			>
-				{/* <Controls /> */}
-				{/* <MiniMap /> */}
-				<Background variant="dots" gap={12} size={1} />
-			</ReactFlow>
-			{/* <DatabaseWhiteboard initialNodes={initialNodes} initialEdges={initialEdges} /> */}
+		<>
+			<div className="flex m-8 w-[800px] h-[400px] border p-2 rounded bg-orange-300 text-black">
+				<ReactFlow
+					nodes={initialNodes}
+					edges={initialEdges}
+					nodeTypes={nodeTypes}
+				>
+					{/* <Controls /> */}
+					{/* <MiniMap /> */}
+					<Background variant="dots" gap={12} size={1} />
+				</ReactFlow>
+				{/* <DatabaseWhiteboard initialNodes={initialNodes} initialEdges={initialEdges} /> */}
+			</div>
+
+			<ExportToPopup />
+		</>
+	);
+}
+
+function ExportToPopup() {
+	return (
+		<div className="flex justify-center">
+			<Popover>
+				<PopoverTrigger asChild>
+					<Button variant="outline">Export To</Button>
+				</PopoverTrigger>
+				<PopoverContent className="w-80">
+					<div className="grid gap-4">
+						<div className="space-y-2">
+							<p className="text-sm text-muted-foreground">
+								Get the code for your favourite system.
+							</p>
+						</div>
+
+						<div>
+							<Button onClick={(e) => console.log("rails!")}>
+								Ruby-on-Rails
+							</Button>
+						</div>
+					</div>
+				</PopoverContent>
+			</Popover>
+			{/* <button type="button" className="rounded border p-2">
+					Export to
+				</button> */}
 		</div>
 	);
 }

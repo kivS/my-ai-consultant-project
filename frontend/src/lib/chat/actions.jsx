@@ -7,6 +7,7 @@ import Whiteboard from "@/components/whiteboard/whiteboard";
 import DatabaseWhiteboard from "@/components/database-whiteboard";
 import { openai } from "@ai-sdk/openai";
 import { nanoid } from "nanoid";
+import ExportToPopUp from "@/components/whiteboard/export-to";
 
 const system_root_prompt = `\
 // You are a database architect conversation bot and you can help users model their database architecture, step by step.
@@ -31,11 +32,11 @@ async function submitUserMessage(userInput) {
 	/**
 	 * Json context for the LLM
 	 */
-	const aiState = getMutableAIState();
+	const history = getMutableAIState();
 
 	// Update the AI state with the new user message.
-	aiState.update([
-		...aiState.get(),
+	history.update([
+		...history.get(),
 		{
 			id: nanoid(),
 			role: "user",
@@ -47,10 +48,10 @@ async function submitUserMessage(userInput) {
 	const result = await streamUI({
 		model: openai("gpt-3.5-turbo"),
 		initial: <SpinnerMessage />,
-		// system: system_root_prompt,
+		system: system_root_prompt,
 		messages: [
-			{ role: "system", content: system_root_prompt },
-			...aiState.get(),
+			// { role: "system", content: system_root_prompt },
+			...history.get(),
 		],
 		// `text` is called when an AI returns a text response (as opposed to a tool call).
 		// Its content is streamed from the LLM, so this function will be called
@@ -58,8 +59,8 @@ async function submitUserMessage(userInput) {
 		text: ({ content, done }) => {
 			// When it's the final content, mark the state as done and ready for the client to access.
 			if (done) {
-				aiState.done([
-					...aiState.get(),
+				history.done([
+					...history.get(),
 					{
 						id: nanoid(),
 						role: "assistant",
@@ -120,8 +121,8 @@ async function submitUserMessage(userInput) {
 
 					const toolCallId = nanoid();
 
-					aiState.done([
-						...aiState.get(),
+					history.done([
+						...history.get(),
 						{
 							id: nanoid(),
 							role: "assistant",
@@ -149,11 +150,6 @@ async function submitUserMessage(userInput) {
 						},
 					]);
 
-					// const initialNodes = [
-					//   { id: 'db_1', position: { x: 0, y: 0 }, data: { label: 'database 1' } },
-
-					// ];
-					// const initialEdges = [{ id: 'e1-2', source: 'db_1', target: 'db_2' }];
 					const initialEdges = [];
 
 					return (
@@ -162,6 +158,7 @@ async function submitUserMessage(userInput) {
 								initialNodes={initialNodes}
 								initialEdges={initialEdges}
 							/>
+							<ExportToPopUp />
 						</AssistantMessage>
 					);
 				},
@@ -173,6 +170,21 @@ async function submitUserMessage(userInput) {
 		id: Date.now(),
 		display: result.value,
 	};
+}
+
+async function exportDatabaseWhiteboard(to) {
+	"use server";
+
+	console.log(
+		`hello from the server from exportDatabaseWhiteboard. Exporting whiteboard to ${to} `,
+	);
+
+	const history = getMutableAIState();
+
+	const sleep = (time) => new Promise((resolve) => setTimeout(resolve, time));
+	await sleep(1000);
+
+	return "ping!";
 }
 
 // Define the initial state of the AI. It can be any JSON object.
@@ -195,6 +207,7 @@ const initialUIState = [];
 export const AI = createAI({
 	actions: {
 		submitUserMessage,
+		exportDatabaseWhiteboard,
 	},
 	// Each state can be any shape of object, but for chat applications
 	// it makes sense to have an array of messages. Or you may prefer something like { id: number, messages: Message[] }
