@@ -175,6 +175,12 @@ async function submitUserMessage(userInput) {
 	};
 }
 
+/**
+ *
+ * @param {string} to - What system we are exporting to. [rails]
+ * @param {string} toolResultId - History entry ID of the tool-result
+ * @returns
+ */
 async function exportDatabaseWhiteboard(to, toolResultId) {
 	"use server";
 
@@ -215,7 +221,7 @@ async function exportDatabaseWhiteboard(to, toolResultId) {
 		prompt: `${JSON.stringify(toolHistoryEntry)}`,
 	});
 
-	console.log(commands_result);
+	console.log({ commands_result });
 	return commands_result.object;
 }
 
