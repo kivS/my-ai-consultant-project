@@ -18,7 +18,7 @@ export default function ExportToPopUp({ toolResultId }) {
 		<div className="flex justify-center">
 			<Popover>
 				<PopoverTrigger asChild>
-					<Button variant="outline">Export To</Button>
+					<Button variant="outline">Export</Button>
 				</PopoverTrigger>
 				<PopoverContent className="w-80">
 					<div className="grid gap-4">
@@ -33,7 +33,7 @@ export default function ExportToPopUp({ toolResultId }) {
 								tstUI.display
 							) : (
 								<Button onClick={() => handleClick("rails")}>
-									Export to Ruby-on-Rails
+									Ruby on Rails
 								</Button>
 							)}
 						</div>

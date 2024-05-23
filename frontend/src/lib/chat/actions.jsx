@@ -236,7 +236,7 @@ async function exportDatabaseWhiteboard(to, toolResultId) {
 
 	tstUI.done(
 		<ExportedDbWhiteboardDialog
-			title={"RubyOnRails 💎"}
+			title={"Ruby on Rails"}
 			data={commands_result.object}
 		/>,
 	);
