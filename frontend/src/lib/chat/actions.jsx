@@ -8,6 +8,7 @@ import DatabaseWhiteboard from "@/components/database-whiteboard";
 import { openai } from "@ai-sdk/openai";
 import { nanoid } from "nanoid";
 import ExportToPopUp from "@/components/whiteboard/export-to";
+import { generateObject, generateText } from "ai";
 
 const system_root_prompt = `\
 // You are a database architect conversation bot and you can help users model their database architecture, step by step.
@@ -121,6 +122,8 @@ async function submitUserMessage(userInput) {
 
 					const toolCallId = nanoid();
 
+					const toolResultId = nanoid();
+
 					history.done([
 						...history.get(),
 						{
@@ -137,7 +140,7 @@ async function submitUserMessage(userInput) {
 						},
 
 						{
-							id: nanoid(),
+							id: toolResultId,
 							role: "tool",
 							content: [
 								{
@@ -158,7 +161,7 @@ async function submitUserMessage(userInput) {
 								initialNodes={initialNodes}
 								initialEdges={initialEdges}
 							/>
-							<ExportToPopUp />
+							<ExportToPopUp toolResultId={toolResultId} />
 						</AssistantMessage>
 					);
 				},
@@ -172,19 +175,48 @@ async function submitUserMessage(userInput) {
 	};
 }
 
-async function exportDatabaseWhiteboard(to) {
+async function exportDatabaseWhiteboard(to, toolResultId) {
 	"use server";
 
 	console.log(
-		`hello from the server from exportDatabaseWhiteboard. Exporting whiteboard to ${to} `,
+		`hello from the server from exportDatabaseWhiteboard. Exporting whiteboard to [${to}] from tool result with id: [${toolResultId}]`,
 	);
 
-	const history = getMutableAIState();
+	const history = getMutableAIState().get();
 
-	const sleep = (time) => new Promise((resolve) => setTimeout(resolve, time));
-	await sleep(1000);
+	const toolHistoryEntry = history.find(
+		(entry) => entry.role === "tool" && entry.id === toolResultId,
+	);
+	console.log("Tool History Entry:", toolHistoryEntry);
 
-	return "ping!";
+	if (!toolHistoryEntry) {
+		throw new Error(`No history entry with id of ${toolResultId}`);
+	}
+
+	const commands_result = await generateObject({
+		model: openai("gpt-3.5-turbo"),
+		mode: "auto",
+		schema: z.object({
+			commands: z.array(
+				z.object({
+					table_name: z.string(),
+					rails_command: z
+						.string()
+						.describe(
+							"RubyOnRails command to generate the corresponding table, columns and etc",
+						),
+				}),
+			),
+		}),
+		system: `\
+			You are a bot that know all about the Ruby-On-Rails framework. You use the results for tool-result from the tool "update_database_whiteboard" and you generate the corresponding
+			ruby on rails generate command for each table and their columns, etc
+		`,
+		prompt: `${JSON.stringify(toolHistoryEntry)}`,
+	});
+
+	console.log(commands_result);
+	return commands_result.object;
 }
 
 // Define the initial state of the AI. It can be any JSON object.

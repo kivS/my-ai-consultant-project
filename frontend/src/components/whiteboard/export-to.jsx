@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/popover";
 import { useActions } from "ai/rsc";
 
-export default function ExportToPopUp() {
+export default function ExportToPopUp({ toolResultId }) {
 	const { exportDatabaseWhiteboard } = useActions();
 
 	return (
@@ -41,7 +41,8 @@ export default function ExportToPopUp() {
 	);
 
 	async function handleClick(to) {
-		const result = await exportDatabaseWhiteboard(to);
+		console.log({ toolResultId });
+		const result = await exportDatabaseWhiteboard(to, toolResultId);
 		console.log({ result });
 	}
 }
