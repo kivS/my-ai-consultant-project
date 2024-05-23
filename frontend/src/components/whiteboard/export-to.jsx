@@ -8,9 +8,11 @@ import {
 	PopoverTrigger,
 } from "@/components/ui/popover";
 import { useActions } from "ai/rsc";
+import { useState } from "react";
 
 export default function ExportToPopUp({ toolResultId }) {
 	const { exportDatabaseWhiteboard } = useActions();
+	const [tstUI, setTstUI] = useState(null);
 
 	return (
 		<div className="flex justify-center">
@@ -27,9 +29,13 @@ export default function ExportToPopUp({ toolResultId }) {
 						</div>
 
 						<div>
-							<Button onClick={() => handleClick("rails")}>
-								Ruby-on-Rails
-							</Button>
+							{tstUI?.export_to === "rails" ? (
+								tstUI.display
+							) : (
+								<Button onClick={() => handleClick("rails")}>
+									Export to Ruby-on-Rails
+								</Button>
+							)}
 						</div>
 					</div>
 				</PopoverContent>
@@ -43,6 +49,7 @@ export default function ExportToPopUp({ toolResultId }) {
 	async function handleClick(to) {
 		console.log({ toolResultId });
 		const result = await exportDatabaseWhiteboard(to, toolResultId);
+		setTstUI(result);
 		console.log({ result });
 	}
 }

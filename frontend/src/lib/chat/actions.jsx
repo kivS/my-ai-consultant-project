@@ -1,6 +1,11 @@
 import "server-only";
 
-import { createAI, getMutableAIState, streamUI } from "ai/rsc";
+import {
+	createAI,
+	createStreamableUI,
+	getMutableAIState,
+	streamUI,
+} from "ai/rsc";
 import { z } from "zod";
 import { AssistantMessage, SpinnerMessage } from "@/components/chat/message";
 import Whiteboard from "@/components/whiteboard/whiteboard";
@@ -9,6 +14,8 @@ import { openai } from "@ai-sdk/openai";
 import { nanoid } from "nanoid";
 import ExportToPopUp from "@/components/whiteboard/export-to";
 import { generateObject, generateText } from "ai";
+import { wait } from "../utils";
+import { ExportedDbWhiteboardDialog } from "@/components/exported-db-whiteboard-dialog";
 
 const system_root_prompt = `\
 // You are a database architect conversation bot and you can help users model their database architecture, step by step.
@@ -184,6 +191,10 @@ async function submitUserMessage(userInput) {
 async function exportDatabaseWhiteboard(to, toolResultId) {
 	"use server";
 
+	const tstUI = createStreamableUI();
+
+	tstUI.update(<p>Loading...</p>);
+
 	console.log(
 		`hello from the server from exportDatabaseWhiteboard. Exporting whiteboard to [${to}] from tool result with id: [${toolResultId}]`,
 	);
@@ -198,6 +209,44 @@ async function exportDatabaseWhiteboard(to, toolResultId) {
 	if (!toolHistoryEntry) {
 		throw new Error(`No history entry with id of ${toolResultId}`);
 	}
+
+	await wait(2000);
+
+	const result = {
+		commands: [
+			{
+				table_name: "Restaurants",
+				rails_command:
+					"rails generate model Restaurant name:string location:string cuisine_type:string rating:integer",
+			},
+			{
+				table_name: "Menu Items",
+				rails_command:
+					"rails generate model MenuItem name:string description:string price:decimal category:string",
+			},
+			{
+				table_name: "Orders",
+				rails_command:
+					"rails generate model Order customer_id:integer restaurant_id:integer item_id:integer quantity:integer total_price:decimal status:string",
+			},
+			{
+				table_name: "Customers",
+				rails_command:
+					"rails generate model Customer name:string contact_info:string loyalty_points:integer",
+			},
+			{
+				table_name: "Employees",
+				rails_command:
+					"rails generate model Employee name:string role:string contact_info:string schedule:string",
+			},
+		],
+	};
+
+	tstUI.done(
+		<ExportedDbWhiteboardDialog title={"RubyOnRails 💎"} data={result} />,
+	);
+
+	return { export_to: to, display: tstUI.value };
 
 	const commands_result = await generateObject({
 		model: openai("gpt-3.5-turbo"),

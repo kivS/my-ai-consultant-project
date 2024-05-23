@@ -10,3 +10,9 @@ export const nanoid = customAlphabet(
 export function cn(...inputs) {
   return twMerge(clsx(inputs))
 }
+
+
+export async function wait(time){
+  return new Promise (resolve => setTimeout (resolve, time));
+
+}

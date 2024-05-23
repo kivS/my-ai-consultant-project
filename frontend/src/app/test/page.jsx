@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/popover";
 
 import "reactflow/dist/style.css";
+import { ExportedDbWhiteboardDialog } from "@/components/exported-db-whiteboard-dialog";
 
 export default function Test() {
 	if (process.env.NODE_ENV !== "development") {
@@ -35,6 +36,8 @@ export default function Test() {
 	const initialEdges = [{ id: "e1-2", source: "db_1", target: "db_2" }];
 	return (
 		<>
+			<ExportedDbWhiteboardDialog />
+
 			<div className="flex m-8 w-[800px] h-[400px] border p-2 rounded bg-orange-300 text-black">
 				<ReactFlow
 					nodes={initialNodes}

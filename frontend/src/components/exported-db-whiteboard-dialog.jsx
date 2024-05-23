@@ -1,0 +1,77 @@
+"use client";
+
+import { Button } from "@/components/ui/button";
+import {
+	DialogTrigger,
+	DialogTitle,
+	DialogDescription,
+	DialogHeader,
+	DialogFooter,
+	DialogContent,
+	Dialog,
+} from "@/components/ui/dialog";
+
+export function ExportedDbWhiteboardDialog({ title, data }) {
+	console.log(data);
+	return (
+		<Dialog defaultOpen={true}>
+			<DialogTrigger asChild>
+				<Button variant="outline">{title}</Button>
+			</DialogTrigger>
+			<DialogContent className="sm:max-w-[600px] h-[500px] overflow-y-auto">
+				<DialogHeader>
+					<DialogTitle>Copy Commands</DialogTitle>
+					<DialogDescription>
+						Here are some useful commands you can copy.
+					</DialogDescription>
+				</DialogHeader>
+				<div className="grid gap-4 py-4">
+					{Array.from({ length: 10 }, (_, index) => (
+						<div key={index}>
+							<h3 className="font-semibold mb-2">Command {index + 1}</h3>
+							<div className="grid grid-cols-[1fr_auto] items-center gap-4">
+								<div>
+									<pre className="bg-gray-100 dark:bg-gray-800 p-4 rounded-md overflow-x-auto">
+										<code>
+											rails generate model Customer name:string
+											contact_info:string loyalty_points:integer
+										</code>
+									</pre>
+								</div>
+								<Button size="icon" variant="ghost">
+									<CopyIcon className="w-4 h-4" />
+								</Button>
+							</div>
+						</div>
+					))}
+				</div>
+				<DialogFooter>
+					<Button type="button" variant="ghost">
+						Close
+					</Button>
+				</DialogFooter>
+			</DialogContent>
+		</Dialog>
+	);
+}
+
+function CopyIcon(props) {
+	return (
+		<svg
+			{...props}
+			xmlns="http://www.w3.org/2000/svg"
+			width="24"
+			height="24"
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			strokeWidth="2"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+		>
+			<title>Copy</title>
+			<rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+			<path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+		</svg>
+	);
+}
