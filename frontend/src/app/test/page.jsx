@@ -34,10 +34,39 @@ export default function Test() {
 		},
 	];
 	const initialEdges = [{ id: "e1-2", source: "db_1", target: "db_2" }];
+
+	const result = {
+		commands: [
+			{
+				table_name: "Restaurants",
+				rails_command:
+					"rails generate model Restaurant name:string location:string cuisine_type:string rating:integer",
+			},
+			{
+				table_name: "Menu Items",
+				rails_command:
+					"rails generate model MenuItem name:string description:string price:decimal category:string",
+			},
+			{
+				table_name: "Orders",
+				rails_command:
+					"rails generate model Order customer_id:integer restaurant_id:integer item_id:integer quantity:integer total_price:decimal status:string",
+			},
+			{
+				table_name: "Customers",
+				rails_command:
+					"rails generate model Customer name:string contact_info:string loyalty_points:integer",
+			},
+			{
+				table_name: "Employees",
+				rails_command:
+					"rails generate model Employee name:string role:string contact_info:string schedule:string",
+			},
+		],
+	};
 	return (
 		<>
-			<ExportedDbWhiteboardDialog />
-
+			<ExportedDbWhiteboardDialog title={"RubyOnRails 💎"} data={result} />,
 			<div className="flex m-8 w-[800px] h-[400px] border p-2 rounded bg-orange-300 text-black">
 				<ReactFlow
 					nodes={initialNodes}
@@ -50,7 +79,6 @@ export default function Test() {
 				</ReactFlow>
 				{/* <DatabaseWhiteboard initialNodes={initialNodes} initialEdges={initialEdges} /> */}
 			</div>
-
 			<ExportToPopup />
 		</>
 	);

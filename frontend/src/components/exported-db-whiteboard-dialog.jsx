@@ -14,7 +14,7 @@ import {
 export function ExportedDbWhiteboardDialog({ title, data }) {
 	console.log(data);
 	return (
-		<Dialog defaultOpen={true}>
+		<Dialog defaultOpen={false}>
 			<DialogTrigger asChild>
 				<Button variant="outline">{title}</Button>
 			</DialogTrigger>
@@ -26,16 +26,14 @@ export function ExportedDbWhiteboardDialog({ title, data }) {
 					</DialogDescription>
 				</DialogHeader>
 				<div className="grid gap-4 py-4">
-					{Array.from({ length: 10 }, (_, index) => (
-						<div key={index}>
-							<h3 className="font-semibold mb-2">Command {index + 1}</h3>
+					{/* {Array.from({ length: 10 }, (_, index) => ( */}
+					{data?.commands.map((command) => (
+						<div key={command.table_name}>
+							<h3 className="font-semibold mb-2">{command.table_name}</h3>
 							<div className="grid grid-cols-[1fr_auto] items-center gap-4">
 								<div>
 									<pre className="bg-gray-100 dark:bg-gray-800 p-4 rounded-md overflow-x-auto">
-										<code>
-											rails generate model Customer name:string
-											contact_info:string loyalty_points:integer
-										</code>
+										<code>{command.rails_command}</code>
 									</pre>
 								</div>
 								<Button size="icon" variant="ghost">

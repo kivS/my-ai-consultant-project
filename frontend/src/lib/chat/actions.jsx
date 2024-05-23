@@ -210,44 +210,6 @@ async function exportDatabaseWhiteboard(to, toolResultId) {
 		throw new Error(`No history entry with id of ${toolResultId}`);
 	}
 
-	await wait(2000);
-
-	const result = {
-		commands: [
-			{
-				table_name: "Restaurants",
-				rails_command:
-					"rails generate model Restaurant name:string location:string cuisine_type:string rating:integer",
-			},
-			{
-				table_name: "Menu Items",
-				rails_command:
-					"rails generate model MenuItem name:string description:string price:decimal category:string",
-			},
-			{
-				table_name: "Orders",
-				rails_command:
-					"rails generate model Order customer_id:integer restaurant_id:integer item_id:integer quantity:integer total_price:decimal status:string",
-			},
-			{
-				table_name: "Customers",
-				rails_command:
-					"rails generate model Customer name:string contact_info:string loyalty_points:integer",
-			},
-			{
-				table_name: "Employees",
-				rails_command:
-					"rails generate model Employee name:string role:string contact_info:string schedule:string",
-			},
-		],
-	};
-
-	tstUI.done(
-		<ExportedDbWhiteboardDialog title={"RubyOnRails 💎"} data={result} />,
-	);
-
-	return { export_to: to, display: tstUI.value };
-
 	const commands_result = await generateObject({
 		model: openai("gpt-3.5-turbo"),
 		mode: "auto",
@@ -271,7 +233,15 @@ async function exportDatabaseWhiteboard(to, toolResultId) {
 	});
 
 	console.log({ commands_result });
-	return commands_result.object;
+
+	tstUI.done(
+		<ExportedDbWhiteboardDialog
+			title={"RubyOnRails 💎"}
+			data={commands_result.object}
+		/>,
+	);
+
+	return { export_to: to, display: tstUI.value };
 }
 
 // Define the initial state of the AI. It can be any JSON object.
