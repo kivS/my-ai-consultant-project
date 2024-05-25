@@ -22,13 +22,12 @@ export function ExportedDbWhiteboardDialog({ title, data }) {
 			</DialogTrigger>
 			<DialogContent className="sm:max-w-[600px] h-[500px] overflow-y-auto">
 				<DialogHeader>
-					<DialogTitle>Copy Commands</DialogTitle>
+					<DialogTitle>Exported code</DialogTitle>
 					<DialogDescription>
-						Here are some useful commands you can copy.
+						Here are the code you can copy to generate your database.
 					</DialogDescription>
 				</DialogHeader>
 				<div className="grid gap-4 py-4">
-					{/* {Array.from({ length: 10 }, (_, index) => ( */}
 					{data?.commands.map((command) => (
 						<div key={command.table_name}>
 							<h3 className="font-semibold mb-2">{command.table_name}</h3>
