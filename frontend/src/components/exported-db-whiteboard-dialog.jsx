@@ -31,7 +31,7 @@ export function ExportedDbWhiteboardDialog({ title, data }) {
 						<div key={command.table_name}>
 							<h3 className="font-semibold mb-2">{command.table_name}</h3>
 							<div className="grid grid-cols-[1fr_auto] items-center gap-4">
-								<div>
+								<div className="max-[100%] overflow-x-hidden">
 									<pre className="bg-gray-100 dark:bg-gray-800 p-4 rounded-md overflow-x-auto">
 										<code>{command.rails_command}</code>
 									</pre>
