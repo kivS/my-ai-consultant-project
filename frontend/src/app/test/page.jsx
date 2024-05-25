@@ -21,16 +21,38 @@ export default function Test() {
 		redirect("/");
 	}
 
-	const nodeTypes = useMemo(() => ({ customTableNode: CustomTableNode }), []);
-
 	const initialNodes = [
-		{ id: "db_1", position: { x: 0, y: 0 }, data: { label: "database 1" } },
-		{ id: "db_2", position: { x: 0, y: 100 }, data: { label: "database 2" } },
 		{
-			id: "db_3",
-			type: "customTableNode",
-			position: { x: 0, y: 200 },
-			data: { label: "database 3 - hello" },
+			id: "restaurants",
+			type: "dbTableNode",
+			position: { x: 0, y: 0 },
+			data: {
+				name: "restaurants",
+				columns: [
+					{ id: 1, name: "id" },
+					{ id: 2, name: "name" },
+					{ id: 3, name: "location" },
+				],
+			},
+		},
+		{
+			id: "customers",
+			type: "dbTableNode",
+			position: { x: 200, y: 0 },
+			data: { name: "customers" },
+		},
+		{
+			id: "employees",
+			type: "dbTableNode",
+			position: { x: 400, y: 0 },
+			data: {
+				name: "employees",
+				columns: [
+					{ id: 1, name: "id" },
+					{ id: 2, name: "name" },
+					{ id: 3, name: "restaurant_id" },
+				],
+			},
 		},
 	];
 	const initialEdges = [{ id: "e1-2", source: "db_1", target: "db_2" }];
@@ -66,72 +88,12 @@ export default function Test() {
 	};
 	return (
 		<>
-			<ExportedDbWhiteboardDialog title={"RubyOnRails 💎"} data={result} />,
-			<div className="flex m-8 w-[800px] h-[400px] border p-2 rounded bg-orange-300 text-black">
-				<ReactFlow
-					nodes={initialNodes}
-					edges={initialEdges}
-					nodeTypes={nodeTypes}
-				>
-					{/* <Controls /> */}
-					{/* <MiniMap /> */}
-					<Background variant="dots" gap={12} size={1} />
-				</ReactFlow>
-				{/* <DatabaseWhiteboard initialNodes={initialNodes} initialEdges={initialEdges} /> */}
-			</div>
-			<ExportToPopup />
-		</>
-	);
-}
+			<ExportedDbWhiteboardDialog title={"RubyOnRails 💎"} data={result} />
 
-function ExportToPopup() {
-	return (
-		<div className="flex justify-center">
-			<Popover>
-				<PopoverTrigger asChild>
-					<Button variant="outline">Export To</Button>
-				</PopoverTrigger>
-				<PopoverContent className="w-80">
-					<div className="grid gap-4">
-						<div className="space-y-2">
-							<p className="text-sm text-muted-foreground">
-								Get the code for your favourite system.
-							</p>
-						</div>
-
-						<div>
-							<Button onClick={(e) => console.log("rails!")}>
-								Ruby-on-Rails
-							</Button>
-						</div>
-					</div>
-				</PopoverContent>
-			</Popover>
-			{/* <button type="button" className="rounded border p-2">
-					Export to
-				</button> */}
-		</div>
-	);
-}
-
-function CustomTableNode({ data }) {
-	return (
-		<>
-			<div className="border p-2 rounded">
-				<div className="m-2 text-cyan-700 font-bold text-2xl ">
-					{data.label}
-				</div>
-				<ul>
-					<li>column 1</li>
-					<li>column 2</li>
-					<li>column 3</li>
-					<li>column 4</li>
-					<li>column 5</li>
-					<li>column 6</li>
-					<li>column 7</li>
-					<li>column 8</li>
-				</ul>
-			</div>
+			<DatabaseWhiteboard
+				initialNodes={initialNodes}
+				initialEdges={initialEdges}
+			/>
 		</>
 	);
 }

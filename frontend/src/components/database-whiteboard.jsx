@@ -32,7 +32,7 @@ function DbTableNode({ data }) {
 			<div className="border p-2 rounded">
 				<div className="m-2 text-cyan-700 font-bold text-2xl ">{data.name}</div>
 				<ul>
-					{data?.columns.map((col) => (
+					{data?.columns?.map((col) => (
 						<li key={col.id}>{col.name}</li>
 					))}
 				</ul>
