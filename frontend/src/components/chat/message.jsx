@@ -4,6 +4,10 @@
  */
 
 import { IconOpenAI, IconUser } from "@/components/ui/icons";
+import { useStreamableText } from "@/hooks/use-streamable-text";
+import { MemoizedReactMarkdown } from "../markdown";
+import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
 
 export function UserMessage({ children }) {
 	return (
@@ -18,14 +22,58 @@ export function UserMessage({ children }) {
 	);
 }
 
-export function AssistantMessage({ children }) {
+export function AssistantMessage({ content }) {
+	const text = useStreamableText(content);
+
 	return (
 		<div className="group relative flex items-start md:-ml-12">
 			<div className="flex size-[25px] shrink-0 select-none items-center justify-center rounded-md border bg-background shadow-sm">
 				<IconOpenAI />
 			</div>
 			<div className="ml-4 flex-1 space-y-2 overflow-hidden pl-2">
-				{children}
+				{text}
+				{/* <MemoizedReactMarkdown
+					className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
+					remarkPlugins={[remarkGfm, remarkMath]}
+					components={{
+						p({ children }) {
+							return <p className="mb-2 last:mb-0">{children}</p>;
+						},
+						code({ node, inline, className, children, ...props }) {
+							if (children.length) {
+								if (children[0] === "▍") {
+									return (
+										<span className="mt-1 animate-pulse cursor-default">▍</span>
+									);
+								}
+
+								children[0] = children[0].replace("`▍`", "▍");
+							}
+
+							const match = /language-(\w+)/.exec(className || "");
+
+							if (inline) {
+								return (
+									<code className={className} {...props}>
+										{children}
+									</code>
+								);
+							}
+
+							return (
+								<code>{children}</code>
+								// <CodeBlock
+								// 	key={Math.random()}
+								// 	language={(match && match[1]) || ""}
+								// 	value={String(children).replace(/\n$/, "")}
+								// 	{...props}
+								// />
+							);
+						},
+					}}
+				>
+					{text}
+				</MemoizedReactMarkdown> */}
 			</div>
 		</div>
 	);
