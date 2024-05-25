@@ -10,6 +10,7 @@ import {
 	DialogContent,
 	Dialog,
 } from "@/components/ui/dialog";
+import { CheckCircledIcon, CheckIcon } from "@radix-ui/react-icons";
 
 export function ExportedDbWhiteboardDialog({ title, data }) {
 	console.log(data);
@@ -36,8 +37,37 @@ export function ExportedDbWhiteboardDialog({ title, data }) {
 										<code>{command.rails_command}</code>
 									</pre>
 								</div>
-								<Button size="icon" variant="ghost">
-									<CopyIcon className="w-4 h-4" />
+								<Button
+									size="icon"
+									variant="ghost"
+									data-copy_text={command.rails_command}
+									className="group"
+									onClick={async (e) => {
+										const copy_btn = e.currentTarget;
+										const command_to_copy = copy_btn.dataset.copy_text;
+										console.log({ command_to_copy });
+
+										if (
+											typeof window === "undefined" ||
+											!navigator.clipboard?.writeText
+										) {
+											return;
+										}
+
+										if (!command_to_copy) {
+											return;
+										}
+
+										navigator.clipboard.writeText(command_to_copy).then(() => {
+											copy_btn.dataset.copied = true;
+											setTimeout(() => {
+												delete copy_btn.dataset.copied;
+											}, 2000);
+										});
+									}}
+								>
+									<CopyIcon className="w-4 h-4 group-data-[copied]:hidden" />
+									<CheckIcon className="hidden w-4 text-green-500 h-4 group-data-[copied]:block" />
 								</Button>
 							</div>
 						</div>
