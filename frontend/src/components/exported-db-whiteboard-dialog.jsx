@@ -9,6 +9,7 @@ import {
 	DialogFooter,
 	DialogContent,
 	Dialog,
+	DialogClose,
 } from "@/components/ui/dialog";
 import { CheckCircledIcon, CheckIcon } from "@radix-ui/react-icons";
 
@@ -74,9 +75,11 @@ export function ExportedDbWhiteboardDialog({ title, data }) {
 					))}
 				</div>
 				<DialogFooter>
-					<Button type="button" variant="ghost">
-						Close
-					</Button>
+					<DialogClose>
+						<Button type="button" variant="ghost">
+							Close
+						</Button>
+					</DialogClose>
 				</DialogFooter>
 			</DialogContent>
 		</Dialog>
