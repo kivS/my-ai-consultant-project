@@ -25,21 +25,21 @@ export function UserMessage({ children }) {
 }
 
 export function AssistantMessage({ content }) {
-	const [generationText, setGenerationText] = useState("");
+	// const [generationText, setGenerationText] = useState("");
 	console.log(content);
 	// const text = useStreamableText(content);
 	// console.log(text);
 
-	useEffect(() => {
-		async function getData() {
-			for await (const delta of readStreamableValue(content)) {
-				setGenerationText((current) => `${current}${delta}`);
-				console.log(delta);
-			}
-		}
+	// useEffect(() => {
+	// 	async function getData() {
+	// 		for await (const delta of readStreamableValue(content)) {
+	// 			setGenerationText((current) => `${current}${delta}`);
+	// 			console.log(delta);
+	// 		}
+	// 	}
 
-		getData();
-	}, []);
+	// 	getData();
+	// }, []);
 
 	return (
 		<div className="group relative flex items-start md:-ml-12">
@@ -47,9 +47,9 @@ export function AssistantMessage({ content }) {
 				<IconOpenAI />
 			</div>
 			<div className="ml-4 flex-1 space-y-2 overflow-hidden pl-2">
-				{/* {text} */}
-				{generationText}
-				{/* <MemoizedReactMarkdown
+				{/* {content} */}
+
+				<MemoizedReactMarkdown
 					className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
 					remarkPlugins={[remarkGfm, remarkMath]}
 					components={{
@@ -89,8 +89,8 @@ export function AssistantMessage({ content }) {
 						},
 					}}
 				>
-					{text}
-				</MemoizedReactMarkdown> */}
+					{content}
+				</MemoizedReactMarkdown>
 			</div>
 		</div>
 	);

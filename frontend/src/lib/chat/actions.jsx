@@ -69,14 +69,14 @@ async function submitUserMessage(userInput) {
 		// Its content is streamed from the LLM, so this function will be called
 		// multiple times with `content` being incremental.
 		text: ({ content, done, delta }) => {
-			if (!textStream) {
-				textStream = createStreamableValue("");
-				textNode = <AssistantMessage content={textStream.value} />;
-			}
+			// if (!textStream) {
+			// 	textStream = createStreamableValue("");
+			// 	textNode = <AssistantMessage content={textStream.value} />;
+			// }
 
-			console.log({ delta });
+			// console.log({ delta });
 			if (done) {
-				textStream.done();
+				// textStream.done();
 				history.done([
 					...history.get(),
 					{
@@ -85,11 +85,13 @@ async function submitUserMessage(userInput) {
 						content,
 					},
 				]);
-			} else {
-				textStream.update(delta);
 			}
+			//  else {
+			// 	textStream.update(delta);
+			// }
 
-			return textNode;
+			// return textNode;
+			return <AssistantMessage content={content} />;
 		},
 		tools: {
 			update_database_whiteboard: {
