@@ -53,8 +53,8 @@ async function submitUserMessage(userInput) {
 		},
 	]);
 
-	let textStream;
-	let textNode;
+	let textStream = undefined;
+	let textNode = undefined;
 
 	//  creates a generated, streamable UI.
 	const result = await streamUI({
@@ -74,16 +74,17 @@ async function submitUserMessage(userInput) {
 				textNode = <AssistantMessage content={textStream.value} />;
 			}
 
+			console.log({ delta });
 			if (done) {
 				textStream.done();
-				history.done([
-					...history.get(),
-					{
-						id: nanoid(),
-						role: "assistant",
-						content,
-					},
-				]);
+				// history.done([
+				// 	...history.get(),
+				// 	{
+				// 		id: nanoid(),
+				// 		role: "assistant",
+				// 		content,
+				// 	},
+				// ]);
 			} else {
 				textStream.update(delta);
 			}

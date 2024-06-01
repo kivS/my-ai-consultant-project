@@ -8,6 +8,8 @@ import { useStreamableText } from "@/hooks/use-streamable-text";
 import { MemoizedReactMarkdown } from "../markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
+import { useEffect, useState } from "react";
+import { readStreamableValue } from "ai/rsc";
 
 export function UserMessage({ children }) {
 	return (
@@ -23,7 +25,21 @@ export function UserMessage({ children }) {
 }
 
 export function AssistantMessage({ content }) {
-	const text = useStreamableText(content);
+	const [generationText, setGenerationText] = useState("");
+	console.log(content);
+	// const text = useStreamableText(content);
+	// console.log(text);
+
+	useEffect(() => {
+		async function getData() {
+			for await (const delta of readStreamableValue(content)) {
+				setGenerationText((current) => `${current}${delta}`);
+				console.log(delta);
+			}
+		}
+
+		getData();
+	}, []);
 
 	return (
 		<div className="group relative flex items-start md:-ml-12">
@@ -31,7 +47,8 @@ export function AssistantMessage({ content }) {
 				<IconOpenAI />
 			</div>
 			<div className="ml-4 flex-1 space-y-2 overflow-hidden pl-2">
-				{text}
+				{/* {text} */}
+				{generationText}
 				{/* <MemoizedReactMarkdown
 					className="prose break-words dark:prose-invert prose-p:leading-relaxed prose-pre:p-0"
 					remarkPlugins={[remarkGfm, remarkMath]}
