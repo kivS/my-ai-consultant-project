@@ -77,14 +77,14 @@ async function submitUserMessage(userInput) {
 			console.log({ delta });
 			if (done) {
 				textStream.done();
-				// history.done([
-				// 	...history.get(),
-				// 	{
-				// 		id: nanoid(),
-				// 		role: "assistant",
-				// 		content,
-				// 	},
-				// ]);
+				history.done([
+					...history.get(),
+					{
+						id: nanoid(),
+						role: "assistant",
+						content,
+					},
+				]);
 			} else {
 				textStream.update(delta);
 			}
