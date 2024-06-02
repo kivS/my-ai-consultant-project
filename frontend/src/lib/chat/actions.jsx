@@ -8,7 +8,11 @@ import {
 	streamUI,
 } from "ai/rsc";
 import { z } from "zod";
-import { AssistantMessage, SpinnerMessage } from "@/components/chat/message";
+import {
+	AssistantMarkdownMessage,
+	AssistantMessage,
+	SpinnerMessage,
+} from "@/components/chat/message";
 import Whiteboard from "@/components/whiteboard/whiteboard";
 import DatabaseWhiteboard from "@/components/database-whiteboard";
 import { openai } from "@ai-sdk/openai";
@@ -53,9 +57,6 @@ async function submitUserMessage(userInput) {
 		},
 	]);
 
-	let textStream = undefined;
-	let textNode = undefined;
-
 	//  creates a generated, streamable UI.
 	const result = await streamUI({
 		model: openai("gpt-3.5-turbo"),
@@ -68,15 +69,8 @@ async function submitUserMessage(userInput) {
 		// `text` is called when an AI returns a text response (as opposed to a tool call).
 		// Its content is streamed from the LLM, so this function will be called
 		// multiple times with `content` being incremental.
-		text: ({ content, done, delta }) => {
-			// if (!textStream) {
-			// 	textStream = createStreamableValue("");
-			// 	textNode = <AssistantMessage content={textStream.value} />;
-			// }
-
-			// console.log({ delta });
+		text: ({ content, done }) => {
 			if (done) {
-				// textStream.done();
 				history.done([
 					...history.get(),
 					{
@@ -86,12 +80,8 @@ async function submitUserMessage(userInput) {
 					},
 				]);
 			}
-			//  else {
-			// 	textStream.update(delta);
-			// }
 
-			// return textNode;
-			return <AssistantMessage content={content} />;
+			return <AssistantMarkdownMessage content={content} />;
 		},
 		tools: {
 			update_database_whiteboard: {
