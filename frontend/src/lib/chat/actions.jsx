@@ -3,11 +3,16 @@ import "server-only";
 import {
 	createAI,
 	createStreamableUI,
+	createStreamableValue,
 	getMutableAIState,
 	streamUI,
 } from "ai/rsc";
 import { z } from "zod";
-import { AssistantMessage, SpinnerMessage } from "@/components/chat/message";
+import {
+	AssistantMarkdownMessage,
+	AssistantMessage,
+	SpinnerMessage,
+} from "@/components/chat/message";
 import Whiteboard from "@/components/whiteboard/whiteboard";
 import DatabaseWhiteboard from "@/components/database-whiteboard";
 import { openai } from "@ai-sdk/openai";
@@ -62,7 +67,6 @@ async function submitUserMessage(userInput) {
 		// Its content is streamed from the LLM, so this function will be called
 		// multiple times with `content` being incremental.
 		text: ({ content, done }) => {
-			// When it's the final content, mark the state as done and ready for the client to access.
 			if (done) {
 				history.done([
 					...history.get(),
@@ -74,8 +78,7 @@ async function submitUserMessage(userInput) {
 				]);
 			}
 
-			return <AssistantMessage>{content}</AssistantMessage>;
-			// return <p>{content}</p>;
+			return <AssistantMarkdownMessage content={content} />;
 		},
 		tools: {
 			update_database_whiteboard: {
