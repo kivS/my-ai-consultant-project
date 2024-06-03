@@ -11,14 +11,22 @@ import {
 	Dialog,
 	DialogClose,
 } from "@/components/ui/dialog";
-import { CheckCircledIcon, CheckIcon } from "@radix-ui/react-icons";
+import {
+	CheckCircledIcon,
+	CheckIcon,
+	EnvelopeOpenIcon,
+} from "@radix-ui/react-icons";
+import { IconBookOpenCheck } from "./ui/icons";
 
 export function ExportedDbWhiteboardDialog({ title, data }) {
 	console.log(data);
 	return (
 		<Dialog defaultOpen={false}>
 			<DialogTrigger asChild>
-				<Button variant="outline">{title}</Button>
+				<Button variant="outline" className="gap-1">
+					{title}
+					<IconBookOpenCheck />
+				</Button>
 			</DialogTrigger>
 			<DialogContent className="sm:max-w-[600px] h-[500px] overflow-y-auto">
 				<DialogHeader>

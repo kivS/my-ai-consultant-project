@@ -88,7 +88,7 @@ export default function Test() {
 	};
 	return (
 		<>
-			<ExportedDbWhiteboardDialog title={"RubyOnRails 💎"} data={result} />
+			<ExportedDbWhiteboardDialog title={"RubyOnRails"} data={result} />
 
 			<DatabaseWhiteboard
 				initialNodes={initialNodes}
