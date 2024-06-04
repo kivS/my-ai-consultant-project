@@ -10,11 +10,14 @@ import { ChatPanel } from "@/components/chat/panel";
 import { useUIState, useActions } from "ai/rsc";
 import { ChatList } from "@/components/chat/chat-list";
 import { ExportedDbWhiteboardDialog } from "../exported-db-whiteboard-dialog";
+import { useScrollAnchor } from "@/hooks/use-scroll-anchor";
 
 export function Chat({ id, className, session, missingKeys }) {
 	const router = useRouter();
 	const path = usePathname();
 	const [input, setInput] = useState("");
+	const { messagesRef, scrollRef, visibilityRef, isAtBottom, scrollToBottom } =
+		useScrollAnchor();
 
 	/**
 	 * Data and UI sent by LLM. Client-side only
