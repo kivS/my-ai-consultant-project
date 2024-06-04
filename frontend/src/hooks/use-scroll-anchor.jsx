@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
-export const useScrollAnchor = () => {
+export function useScrollAnchor() {
 	const messagesRef = useRef(null);
 	const scrollRef = useRef(null);
 	const visibilityRef = useRef(null);
@@ -51,30 +51,30 @@ export const useScrollAnchor = () => {
 		}
 	}, []);
 
-	// useEffect(() => {
-	// 	if (visibilityRef.current) {
-	// 		let observer = new IntersectionObserver(
-	// 			(entries) => {
-	// 				entries.forEach((entry) => {
-	// 					if (entry.isIntersecting) {
-	// 						setIsVisible(true);
-	// 					} else {
-	// 						setIsVisible(false);
-	// 					}
-	// 				});
-	// 			},
-	// 			{
-	// 				rootMargin: "0px 0px -150px 0px",
-	// 			},
-	// 		);
+	useEffect(() => {
+		if (visibilityRef.current) {
+			const observer = new IntersectionObserver(
+				(entries) => {
+					entries.forEach((entry) => {
+						if (entry.isIntersecting) {
+							setIsVisible(true);
+						} else {
+							setIsVisible(false);
+						}
+					});
+				},
+				{
+					rootMargin: "0px 0px -150px 0px",
+				},
+			);
 
-	// 		observer.observe(visibilityRef.current);
+			observer.observe(visibilityRef.current);
 
-	// 		return () => {
-	// 			observer.disconnect();
-	// 		};
-	// 	}
-	// });
+			return () => {
+				observer.disconnect();
+			};
+		}
+	});
 
 	return {
 		messagesRef,
@@ -84,4 +84,4 @@ export const useScrollAnchor = () => {
 		isAtBottom,
 		isVisible,
 	};
-};
+}
