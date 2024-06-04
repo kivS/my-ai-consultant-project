@@ -27,12 +27,24 @@ export function Chat({ id, className, session, missingKeys }) {
 	console.log({ messages });
 
 	return (
-		<div className="group w-full overflow-auto pl-0 peer-[[data-state=open]]:lg:pl-[250px] peer-[[data-state=open]]:xl:pl-[300px]">
-			<div className={cn("pb-[200px] pt-4 md:pt-10", className)}>
+		<div
+			ref={scrollRef}
+			className="group w-full overflow-auto pl-0 peer-[[data-state=open]]:lg:pl-[250px] peer-[[data-state=open]]:xl:pl-[300px]"
+		>
+			<div
+				ref={messagesRef}
+				className={cn("pb-[200px] pt-4 md:pt-10", className)}
+			>
 				{messages.length ? <ChatList messages={messages} /> : <EmptyScreen />}
-				<div className="h-px w-full" />
+				<div ref={visibilityRef} className="h-px w-full" />
 			</div>
-			<ChatPanel id={id} input={input} setInput={setInput} />
+			<ChatPanel
+				id={id}
+				input={input}
+				setInput={setInput}
+				isAtBottom={isAtBottom}
+				scrollToBottom={scrollToBottom}
+			/>
 		</div>
 	);
 }
