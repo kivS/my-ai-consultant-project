@@ -8,11 +8,13 @@ import {
 	PopoverTrigger,
 } from "@/components/ui/popover";
 import { useActions } from "ai/rsc";
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { IconSpinner } from "../ui/icons";
 
 export default function ExportToPopUp({ toolResultId }) {
 	const { exportDatabaseWhiteboard } = useActions();
 	const [generatedRailsUI, setGeneratedRailsUI] = useState(null);
+	const [isPending, startTransition] = useTransition();
 
 	return (
 		<div className="flex justify-center">
@@ -36,8 +38,10 @@ export default function ExportToPopUp({ toolResultId }) {
 									data-export_to="rails"
 									data-tool_result_id={toolResultId}
 									onClick={handleClick}
+									disabled={isPending}
 								>
 									Ruby on Rails
+									{isPending ? <IconSpinner className="ml-1" /> : ""}
 								</Button>
 							)}
 						</div>
@@ -58,8 +62,10 @@ export default function ExportToPopUp({ toolResultId }) {
 		const export_to = e.target.dataset.export_to;
 		const tool_result_id = e.target.dataset.tool_result_id;
 
-		const result = await exportDatabaseWhiteboard(export_to, tool_result_id);
-		setGeneratedRailsUI(result);
-		console.log({ result });
+		startTransition(async () => {
+			const result = await exportDatabaseWhiteboard(export_to, tool_result_id);
+			setGeneratedRailsUI(result);
+			console.log({ result });
+		});
 	}
 }

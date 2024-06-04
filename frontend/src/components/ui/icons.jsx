@@ -8,6 +8,7 @@ function IconNextChat({ className, inverted, ...props }) {
 	const id = React.useId();
 
 	return (
+		// biome-ignore lint/a11y/noSvgWithoutTitle: <explanation>
 		<svg
 			viewBox="0 0 17 17"
 			fill="none"
@@ -224,6 +225,7 @@ function IconArrowElbow({ className, ...props }) {
 
 function IconSpinner({ className, ...props }) {
 	return (
+		// biome-ignore lint/a11y/noSvgWithoutTitle: <explanation>
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
 			viewBox="0 0 256 256"
