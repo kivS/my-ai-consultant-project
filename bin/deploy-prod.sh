@@ -23,19 +23,19 @@ if git diff --name-only HEAD^ HEAD | grep --quiet -e "frontend/"; then
 
     MAIN_FOLDER=/opt/homebrew/var/www/my-ai-consultant-project/frontend
 
-    echo "🚀 Building docker image locally for x64..."
+    # echo "🚀 Building docker image locally for x64..."
     
-    docker build -t registry.gitlab.com/kivs/my-ai-consultant-project $MAIN_FOLDER
-    docker push registry.gitlab.com/kivs/my-ai-consultant-project
+    # docker build -t registry.gitlab.com/kivs/my-ai-consultant-project $MAIN_FOLDER
+    # docker push registry.gitlab.com/kivs/my-ai-consultant-project
     
 
-    echo "🚀 Updating frontend on my VPS"
-    ssh $myvps_host -p 54321 "cd /var/www/my-ai-consultant-project/frontend; git pull"
-    ssh $myvps_host -p 54321 "docker pull registry.gitlab.com/kivs/my-ai-consultant-project"
-    ssh $myvps_host -p 54321 "docker stop ai-consultant-frontend-container; docker rm ai-consultant-frontend-container"
-    # -v /var/www/my-ai-consultant-project/frontend:/app --user 0:0
-    ssh $myvps_host -p 54321 "docker run -d --restart unless-stopped  -p 5130:3000 --name ai-consultant-frontend-container registry.gitlab.com/kivs/my-ai-consultant-project; docker image  prune -f"
-    ssh $myvps_host -p 54321 "docker ps --latest; docker logs ai-consultant-frontend-container"
+    # echo "🚀 Updating frontend on my VPS"
+    # ssh $myvps_host -p 54321 "cd /var/www/my-ai-consultant-project/frontend; git pull"
+    # ssh $myvps_host -p 54321 "docker pull registry.gitlab.com/kivs/my-ai-consultant-project"
+    # ssh $myvps_host -p 54321 "docker stop ai-consultant-frontend-container; docker rm ai-consultant-frontend-container"
+    # # -v /var/www/my-ai-consultant-project/frontend:/app --user 0:0
+    # ssh $myvps_host -p 54321 "docker run -d --restart unless-stopped  -p 5130:3000 --name ai-consultant-frontend-container registry.gitlab.com/kivs/my-ai-consultant-project; docker image  prune -f"
+    # ssh $myvps_host -p 54321 "docker ps --latest; docker logs ai-consultant-frontend-container"
 
 
     echo "🚀 Building docker image locally for arm"
