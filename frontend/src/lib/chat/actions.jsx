@@ -23,9 +23,11 @@ import { wait } from "../utils";
 import { ExportedDbWhiteboardDialog } from "@/components/exported-db-whiteboard-dialog";
 
 const BOT_MODEL = openai("gpt-3.5-turbo");
-const MODEL_TO_GENERATE_EXPORTED_WHITEBOARD = openai("gpt-3.5-turbo");
+// const BOT_MODEL = openai("gpt-4o");
 
-const system_root_prompt = `\
+const MODEL_TO_GENERATE_EXPORTED_WHITEBOARD_TO_CODE = openai("gpt-3.5-turbo");
+// const MODEL_TO_GENERATE_EXPORTED_WHITEBOARD_TO_CODE = openai("gpt-4o");
+const SYSTEM_ROOT_PROMPT = `\
 You are a database architect conversation bot and you can help users model their database architecture, step by step.
 You discuss the database modeling in a high level, only going more detailed when the user asks for it.
 
@@ -65,7 +67,7 @@ async function submitUserMessage(userInput) {
 	const result = await streamUI({
 		model: BOT_MODEL,
 		initial: <SpinnerMessage />,
-		system: system_root_prompt,
+		system: SYSTEM_ROOT_PROMPT,
 		messages: [
 			// { role: "system", content: system_root_prompt },
 			...history.get(),
@@ -239,7 +241,7 @@ async function exportDatabaseWhiteboard(to, toolResultId) {
 	}
 
 	const commands_result = await generateObject({
-		model: MODEL_TO_GENERATE_EXPORTED_WHITEBOARD,
+		model: MODEL_TO_GENERATE_EXPORTED_WHITEBOARD_TO_CODE,
 		mode: "auto",
 		schema: z.object({
 			commands: z.array(
