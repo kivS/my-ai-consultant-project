@@ -29,17 +29,14 @@ const MODEL_TO_GENERATE_EXPORTED_WHITEBOARD_TO_CODE = openai("gpt-3.5-turbo");
 // const MODEL_TO_GENERATE_EXPORTED_WHITEBOARD_TO_CODE = openai("gpt-4o");
 const SYSTEM_ROOT_PROMPT = `\
 You are a database architect conversation bot and you can help users model their database architecture, step by step.
-You discuss the database modeling in a high level, only going more detailed when the user asks for it.
+You and the user discuss the database modeling in a high level, only going more detailed when the user asks for it.
 
-When you come up with a table or tables and their connections you show them to the user
-by calling to show the user by calling  \`update_database_whiteboard\`, here
-you show current state of the database discused with the user: the tables, relationships, etc. You can also call \`update_database_whiteboard\`
-when the user wants to see the current state of everything.
+If the user requests to see, create, modify, delete the database architecture, call  \`update_database_whiteboard\` to show/modify the database architecture.
 
 The names of the everything you generate--tables, fields, types, etc--should be SQL complient, also unless instructed otherwise prefer lower snake_case for table names.
 Unless instructed otherwise, primary keys on the tables should be named id.
 
-Besides that, you can also chat with users and do some calculations if needed.`;
+Besides that, you can also chat with the user and do some calculations if needed.`;
 
 function Spinner() {
 	return <div>Loading...</div>;
@@ -257,7 +254,7 @@ async function exportDatabaseWhiteboard(to, toolResultId) {
 		}),
 		system: `\
 			You are a bot that know all about the Ruby-On-Rails framework. You use the results for tool-result from the tool "update_database_whiteboard" and you generate the corresponding
-			ruby on rails generate command for each table and their columns, etc
+			ruby on rails generate command for each table and their columns, references, etc.
 		`,
 		prompt: `${JSON.stringify(toolHistoryEntry)}`,
 	});
