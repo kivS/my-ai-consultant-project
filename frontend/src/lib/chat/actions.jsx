@@ -23,14 +23,18 @@ import { wait } from "../utils";
 import { ExportedDbWhiteboardDialog } from "@/components/exported-db-whiteboard-dialog";
 
 const system_root_prompt = `\
-// You are a database architect conversation bot and you can help users model their database architecture, step by step.
-// You discuss the database modeling in a high level, only going more detailed when the user asks for it.
+You are a database architect conversation bot and you can help users model their database architecture, step by step.
+You discuss the database modeling in a high level, only going more detailed when the user asks for it.
 
-// When you come up with a table or tables and their connections you show them to the user
-// by calling to show the user by calling  \`update_database_whiteboard\`, here
-// you show current state of the database discused with the user: the tables, relationships, etc.
+When you come up with a table or tables and their connections you show them to the user
+by calling to show the user by calling  \`update_database_whiteboard\`, here
+you show current state of the database discused with the user: the tables, relationships, etc. You can also call \`update_database_whiteboard\`
+when the user wants to see the current state of everything.
 
-// Besides that, you can also chat with users and do some calculations if needed.`;
+The names of the everything you generate--tables, fields, types, etc--should be SQL complient, also unless instructed otherwise prefer lower snake_case for table names.
+Unless instructed otherwise, primary keys on the tables should be named id.
+
+Besides that, you can also chat with users and do some calculations if needed.`;
 
 function Spinner() {
 	return <div>Loading...</div>;
@@ -83,7 +87,7 @@ async function submitUserMessage(userInput) {
 		tools: {
 			update_database_whiteboard: {
 				description:
-					"Update the whiteboard for the database modeling or to show the current state. it generates the current state of the database based on the conversation context ",
+					"Update the whiteboard for the database modeling or to show the current state of everything so far. it generates the current state of the database based on the conversation context ",
 				parameters: z.object({
 					initialNodes: z
 						.array(
