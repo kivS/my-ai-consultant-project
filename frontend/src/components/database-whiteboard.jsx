@@ -8,6 +8,8 @@ import "reactflow/dist/style.css";
 export default function DatabaseWhiteboard({ initialNodes, initialEdges }) {
 	const nodeTypes = useMemo(() => ({ dbTableNode: DbTableNode }), []);
 
+	console.log({ initialNodes });
+
 	return (
 		<div className="w-[800px] h-[400px] border p-2 rounded bg-orange-300 text-black">
 			<ReactFlow

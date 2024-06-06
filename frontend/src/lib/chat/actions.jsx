@@ -83,7 +83,7 @@ async function submitUserMessage(userInput) {
 		tools: {
 			update_database_whiteboard: {
 				description:
-					"Update the whiteboard for the database modeling. it generates the current state of the database based on the conversation context ",
+					"Update the whiteboard for the database modeling or to show the current state. it generates the current state of the database based on the conversation context ",
 				parameters: z.object({
 					initialNodes: z
 						.array(
@@ -115,6 +115,27 @@ async function submitUserMessage(userInput) {
 													"Numerical id that identifies the column. Unique",
 												),
 											name: z.string().describe("Name of the column"),
+											is_primary_key: z
+												.boolean()
+												.describe(
+													"Whether the field the primary key for the table or not. A relational database table should have only one primary key",
+												),
+											type: z.string().describe("Type of the field column"),
+											is_foreign_key: z
+												.boolean()
+												.describe("Either the field is a foreign key or not"),
+											foreign_key_table: z
+												.string()
+												.optional()
+												.describe(
+													"The table name that this field refers to, if the field is a foreign_key",
+												),
+											foreign_key_field: z
+												.string()
+												.optional()
+												.describe(
+													"A field in the foreign table that this field refers to",
+												),
 										}),
 									),
 								}),
@@ -177,7 +198,7 @@ async function submitUserMessage(userInput) {
 	});
 
 	return {
-		id: Date.now(),
+		id: nanoid(),
 		display: result.value,
 	};
 }

@@ -57,10 +57,10 @@ export function PromptForm({ input, setInput }) {
 				setMessages((currentMessages) => [
 					...currentMessages,
 					{
-						id: Date.now(),
+						id: nanoid(),
 						display: <UserMessage>{value}</UserMessage>,
 					},
-					{ id: Date.now(), temp: true, display: <SpinnerMessage /> },
+					{ id: nanoid(), temp: true, display: <SpinnerMessage /> },
 				]);
 
 				// Submit and get response message
