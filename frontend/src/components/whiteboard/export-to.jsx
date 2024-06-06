@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/popover";
 import { useActions } from "ai/rsc";
 import { useState, useTransition } from "react";
-import { IconSpinner } from "../ui/icons";
+import { IconSparklingStar, IconSpinner } from "../ui/icons";
 
 export default function ExportToPopUp({ toolResultId }) {
 	const { exportDatabaseWhiteboard } = useActions();
@@ -17,10 +17,13 @@ export default function ExportToPopUp({ toolResultId }) {
 	const [isPending, startTransition] = useTransition();
 
 	return (
-		<div className="flex justify-center">
+		<div className="flex pt-2">
 			<Popover>
 				<PopoverTrigger asChild>
-					<Button variant="outline">Export</Button>
+					<Button variant="outline" className="flex gap-1">
+						<IconSparklingStar className="" />
+						Export
+					</Button>
 				</PopoverTrigger>
 				<PopoverContent className="w-80">
 					<div className="grid gap-4">

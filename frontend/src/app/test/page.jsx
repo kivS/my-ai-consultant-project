@@ -15,6 +15,7 @@ import {
 
 import "reactflow/dist/style.css";
 import { ExportedDbWhiteboardDialog } from "@/components/exported-db-whiteboard-dialog";
+import ExportToPopUp from "@/components/whiteboard/export-to";
 
 export default function Test() {
 	if (process.env.NODE_ENV !== "development") {
