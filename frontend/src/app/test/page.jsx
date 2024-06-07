@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/popover";
 
 import "reactflow/dist/style.css";
-import { ExportedDbWhiteboardDialog } from "@/components/exported-db-whiteboard-dialog";
+import { ExportedDbWhiteboardDialog } from "@/components/whiteboard/exported-to-rails-dialog";
 import ExportToPopUp from "@/components/whiteboard/export-to";
 
 export default function Test() {

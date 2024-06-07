@@ -20,7 +20,8 @@ import { nanoid } from "nanoid";
 import ExportToPopUp from "@/components/whiteboard/export-to";
 import { generateObject, generateText } from "ai";
 import { wait } from "../utils";
-import { ExportedDbWhiteboardDialog } from "@/components/exported-db-whiteboard-dialog";
+import { ExportedDbWhiteboardDialog } from "@/components/whiteboard/exported-to-rails-dialog";
+import { ExportedToSqliteDialog } from "@/components/whiteboard/exported-to-sqlite-dialog";
 
 const BOT_MODEL = openai("gpt-3.5-turbo");
 // const BOT_MODEL = openai("gpt-4o");
@@ -218,9 +219,9 @@ async function submitUserMessage(userInput) {
 async function exportDatabaseWhiteboard(to, toolResultId) {
 	"use server";
 
-	const tstUI = createStreamableUI();
+	const exportedUI = createStreamableUI();
 
-	tstUI.update(<p>Loading...</p>);
+	exportedUI.update(<p>Loading...</p>);
 
 	console.log(
 		`hello from the server from exportDatabaseWhiteboard. Exporting whiteboard to [${to}] from tool result with id: [${toolResultId}]`,
@@ -237,38 +238,66 @@ async function exportDatabaseWhiteboard(to, toolResultId) {
 		throw new Error(`No history entry with id of ${toolResultId}`);
 	}
 
-	const commands_result = await generateObject({
-		model: MODEL_TO_GENERATE_EXPORTED_WHITEBOARD_TO_CODE,
-		mode: "auto",
-		schema: z.object({
-			commands: z.array(
-				z.object({
-					table_name: z.string(),
-					rails_command: z
-						.string()
-						.describe(
-							"RubyOnRails command to generate the corresponding table, columns and etc",
-						),
+	switch (to) {
+		case "rails": {
+			const commands_result = await generateObject({
+				model: MODEL_TO_GENERATE_EXPORTED_WHITEBOARD_TO_CODE,
+				mode: "auto",
+				schema: z.object({
+					commands: z.array(
+						z.object({
+							table_name: z.string(),
+							rails_command: z
+								.string()
+								.describe(
+									"RubyOnRails command to generate the corresponding table, columns and etc",
+								),
+						}),
+					),
 				}),
-			),
-		}),
-		system: `\
+				system: `\
 			You are a bot that know all about the Ruby-On-Rails framework. You use the results for tool-result from the tool "update_database_whiteboard" and you generate the corresponding
 			ruby on rails generate command for each table and their columns, references, etc.
 		`,
-		prompt: `${JSON.stringify(toolHistoryEntry)}`,
-	});
+				prompt: `${JSON.stringify(toolHistoryEntry)}`,
+			});
 
-	console.log({ commands_result });
+			console.log({ commands_result });
 
-	tstUI.done(
-		<ExportedDbWhiteboardDialog
-			title={"Ruby on Rails"}
-			data={commands_result.object}
-		/>,
-	);
+			exportedUI.done(
+				<ExportedDbWhiteboardDialog
+					title={"Ruby on Rails"}
+					data={commands_result.object}
+				/>,
+			);
+			break;
+		}
 
-	return { export_to: to, display: tstUI.value };
+		case "sqlite": {
+			const result = await generateObject({
+				model: MODEL_TO_GENERATE_EXPORTED_WHITEBOARD_TO_CODE,
+				mode: "auto",
+				schema: z.object({
+					sql: z.string().describe("Sqlite sql code"),
+				}),
+				system: `\
+			You are a bot that know all about SQLite. You use the results for tool-result from the tool "update_database_whiteboard" and you generate the corresponding
+			SQLite sql query.
+		`,
+				prompt: `${JSON.stringify(toolHistoryEntry)}`,
+			});
+
+			console.log({ result });
+
+			exportedUI.done(<ExportedToSqliteDialog data={result.object} />);
+			break;
+		}
+
+		default:
+			throw new Error(`${to} is not supported`);
+	}
+
+	return { export_to: to, display: exportedUI.value };
 }
 
 // Define the initial state of the AI. It can be any JSON object.

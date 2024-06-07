@@ -13,8 +13,12 @@ import { IconSparklingStar, IconSpinner } from "../ui/icons";
 
 export default function ExportToPopUp({ toolResultId }) {
 	const { exportDatabaseWhiteboard } = useActions();
-	const [generatedRailsUI, setGeneratedRailsUI] = useState(null);
-	const [isPending, startTransition] = useTransition();
+
+	const [generatedRailsDialog, setGeneratedRailsDialog] = useState(null);
+	const [isRailsPending, startRailsTransition] = useTransition();
+
+	const [generatedSqliteDialog, setGeneratedSqliteDialog] = useState(null);
+	const [isSqlitePending, startSqliteTransition] = useTransition();
 
 	return (
 		<div className="flex pt-2">
@@ -33,42 +37,62 @@ export default function ExportToPopUp({ toolResultId }) {
 							</p>
 						</div>
 
-						<div>
-							{generatedRailsUI?.export_to === "rails" ? (
-								generatedRailsUI.display
+						<div className="flex flex-wrap gap-5">
+							{generatedRailsDialog ? (
+								generatedRailsDialog.display
 							) : (
 								<Button
-									data-export_to="rails"
 									data-tool_result_id={toolResultId}
-									onClick={handleClick}
-									disabled={isPending}
+									onClick={async (e) => {
+										const export_to = "rails";
+										const tool_result_id = e.target.dataset.tool_result_id;
+
+										startRailsTransition(async () => {
+											const result = await exportDatabaseWhiteboard(
+												export_to,
+												tool_result_id,
+											);
+											setGeneratedRailsDialog(result);
+											console.log({ result });
+										});
+									}}
+									disabled={isRailsPending}
 								>
 									Ruby on Rails
-									{isPending ? <IconSpinner className="ml-1" /> : ""}
+									{isRailsPending ? <IconSpinner className="ml-1" /> : ""}
+								</Button>
+							)}
+
+							{generatedSqliteDialog ? (
+								generatedSqliteDialog.display
+							) : (
+								<Button
+									data-tool_result_id={toolResultId}
+									disabled={isSqlitePending}
+									onClick={async (e) => {
+										console.log("sqlite clicked!");
+
+										const export_to = "sqlite";
+										const tool_result_id = e.target.dataset.tool_result_id;
+
+										startSqliteTransition(async () => {
+											const result = await exportDatabaseWhiteboard(
+												export_to,
+												tool_result_id,
+											);
+											setGeneratedSqliteDialog(result);
+											console.log({ result });
+										});
+									}}
+								>
+									SQLite
+									{isSqlitePending ? <IconSpinner className="ml-1" /> : ""}
 								</Button>
 							)}
 						</div>
 					</div>
 				</PopoverContent>
 			</Popover>
-			{/* <button type="button" className="rounded border p-2">
-					Export to
-				</button> */}
 		</div>
 	);
-
-	/**
-	 *
-	 * @param {Event} e
-	 */
-	async function handleClick(e) {
-		const export_to = e.target.dataset.export_to;
-		const tool_result_id = e.target.dataset.tool_result_id;
-
-		startTransition(async () => {
-			const result = await exportDatabaseWhiteboard(export_to, tool_result_id);
-			setGeneratedRailsUI(result);
-			console.log({ result });
-		});
-	}
 }
