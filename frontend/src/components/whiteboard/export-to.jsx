@@ -70,8 +70,6 @@ export default function ExportToPopUp({ toolResultId }) {
 									data-tool_result_id={toolResultId}
 									disabled={isSqlitePending}
 									onClick={async (e) => {
-										console.log("sqlite clicked!");
-
 										const export_to = "sqlite";
 										const tool_result_id = e.target.dataset.tool_result_id;
 
