@@ -12,8 +12,6 @@ export function ButtonScrollToBottom({
 	scrollToBottom,
 	...props
 }) {
-	console.log({ isAtBottom });
-
 	return (
 		<Button
 			variant="outline"
