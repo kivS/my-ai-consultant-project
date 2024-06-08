@@ -18,8 +18,11 @@ export function useScrollAnchor() {
 	}, []);
 
 	useEffect(() => {
+		// debugger;
 		if (messagesRef.current) {
 			if (isAtBottom && !isVisible) {
+				console.log({ isAtBottom });
+				console.log({ isVisible });
 				messagesRef.current.scrollIntoView({
 					block: "end",
 				});
@@ -55,6 +58,7 @@ export function useScrollAnchor() {
 		if (visibilityRef.current) {
 			const observer = new IntersectionObserver(
 				(entries) => {
+					// biome-ignore lint/complexity/noForEach: <explanation>
 					entries.forEach((entry) => {
 						if (entry.isIntersecting) {
 							setIsVisible(true);

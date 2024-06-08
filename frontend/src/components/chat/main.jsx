@@ -27,24 +27,26 @@ export function Chat({ id, className, session, missingKeys }) {
 	console.log({ messages });
 
 	return (
-		<div
-			ref={scrollRef}
-			className="group w-full overflow-auto pl-0 peer-[[data-state=open]]:lg:pl-[250px] peer-[[data-state=open]]:xl:pl-[300px]"
-		>
+		<div className="relative flex h-[calc(100vh_-_theme(spacing.16))] overflow-hidden">
 			<div
-				ref={messagesRef}
-				className={cn("pb-[200px] pt-4 md:pt-10", className)}
+				ref={scrollRef}
+				className="scrollRefHere group w-full overflow-auto pl-0 peer-[[data-state=open]]:lg:pl-[250px] peer-[[data-state=open]]:xl:pl-[300px]"
 			>
-				{messages.length ? <ChatList messages={messages} /> : <EmptyScreen />}
-				<div ref={visibilityRef} className="h-px w-full" />
+				<div
+					ref={messagesRef}
+					className={cn("pb-[200px] pt-4 md:pt-10", className)}
+				>
+					{messages.length ? <ChatList messages={messages} /> : <EmptyScreen />}
+					<div ref={visibilityRef} className="h-px w-full" />
+				</div>
+				<ChatPanel
+					id={id}
+					input={input}
+					setInput={setInput}
+					isAtBottom={isAtBottom}
+					scrollToBottom={scrollToBottom}
+				/>
 			</div>
-			<ChatPanel
-				id={id}
-				input={input}
-				setInput={setInput}
-				isAtBottom={isAtBottom}
-				scrollToBottom={scrollToBottom}
-			/>
 		</div>
 	);
 }
