@@ -16,6 +16,7 @@ import { useActions, useUIState } from "ai/rsc";
 import { nanoid } from "@/lib/utils";
 import { SpinnerMessage, UserMessage } from "@/components/chat/message";
 import { useEnterSubmit } from "@/hooks/use-enter-submit";
+import { Input } from "../ui/input";
 
 export function PromptForm({ input, setInput }) {
 	const router = useRouter();
@@ -78,6 +79,10 @@ export function PromptForm({ input, setInput }) {
 			}}
 		>
 			<div className="relative flex max-h-60 w-full grow flex-col overflow-hidden bg-background px-8 sm:rounded-md sm:border sm:px-12">
+				<div className="">
+					<Input type="file" className="" />
+				</div>
+
 				<Textarea
 					ref={inputRef}
 					tabIndex={0}
