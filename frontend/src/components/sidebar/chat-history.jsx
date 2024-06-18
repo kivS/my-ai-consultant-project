@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 // import { SidebarList } from '@/components/sidebar-list'
 import { buttonVariants } from "@/components/ui/button";
 import { IconPlus } from "@/components/ui/icons";
+import { SidebarList } from "./sidebar-list";
 
 export async function ChatHistory() {
 	return (
@@ -37,7 +38,7 @@ export async function ChatHistory() {
 					</div>
 				}
 			>
-				hello
+				<SidebarList userId={1} />
 			</React.Suspense>
 		</div>
 	);
