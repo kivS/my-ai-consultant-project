@@ -1,4 +1,4 @@
-import { SidebarDesktop } from "@/components/sidebar-desktop";
+import { SidebarDesktop } from "@/components/sidebar/sidebar-desktop";
 
 export default async function ChatLayout({ children }) {
 	return (
