@@ -11,7 +11,7 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { IconMoon, IconSun } from "@/components/ui/icons";
+import { IconBookOpenCheck, IconMoon, IconSun } from "@/components/ui/icons";
 
 export function ThemeToggle() {
 	const { setTheme } = useTheme();
