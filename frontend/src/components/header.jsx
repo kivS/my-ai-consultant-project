@@ -11,6 +11,8 @@ import {
 } from "@/components/ui/icons";
 import { ModeToggle } from "./theme-toggle";
 import { SidebarToggle } from "./sidebar/sidebar-toggle";
+import { SidebarMobile } from "./sidebar/sidebar-mobile";
+import { ChatHistory } from "./sidebar/chat-history";
 
 export function Header() {
 	return (
@@ -29,9 +31,10 @@ async function UserOrLogin() {
 		<>
 			{1 === 1 ? (
 				<>
-					{/* <SidebarMobile>
-						<ChatHistory userId={session.user.id} />
-					</SidebarMobile> */}
+					<SidebarMobile>
+						<ChatHistory userId={1} />
+					</SidebarMobile>
+
 					<SidebarToggle />
 				</>
 			) : (
