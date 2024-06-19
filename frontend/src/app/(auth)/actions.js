@@ -20,15 +20,23 @@ export async function login(formData) {
 	console.log({ response });
 
 	if (response?.token) {
-		cookies().set("session", response?.token, {
-			httpOnly: true,
-			secure: process.env.NODE_ENV === "production",
-			maxAge: 60 * 60 * 24 * 365, // One year
-			path: "/",
-		});
-
+		await saveSessionData(response.token);
 		redirect("/");
 	}
+}
+
+export async function register(formData) {
+	console.log({ formData });
+	return "ok";
+}
+
+export async function saveSessionData(token) {
+	cookies().set("session", token, {
+		httpOnly: true,
+		secure: process.env.NODE_ENV === "production",
+		maxAge: 60 * 60 * 24 * 365, // One year
+		path: "/",
+	});
 }
 
 export async function getSessionData() {

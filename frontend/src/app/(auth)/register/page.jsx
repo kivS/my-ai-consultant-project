@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
-import { getSessionData, login } from "../actions";
-import Link from "next/link";
+import { getSessionData, register } from "../actions";
 
 export default async function LoginPage() {
 	const session = await getSessionData();
@@ -9,7 +8,7 @@ export default async function LoginPage() {
 
 	return (
 		<div>
-			<form id="loginForm" action={login}>
+			<form id="signUpForm" action={register}>
 				<fieldset className="flex flex-col gap-4">
 					<div>
 						<label htmlFor="email">Email:</label>
@@ -22,15 +21,7 @@ export default async function LoginPage() {
 					</div>
 
 					<div>
-						Or{" "}
-						<Link href="/register" className="text-cyan-400">
-							register
-						</Link>{" "}
-						an account
-					</div>
-
-					<div>
-						<button type="submit">Login</button>
+						<button type="submit">Register</button>
 					</div>
 				</fieldset>
 			</form>
