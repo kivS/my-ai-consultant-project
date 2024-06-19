@@ -26,9 +26,11 @@ export async function login(formData) {
 }
 
 export async function register(formData) {
-	console.log({ formData });
+	console.log(formData);
 	return "ok";
 }
+
+// ------------------------------------------------------------------------------
 
 export async function saveSessionData(token) {
 	cookies().set("session", token, {
