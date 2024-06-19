@@ -1,5 +1,5 @@
 class AuthController < ApplicationController
-  before_action :authorize_request, except: :login
+  before_action :authorize_request, except: [:login, :register]
 
   def login
     @user = User.find_by_email(params[:email])
@@ -28,14 +28,17 @@ class AuthController < ApplicationController
   end
 
   def encode_token(payload)
-    JWT.encode(payload, Rails.application.secrets.secret_key_base)
+    secret_key = Rails.application.credentials.secret_key_base
+    algorithm = 'HS256'
+    JWT.encode(payload, secret_key, algorithm)
   end
+
 
   def authorize_request
     header = request.headers['Authorization']
     header = header.split(' ').last if header
     begin
-      @decoded = JWT.decode(header, Rails.application.secrets.secret_key_base)[0]
+      @decoded = JWT.decode(header, Rails.application.credentials.secret_key_base,  true, { algorithm: 'HS256' })[0]
       @current_user = User.find(@decoded['user_id'])
     rescue ActiveRecord::RecordNotFound => e
       render json: { errors: e.message }, status: :unauthorized
