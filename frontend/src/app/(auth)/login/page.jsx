@@ -1,8 +1,10 @@
+import { redirect } from "next/navigation";
 import { getSessionData, login } from "../actions";
 
 export default async function LoginPage() {
-	const sessionData = await getSessionData();
-	console.log({ sessionData });
+	const session = await getSessionData();
+	if (session) redirect("/");
+	console.log({ session });
 
 	return (
 		<div>

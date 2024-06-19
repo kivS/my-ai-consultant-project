@@ -13,6 +13,8 @@ import { ModeToggle } from "./theme-toggle";
 import { SidebarToggle } from "./sidebar/sidebar-toggle";
 import { SidebarMobile } from "./sidebar/sidebar-mobile";
 import { ChatHistory } from "./sidebar/chat-history";
+import { getSessionData } from "@/app/(auth)/actions";
+import { UserMenu } from "./user-menu";
 
 export function Header() {
 	return (
@@ -27,9 +29,10 @@ export function Header() {
 }
 
 async function UserOrLogin() {
+	const session = await getSessionData();
 	return (
 		<>
-			{1 === 1 ? (
+			{session ? (
 				<>
 					<SidebarMobile>
 						<ChatHistory userId={1} />
@@ -45,8 +48,9 @@ async function UserOrLogin() {
 			)}
 			<div className="flex items-center">
 				<IconSeparator className="size-6 text-muted-foreground/50" />
-				{1 !== 1 ? // <UserMenu user={session.user} />
-				null : (
+				{session ? (
+					<UserMenu user={1} />
+				) : (
 					<Button variant="link" asChild className="-ml-2">
 						<Link href="/login">Login</Link>
 					</Button>
