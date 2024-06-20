@@ -1,12 +1,14 @@
 import * as React from "react";
 import Link from "next/link";
 
-import { cn } from "@/lib/utils";
+import { cn, wait } from "@/lib/utils";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
 	IconGitHub,
+	IconMessage,
 	IconNextChat,
 	IconSeparator,
+	IconUser,
 	IconVercel,
 } from "@/components/ui/icons";
 import { ModeToggle } from "./theme-toggle";
@@ -22,6 +24,12 @@ export function Header() {
 			<div className="flex items-center">
 				<React.Suspense fallback={<div className="flex-1 overflow-auto" />}>
 					<UserOrLogin />
+				</React.Suspense>
+			</div>
+
+			<div>
+				<React.Suspense fallback={<div className="flex-1" />}>
+					<EmailNotVerifiedNotice />
 				</React.Suspense>
 			</div>
 		</header>
@@ -57,5 +65,18 @@ async function UserOrLogin() {
 				)}
 			</div>
 		</>
+	);
+}
+
+async function EmailNotVerifiedNotice() {
+	"use server";
+	const session = await getSessionData();
+	if (!session) return null;
+
+	return (
+		<div className="text-sm border mr-8 p-2 flex gap-2 rounded border-white bg-red-500 text-white font-semibold">
+			<IconUser className="animate-pulse" /> Check your emailbox and verify your
+			email to continue
+		</div>
 	);
 }
