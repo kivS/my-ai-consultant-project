@@ -27,6 +27,20 @@ export async function login(formData) {
 
 export async function register(formData) {
 	console.log(formData);
+
+	const response = await fetch(
+		`${process.env.BACKEND_API_ENDPOINT}/auth/register`,
+		{
+			method: "POST",
+			body: formData,
+		},
+	).then((res) => {
+		console.log(res);
+		return res.json();
+	});
+
+	console.log({ response });
+
 	return "ok";
 }
 

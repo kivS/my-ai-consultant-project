@@ -15,6 +15,11 @@ class AuthController < ApplicationController
     @user = User.new(user_params)
     if @user.save
       token = encode_token({ user_id: @user.id })
+
+      verification_token = encode_token({ email: @user.email})
+
+      UserMailer.registration_confirmation_email(@user, verification_token).deliver_later
+      
       render json: { token: token }, status: :created
     else
       render json: { errors: @user.errors.full_messages }, status: :unprocessable_entity
