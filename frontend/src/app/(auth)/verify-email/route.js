@@ -1,3 +1,7 @@
+import { redirect } from "next/navigation";
+
+export const fetchCache = 'only-no-store'
+
 export async function GET(request) {
 	const searchParams = request.nextUrl.searchParams;
 
@@ -24,5 +28,8 @@ export async function GET(request) {
 	console.log({ response });
 
 	console.log(searchParams);
+
+	if(response?.is_verified) redirect("/");
+
 	return Response.json(response);
 }

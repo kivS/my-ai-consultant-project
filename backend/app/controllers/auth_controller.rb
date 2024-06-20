@@ -1,6 +1,19 @@
 class AuthController < ApplicationController
   before_action :authorize_request, except: [:login, :register, :verify_email]
 
+
+  def get_user
+    @current_user = @current_user
+    if @current_user
+      render json: @current_user.as_json(
+        only: [:email, :is_email_verified]
+      ), status: :ok
+    else
+      render json: { error: 'User not found' }, status: :not_found
+    end
+  end
+  
+
   def login
     @user = User.find_by_email(params[:email])
     if @user&.authenticate(params[:password])
@@ -48,7 +61,7 @@ class AuthController < ApplicationController
     @user.is_email_verified = true
     @user.save!
 
-    return render json: {status: 'Email is verified'}, status: :created
+    return render json: {is_verified: @user.is_email_verified}, status: :ok
 
   end
 
@@ -62,6 +75,7 @@ class AuthController < ApplicationController
   def encode_token(payload)
     secret_key = Rails.application.credentials.secret_key_base
     algorithm = 'HS256'
+    payload[:timestamp] = Time.now.to_i
     JWT.encode(payload, secret_key, algorithm)
   end
 

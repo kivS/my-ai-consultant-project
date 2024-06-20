@@ -17,6 +17,7 @@ import { SidebarMobile } from "./sidebar/sidebar-mobile";
 import { ChatHistory } from "./sidebar/chat-history";
 import { getSessionData } from "@/app/(auth)/actions";
 import { UserMenu } from "./user-menu";
+import { getUserData } from "@/app/actions";
 
 export function Header() {
 	return (
@@ -27,17 +28,17 @@ export function Header() {
 				</React.Suspense>
 			</div>
 
-			<div>
-				<React.Suspense fallback={<div className="flex-1" />}>
-					<EmailNotVerifiedNotice />
-				</React.Suspense>
-			</div>
+			<React.Suspense fallback={<div className="flex-1" />}>
+				<EmailNotVerifiedNotice />
+			</React.Suspense>
 		</header>
 	);
 }
 
 async function UserOrLogin() {
 	const session = await getSessionData();
+	const user = await getUserData();
+
 	return (
 		<>
 			{session ? (
@@ -57,7 +58,7 @@ async function UserOrLogin() {
 			<div className="flex items-center">
 				<IconSeparator className="size-6 text-muted-foreground/50" />
 				{session ? (
-					<UserMenu user={1} />
+					<UserMenu user={user} />
 				) : (
 					<Button variant="link" asChild className="-ml-2">
 						<Link href="/login">Login</Link>
@@ -69,14 +70,20 @@ async function UserOrLogin() {
 }
 
 async function EmailNotVerifiedNotice() {
-	"use server";
 	const session = await getSessionData();
 	if (!session) return null;
 
+	const user = await getUserData();
+
+	console.log({ user });
+
+	if (user?.is_email_verified || !user) return null;
 	return (
-		<div className="text-sm border mr-8 p-2 flex gap-2 rounded border-white bg-red-500 text-white font-semibold">
-			<IconUser className="animate-pulse" /> Check your emailbox and verify your
-			email to continue
+		<div>
+			<div className="text-sm border mr-8 p-2 flex gap-2 rounded border-white bg-red-500 text-white font-semibold">
+				<IconUser className="animate-pulse" /> Check your emailbox and verify
+				your email to continue
+			</div>
 		</div>
 	);
 }
