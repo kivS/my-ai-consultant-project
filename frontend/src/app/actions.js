@@ -1,6 +1,6 @@
 "use server";
 
-import { getSessionData } from "./(auth)/actions";
+import { getSessionData, logout } from "./(auth)/actions";
 
 export async function getUserData() {
 	try {
