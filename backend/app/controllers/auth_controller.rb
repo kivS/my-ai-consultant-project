@@ -26,17 +26,25 @@ class AuthController < ApplicationController
 
   def register
     @user = User.new(user_params)
-    if @user.save
-      token = encode_token({ user_id: @user.id })
 
-      verification_token = encode_token({ email: @user.email})
 
-      UserMailer.registration_confirmation_email(@user, verification_token).deliver_later
+    begin
+      if @user.save!
+        token = encode_token({ user_id: @user.id })
+
+        verification_token = encode_token({ email: @user.email})
+
+        UserMailer.registration_confirmation_email(@user, verification_token).deliver_later
+        
+        render json: { token: token }, status: :created
+      else
+        render json: { errors: @user.errors.full_messages }, status: :unprocessable_entity
+      end
       
-      render json: { token: token }, status: :created
-    else
-      render json: { errors: @user.errors.full_messages }, status: :unprocessable_entity
+    rescue ActiveRecord::RecordNotUnique 
+      return render json: { error: "Account with this email already exists" }, status: :unprocessable_entity
     end
+    
   end
 
   def verify_email
