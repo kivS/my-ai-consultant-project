@@ -1,5 +1,5 @@
 class AuthController < ApplicationController
-  before_action :authorize_request, except: [:login, :register]
+  before_action :authorize_request, except: [:login, :register, :verify_email]
 
   def login
     @user = User.find_by_email(params[:email])
@@ -26,6 +26,33 @@ class AuthController < ApplicationController
     end
   end
 
+  def verify_email
+    Rails.logger.info("Params: #{params}")
+
+    token = params.permit(:token)[:token]
+
+    decoded_payload = decode_token(token)
+
+    if(decoded_payload.nil?)
+      return render json: { error: "Invalid confirmation token" }, status: :unprocessable_entity 
+    end
+
+    Rails.logger.info("Decoded payload: #{decoded_payload}")
+
+    @user = User.find_by_email(decoded_payload["email"])
+
+    if @user.nil?
+      return render json: { error: "User not found" }, status: :unprocessable_entity 
+    end
+
+    @user.is_email_verified = true
+    @user.save!
+
+    return render json: {status: 'Email is verified'}, status: :created
+
+  end
+
+  
   private
 
   def user_params
@@ -36,6 +63,20 @@ class AuthController < ApplicationController
     secret_key = Rails.application.credentials.secret_key_base
     algorithm = 'HS256'
     JWT.encode(payload, secret_key, algorithm)
+  end
+
+  def decode_token(payload)
+    secret_key = Rails.application.credentials.secret_key_base
+    algorithm = 'HS256'
+
+    begin
+      decoded_token = JWT.decode(payload, secret_key, true, { algorithm: algorithm })
+      decoded_token[0] # Return the payload part of the token
+    rescue JWT::DecodeError => e
+      Rails.logger.error("JWT DecodeError: #{e.message}")
+      nil # Return nil if the token is invalid
+    end
+  
   end
 
 

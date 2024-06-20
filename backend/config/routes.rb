@@ -10,4 +10,5 @@ Rails.application.routes.draw do
 
   post 'auth/login', to: 'auth#login'
   post 'auth/register', to: 'auth#register'
+  post 'auth/verify-email', to: 'auth#verify_email'
 end
