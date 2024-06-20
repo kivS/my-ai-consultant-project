@@ -41,7 +41,10 @@ export async function register(formData) {
 
 	console.log({ response });
 
-	return "ok";
+	if (response?.token) {
+		await saveSessionData(response.token);
+		redirect("/");
+	}
 }
 
 // ------------------------------------------------------------------------------
