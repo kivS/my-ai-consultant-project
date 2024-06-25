@@ -18,7 +18,7 @@ import DatabaseWhiteboard from "@/components/database-whiteboard";
 import { openai } from "@ai-sdk/openai";
 import { nanoid } from "nanoid";
 import ExportToPopUp from "@/components/whiteboard/export-to";
-import { generateObject, generateText } from "ai";
+import { generateId, generateObject, generateText } from "ai";
 import { wait } from "../utils";
 import { ExportedDbWhiteboardDialog } from "@/components/whiteboard/exported-to-rails-dialog";
 import { ExportedToSqliteDialog } from "@/components/whiteboard/exported-to-sqlite-dialog";
@@ -54,11 +54,14 @@ async function submitUserMessage(userInput) {
 	 */
 	const history = getMutableAIState();
 
+	console.debug("user submitted a message: ", history.get())
+
+
 	// Update the AI state with the new user message.
 	history.update([
 		...history.get(),
 		{
-			id: nanoid(),
+			id: generateId(),
 			role: "user",
 			content: userInput,
 		},
@@ -158,14 +161,14 @@ async function submitUserMessage(userInput) {
 				generate: async function* ({ initialNodes }) {
 					yield <Spinner />;
 
-					const toolCallId = nanoid();
+					const toolCallId = generateId();
 
-					const toolResultId = nanoid();
+					const toolResultId = generateId();
 
 					history.done([
 						...history.get(),
 						{
-							id: nanoid(),
+							id: generateId(),
 							role: "assistant",
 							content: [
 								{
@@ -208,7 +211,7 @@ async function submitUserMessage(userInput) {
 	});
 
 	return {
-		id: nanoid(),
+		id: generateId(),
 		display: result.value,
 	};
 }
@@ -329,10 +332,12 @@ export const AI = createAI({
 	// it makes sense to have an array of messages. Or you may prefer something like { id: number, messages: Message[] }
 	initialUIState,
 	initialAIState,
-	onSetAIState: async ({ state }) => {
+	onSetAIState: async ({key, state, done }) => {
 		"use server";
 
-		console.log(`${new Date().toISOString()} - `, { state });
+		console.debug({key})
+		console.log({done})
+		console.debug(`${new Date().toISOString()} - `, { state });
 		// console.log({ state });
 	},
 });

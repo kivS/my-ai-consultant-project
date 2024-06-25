@@ -10,7 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_06_20_091432) do
+ActiveRecord::Schema[7.1].define(version: 2024_06_25_003627) do
+# Could not dump table "chats" because of following StandardError
+#   Unknown type 'uuid' for column 'id'
+
   create_table "users", force: :cascade do |t|
     t.string "email"
     t.string "password_digest"
@@ -20,4 +23,5 @@ ActiveRecord::Schema[7.1].define(version: 2024_06_20_091432) do
     t.index ["email"], name: "index_users_on_email", unique: true
   end
 
+  add_foreign_key "chats", "users"
 end
