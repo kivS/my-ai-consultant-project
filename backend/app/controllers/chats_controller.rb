@@ -29,6 +29,7 @@ class ChatsController < ApplicationController
 
   # PATCH/PUT /chats/1
   def update
+    debugger
     if @chat.update(chat_params)
       render json: @chat
     else

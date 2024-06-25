@@ -120,69 +120,83 @@ async function submitUserMessage(userInput) {
 			update_database_whiteboard: {
 				description:
 					"Update the whiteboard for the database modeling or to show the current state of everything so far. it generates the current state of the database based on the conversation context ",
-				parameters: z.object({
-					initialNodes: z
-						.array(
-							z.object({
-								id: z
-									.string()
-									.describe(
-										"ID for the node, representing the table, eg: table_name",
-									),
-								type: z
-									.literal("dbTableNode")
-									.describe("Type of the node used. node types: dbTableNode "),
+				parameters: z.object({}),
+				generate: async function* () {
+					yield <SpinnerMessage />;
 
-								position: z.object({
-									x: z
-										.number()
-										.describe("the position of the node in the x axis"),
-									y: z
-										.number()
-										.describe("the position of the node in the y axis"),
-								}),
-								data: z.object({
-									name: z.string().describe("the name of the table"),
-									columns: z.array(
-										z.object({
-											id: z
-												.string()
-												.describe(
-													"Numerical id that identifies the column. Unique",
-												),
-											name: z.string().describe("Name of the column"),
-											is_primary_key: z
-												.boolean()
-												.describe(
-													"Whether the field the primary key for the table or not. A relational database table should have only one primary key",
-												),
-											type: z.string().describe("Type of the field column"),
-											is_foreign_key: z
-												.boolean()
-												.describe("Either the field is a foreign key or not"),
-											foreign_key_table: z
-												.string()
-												.optional()
-												.describe(
-													"The table name that this field refers to, if the field is a foreign_key",
-												),
-											foreign_key_field: z
-												.string()
-												.optional()
-												.describe(
-													"A field in the foreign table that this field refers to",
-												),
+					const result = await generateObject({
+						model: openai("gpt-3.5-turbo"),
+						schema: z.object({
+							initialNodes: z
+								.array(
+									z.object({
+										id: z
+											.string()
+											.describe(
+												"ID for the node, representing the table, eg: table_name",
+											),
+										type: z
+											.literal("dbTableNode")
+											.describe(
+												"Type of the node used. node types: dbTableNode ",
+											),
+
+										position: z.object({
+											x: z
+												.number()
+												.describe("the position of the node in the x axis"),
+											y: z
+												.number()
+												.describe("the position of the node in the y axis"),
 										}),
-									),
-								}),
-							}),
-						)
-						.describe(
-							"an array of nodes definition for reactflow that'll represent the current state of the database",
-						),
-				}),
-				generate: async function* ({ initialNodes }) {
-					yield <Spinner />;
+										data: z.object({
+											name: z.string().describe("the name of the table"),
+											columns: z.array(
+												z.object({
+													id: z
+														.string()
+														.describe(
+															"Numerical id that identifies the column. Unique",
+														),
+													name: z.string().describe("Name of the column"),
+													is_primary_key: z
+														.boolean()
+														.describe(
+															"Whether the field the primary key for the table or not. A relational database table should have only one primary key",
+														),
+													type: z.string().describe("Type of the field column"),
+													is_foreign_key: z
+														.boolean()
+														.describe(
+															"Either the field is a foreign key or not",
+														),
+													foreign_key_table: z
+														.string()
+														.optional()
+														.describe(
+															"The table name that this field refers to, if the field is a foreign_key",
+														),
+													foreign_key_field: z
+														.string()
+														.optional()
+														.describe(
+															"A field in the foreign table that this field refers to",
+														),
+												}),
+											),
+										}),
+									}),
+								)
+								.describe(
+									"an array of nodes definition for reactflow that'll represent the current state of the database",
+								),
+						}),
+
+						mode: "json",
+						messages: [...aiState.get().messages],
+					});
+
+					console.debug(JSON.stringify(result.object, null, 2));
 
 					const toolCallId = generateId();
 
@@ -200,7 +214,7 @@ async function submitUserMessage(userInput) {
 										type: "tool-call",
 										toolName: "update_database_whiteboard",
 										toolCallId,
-										args: { initialNodes },
+										args: {},
 									},
 								],
 							},
@@ -212,7 +226,7 @@ async function submitUserMessage(userInput) {
 										type: "tool-result",
 										toolName: "update_database_whiteboard",
 										toolCallId,
-										result: initialNodes,
+										result: result.object.initialNodes,
 									},
 								],
 							},
@@ -224,8 +238,8 @@ async function submitUserMessage(userInput) {
 					return (
 						<AssistantMessage>
 							<DatabaseWhiteboard
-								initialNodes={initialNodes}
-								initialEdges={initialEdges}
+								initialNodes={result.object.initialNodes}
+								initialEdges={[]}
 							/>
 							<ExportToPopUp toolResultId={toolResultId} />
 						</AssistantMessage>
@@ -370,31 +384,19 @@ export const AI = createAI({
 				.map((message, index) => ({
 					id: `${aiState.chatId}-${index}`,
 					display:
-						message.role === "tool" ? null : message.role === "user" ? (
-							//   message.content.map(tool => {
-							//     return tool.toolName === 'listStocks' ? (
-							//       <BotCard>
-							//         {/* TODO: Infer types based on the tool result*/}
-							//         {/* @ts-expect-error */}
-							//         <Stocks props={tool.result} />
-							//       </BotCard>
-							//     ) : tool.toolName === 'showStockPrice' ? (
-							//       <BotCard>
-							//         {/* @ts-expect-error */}
-							//         <Stock props={tool.result} />
-							//       </BotCard>
-							//     ) : tool.toolName === 'showStockPurchase' ? (
-							//       <BotCard>
-							//         {/* @ts-expect-error */}
-							//         <Purchase props={tool.result} />
-							//       </BotCard>
-							//     ) : tool.toolName === 'getEvents' ? (
-							//       <BotCard>
-							//         {/* @ts-expect-error */}
-							//         <Events props={tool.result} />
-							//       </BotCard>
-							//     ) : null
-							//   })
+						message.role === "tool" ? (
+							message.content.map((tool) => {
+								tool.toolName === "update_database_whiteboard" ? (
+									<AssistantMessage>
+										<DatabaseWhiteboard
+											initialNodes={initialNodes}
+											initialEdges={initialEdges}
+										/>
+										<ExportToPopUp toolResultId={toolResultId} />
+									</AssistantMessage>
+								) : null;
+							})
+						) : message.role === "user" ? (
 							<UserMessage>{message.content}</UserMessage>
 						) : message.role === "assistant" &&
 							typeof message.content === "string" ? (
