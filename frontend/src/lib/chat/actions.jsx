@@ -45,9 +45,59 @@ Unless instructed otherwise, primary keys on the tables should be named id.
 
 Besides that, you can also chat with the user and do some calculations if needed.`;
 
-function Spinner() {
-	return <div>Loading...</div>;
-}
+const database_whiteboard_output_schema = z.object({
+	initialNodes: z
+		.array(
+			z.object({
+				id: z
+					.string()
+					.describe("ID for the node, representing the table, eg: table_name"),
+				type: z
+					.literal("dbTableNode")
+					.describe("Type of the node used. node types: dbTableNode "),
+
+				position: z.object({
+					x: z.number().describe("the position of the node in the x axis"),
+					y: z.number().describe("the position of the node in the y axis"),
+				}),
+				data: z.object({
+					name: z.string().describe("the name of the table"),
+					columns: z.array(
+						z.object({
+							id: z
+								.string()
+								.describe("Numerical id that identifies the column. Unique"),
+							name: z.string().describe("Name of the column"),
+							is_primary_key: z
+								.boolean()
+								.describe(
+									"Whether the field the primary key for the table or not. A relational database table should have only one primary key",
+								),
+							type: z.string().describe("Type of the field column"),
+							is_foreign_key: z
+								.boolean()
+								.describe("Either the field is a foreign key or not"),
+							foreign_key_table: z
+								.string()
+								.optional()
+								.describe(
+									"The table name that this field refers to, if the field is a foreign_key",
+								),
+							foreign_key_field: z
+								.string()
+								.optional()
+								.describe(
+									"A field in the foreign table that this field refers to",
+								),
+						}),
+					),
+				}),
+			}),
+		)
+		.describe(
+			"an array of nodes definition for reactflow that'll represent the current state of the database",
+		),
+});
 
 async function submitUserMessage(userInput) {
 	"use server";
@@ -92,10 +142,7 @@ async function submitUserMessage(userInput) {
 		model: BOT_MODEL,
 		initial: <SpinnerMessage />,
 		system: SYSTEM_ROOT_PROMPT,
-		messages: [
-			// { role: "system", content: system_root_prompt },
-			...aiState.get().messages,
-		],
+		messages: [...aiState.get().messages],
 		// `text` is called when an AI returns a text response (as opposed to a tool call).
 		// Its content is streamed from the LLM, so this function will be called
 		// multiple times with `content` being incremental.
@@ -120,67 +167,7 @@ async function submitUserMessage(userInput) {
 			update_database_whiteboard: {
 				description:
 					"Update the whiteboard for the database modeling or to show the current state of everything so far. it generates the current state of the database based on the conversation context ",
-				parameters: z.object({
-					initialNodes: z
-						.array(
-							z.object({
-								id: z
-									.string()
-									.describe(
-										"ID for the node, representing the table, eg: table_name",
-									),
-								type: z
-									.literal("dbTableNode")
-									.describe("Type of the node used. node types: dbTableNode "),
-
-								position: z.object({
-									x: z
-										.number()
-										.describe("the position of the node in the x axis"),
-									y: z
-										.number()
-										.describe("the position of the node in the y axis"),
-								}),
-								data: z.object({
-									name: z.string().describe("the name of the table"),
-									columns: z.array(
-										z.object({
-											id: z
-												.string()
-												.describe(
-													"Numerical id that identifies the column. Unique",
-												),
-											name: z.string().describe("Name of the column"),
-											is_primary_key: z
-												.boolean()
-												.describe(
-													"Whether the field the primary key for the table or not. A relational database table should have only one primary key",
-												),
-											type: z.string().describe("Type of the field column"),
-											is_foreign_key: z
-												.boolean()
-												.describe("Either the field is a foreign key or not"),
-											foreign_key_table: z
-												.string()
-												.optional()
-												.describe(
-													"The table name that this field refers to, if the field is a foreign_key",
-												),
-											foreign_key_field: z
-												.string()
-												.optional()
-												.describe(
-													"A field in the foreign table that this field refers to",
-												),
-										}),
-									),
-								}),
-							}),
-						)
-						.describe(
-							"an array of nodes definition for reactflow that'll represent the current state of the database",
-						),
-				}),
+				parameters: database_whiteboard_output_schema,
 				generate: async function* ({ initialNodes }) {
 					yield <SpinnerMessage />;
 
@@ -200,7 +187,7 @@ async function submitUserMessage(userInput) {
 										type: "tool-call",
 										toolName: "update_database_whiteboard",
 										toolCallId,
-										args: { initialNodes },
+										args: {},
 									},
 								],
 							},
@@ -400,6 +387,8 @@ export const AI = createAI({
 		console.debug({ key });
 		console.log({ done });
 		console.debug(`${new Date().toISOString()} - `, { state });
+
+		console.log(JSON.stringify(state, null, 2));
 
 		if (done) {
 			const response = await saveChatMessages(state.chatId, state.messages);
