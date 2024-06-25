@@ -1,4 +1,5 @@
 class ChatsController < ApplicationController
+  before_action :authorize_request
   before_action :set_chat, only: %i[ show update destroy ]
 
   # GET /chats
@@ -16,6 +17,8 @@ class ChatsController < ApplicationController
   # POST /chats
   def create
     @chat = Chat.new(chat_params)
+    @chat.user_id = @current_user.id
+
 
     if @chat.save
       render json: @chat, status: :created, location: @chat
@@ -26,6 +29,7 @@ class ChatsController < ApplicationController
 
   # PATCH/PUT /chats/1
   def update
+    debugger
     if @chat.update(chat_params)
       render json: @chat
     else
@@ -46,6 +50,9 @@ class ChatsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def chat_params
-      params.fetch(:chat, {})
+      params.require(:chat).permit(
+        :title, 
+        messages: [:id, :role, :content]
+      )
     end
 end

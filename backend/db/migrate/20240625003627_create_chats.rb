@@ -3,7 +3,7 @@ class CreateChats < ActiveRecord::Migration[7.1]
     create_table :chats, id: :uuid do |t|
       t.string :title
       t.json :messages, default: []
-      t.belongs_to :user, foreign_key: true
+      t.belongs_to :user, foreign_key: true, null: false
       t.timestamps
     end
   end

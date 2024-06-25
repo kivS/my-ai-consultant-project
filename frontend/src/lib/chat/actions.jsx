@@ -22,6 +22,7 @@ import { generateId, generateObject, generateText } from "ai";
 import { wait } from "../utils";
 import { ExportedDbWhiteboardDialog } from "@/components/whiteboard/exported-to-rails-dialog";
 import { ExportedToSqliteDialog } from "@/components/whiteboard/exported-to-sqlite-dialog";
+import { createChat, saveChatMessages } from "@/app/actions";
 
 const BOT_MODEL = openai("gpt-3.5-turbo");
 // const BOT_MODEL = openai("gpt-4o");
@@ -52,20 +53,37 @@ async function submitUserMessage(userInput) {
 	/**
 	 * Json context for the LLM
 	 */
-	const history = getMutableAIState();
+	const aiState = getMutableAIState();
 
-	console.debug("user submitted a message: ", history.get())
+	console.debug("user submitted a message: ", aiState.get());
 
+	if (!aiState.get().chatId) {
+		console.debug("No chatId, must be a new chat. Creating a new chat...");
+
+		const chat = await createChat({
+			title: "hello",
+		});
+
+		console.log({ chat });
+
+		aiState.update({
+			...aiState.get(),
+			chatId: chat.id,
+		});
+	}
 
 	// Update the AI state with the new user message.
-	history.update([
-		...history.get(),
-		{
-			id: generateId(),
-			role: "user",
-			content: userInput,
-		},
-	]);
+	aiState.update({
+		...aiState.get(),
+		messages: [
+			...aiState.get().messages,
+			{
+				id: generateId(),
+				role: "user",
+				content: userInput,
+			},
+		],
+	});
 
 	//  creates a generated, streamable UI.
 	const result = await streamUI({
@@ -74,21 +92,24 @@ async function submitUserMessage(userInput) {
 		system: SYSTEM_ROOT_PROMPT,
 		messages: [
 			// { role: "system", content: system_root_prompt },
-			...history.get(),
+			...aiState.get().messages,
 		],
 		// `text` is called when an AI returns a text response (as opposed to a tool call).
 		// Its content is streamed from the LLM, so this function will be called
 		// multiple times with `content` being incremental.
 		text: ({ content, done }) => {
 			if (done) {
-				history.done([
-					...history.get(),
-					{
-						id: nanoid(),
-						role: "assistant",
-						content,
-					},
-				]);
+				aiState.done({
+					...aiState.get(),
+					messages: [
+						...aiState.get().messages,
+						{
+							id: generateId(),
+							role: "assistant",
+							content,
+						},
+					],
+				});
 			}
 
 			return <AssistantMarkdownMessage content={content} />;
@@ -165,34 +186,36 @@ async function submitUserMessage(userInput) {
 
 					const toolResultId = generateId();
 
-					history.done([
-						...history.get(),
-						{
-							id: generateId(),
-							role: "assistant",
-							content: [
-								{
-									type: "tool-call",
-									toolName: "update_database_whiteboard",
-									toolCallId,
-									args: { initialNodes },
-								},
-							],
-						},
-
-						{
-							id: toolResultId,
-							role: "tool",
-							content: [
-								{
-									type: "tool-result",
-									toolName: "update_database_whiteboard",
-									toolCallId,
-									result: initialNodes,
-								},
-							],
-						},
-					]);
+					aiState.done({
+						...aiState.get(),
+						messages: [
+							...aiState.get().messages,
+							{
+								id: generateId(),
+								role: "assistant",
+								content: [
+									{
+										type: "tool-call",
+										toolName: "update_database_whiteboard",
+										toolCallId,
+										args: { initialNodes },
+									},
+								],
+							},
+							{
+								id: toolResultId,
+								role: "tool",
+								content: [
+									{
+										type: "tool-result",
+										toolName: "update_database_whiteboard",
+										toolCallId,
+										result: initialNodes,
+									},
+								],
+							},
+						],
+					});
 
 					const initialEdges = [];
 
@@ -313,7 +336,7 @@ async function exportDatabaseWhiteboard(to, toolResultId) {
 //   id ?: string;
 //   name ?: string;
 // }]
-const initialAIState = [];
+const initialAIState = { chatId: null, messages: [] };
 
 // The initial UI state that the client will keep track of, which contains the message IDs and their UI nodes.
 // [{
@@ -332,12 +355,17 @@ export const AI = createAI({
 	// it makes sense to have an array of messages. Or you may prefer something like { id: number, messages: Message[] }
 	initialUIState,
 	initialAIState,
-	onSetAIState: async ({key, state, done }) => {
+	onSetAIState: async ({ key, state, done }) => {
 		"use server";
 
-		console.debug({key})
-		console.log({done})
+		console.debug({ key });
+		console.log({ done });
 		console.debug(`${new Date().toISOString()} - `, { state });
+
+		if (done) {
+			const response = await saveChatMessages(state.chatId, state.messages);
+			console.log({ response });
+		}
 		// console.log({ state });
 	},
 });

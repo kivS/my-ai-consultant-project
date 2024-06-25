@@ -2,6 +2,16 @@
 
 import { getSessionData, logout } from "./(auth)/actions";
 
+
+export async function saveChatMessages(chatId, messages){
+	const result = await make_put_request(`/chats/${chatId}`, {messages: messages})
+}
+
+export async function createChat(payload){
+	const chat = await make_post_request("/chats", payload)
+	return chat
+}
+
 export async function getUserData() {
 	try {
 		const user = await make_get_request("/auth/get-user");
@@ -11,6 +21,63 @@ export async function getUserData() {
 		return null;
 	}
 }
+
+
+
+async function make_put_request(endpoint, payload) {
+	const session = await getSessionData();
+
+	if (!session) {
+		return null;
+	}
+
+	const response = await fetch(
+		`${process.env.BACKEND_API_ENDPOINT}${endpoint}`,
+		{
+			method: "PUT",
+			headers: {
+				Authorization: `Bearer ${session}`,
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify(payload)
+		},
+	);
+
+	if (!response.ok) {
+		throw new Error("Failed to create chat");
+	}
+
+	const json_response = await response.json();
+	return json_response;
+}
+
+async function make_post_request(endpoint, payload) {
+	const session = await getSessionData();
+
+	if (!session) {
+		return null;
+	}
+
+	const response = await fetch(
+		`${process.env.BACKEND_API_ENDPOINT}${endpoint}`,
+		{
+			method: "POST",
+			headers: {
+				Authorization: `Bearer ${session}`,
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify(payload)
+		},
+	);
+
+	if (!response.ok) {
+		throw new Error("Failed to create chat");
+	}
+
+	const json_response = await response.json();
+	return json_response;
+}
+
 
 async function make_get_request(endpoint) {
 	const session = await getSessionData();
