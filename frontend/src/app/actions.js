@@ -3,6 +3,11 @@
 import { getSessionData, logout } from "./(auth)/actions";
 
 
+export async function getChat(chatId){
+	const result = await make_get_request(`/chats/${chatId}`)
+	return result
+}
+
 export async function saveChatMessages(chatId, messages){
 	const result = await make_put_request(`/chats/${chatId}`, {messages: messages})
 }

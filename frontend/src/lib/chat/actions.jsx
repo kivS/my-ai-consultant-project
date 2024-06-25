@@ -4,6 +4,7 @@ import {
 	createAI,
 	createStreamableUI,
 	createStreamableValue,
+	getAIState,
 	getMutableAIState,
 	streamUI,
 } from "ai/rsc";
@@ -12,6 +13,7 @@ import {
 	AssistantMarkdownMessage,
 	AssistantMessage,
 	SpinnerMessage,
+	UserMessage,
 } from "@/components/chat/message";
 import Whiteboard from "@/components/whiteboard/whiteboard";
 import DatabaseWhiteboard from "@/components/database-whiteboard";
@@ -355,6 +357,55 @@ export const AI = createAI({
 	// it makes sense to have an array of messages. Or you may prefer something like { id: number, messages: Message[] }
 	initialUIState,
 	initialAIState,
+	onGetUIState: async () => {
+		"use server";
+
+		const aiState = getAIState();
+
+		console.debug({ aiState });
+
+		if (aiState) {
+			const messagesFromAiState = aiState.messages
+				.filter((message) => message.role !== "system")
+				.map((message, index) => ({
+					id: `${aiState.chatId}-${index}`,
+					display:
+						message.role === "tool" ? null : message.role === "user" ? (
+							//   message.content.map(tool => {
+							//     return tool.toolName === 'listStocks' ? (
+							//       <BotCard>
+							//         {/* TODO: Infer types based on the tool result*/}
+							//         {/* @ts-expect-error */}
+							//         <Stocks props={tool.result} />
+							//       </BotCard>
+							//     ) : tool.toolName === 'showStockPrice' ? (
+							//       <BotCard>
+							//         {/* @ts-expect-error */}
+							//         <Stock props={tool.result} />
+							//       </BotCard>
+							//     ) : tool.toolName === 'showStockPurchase' ? (
+							//       <BotCard>
+							//         {/* @ts-expect-error */}
+							//         <Purchase props={tool.result} />
+							//       </BotCard>
+							//     ) : tool.toolName === 'getEvents' ? (
+							//       <BotCard>
+							//         {/* @ts-expect-error */}
+							//         <Events props={tool.result} />
+							//       </BotCard>
+							//     ) : null
+							//   })
+							<UserMessage>{message.content}</UserMessage>
+						) : message.role === "assistant" &&
+							typeof message.content === "string" ? (
+							<AssistantMarkdownMessage content={message.content} />
+						) : null,
+				}));
+
+			return messagesFromAiState;
+		}
+		return;
+	},
 	onSetAIState: async ({ key, state, done }) => {
 		"use server";
 
