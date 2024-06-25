@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { ChatPanel } from "@/components/chat/panel";
 
-import { useUIState, useActions } from "ai/rsc";
+import { useUIState, useActions, useAIState } from "ai/rsc";
 import { ChatList } from "@/components/chat/chat-list";
 import { ExportedDbWhiteboardDialog } from "../whiteboard/exported-to-rails-dialog";
 import { useScrollAnchor } from "@/hooks/use-scroll-anchor";
@@ -19,12 +19,17 @@ export function Chat({ id, className, session, missingKeys }) {
 	const { messagesRef, scrollRef, visibilityRef, isAtBottom, scrollToBottom } =
 		useScrollAnchor();
 
-	/**
-	 * Data and UI sent by LLM. Client-side only
-	 */
-	const [messages, _] = useUIState();
+	const [messages] = useUIState();
+	const [aiState] = useAIState();
 
-	console.log({ messages });
+	console.debug({ messages });
+
+	//  let's add the chatId to the url when the chat is new and was just created
+	useEffect(() => {
+		if (aiState.chatId && !path.includes("chat")) {
+			window.history.replaceState({}, "", `/chat/${aiState.chatId}`);
+		}
+	}, [path, aiState.chatId]);
 
 	return (
 		<div

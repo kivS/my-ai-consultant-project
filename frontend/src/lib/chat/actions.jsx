@@ -63,7 +63,7 @@ async function submitUserMessage(userInput) {
 		console.debug("No chatId, must be a new chat. Creating a new chat...");
 
 		const chat = await createChat({
-			title: "hello",
+			title: userInput.substring(0, 100),
 		});
 
 		console.log({ chat });

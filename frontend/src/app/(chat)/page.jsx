@@ -6,7 +6,7 @@ import { generateId } from "ai";
 export default function ChatPage({ params }) {
 	return (
 		<AI initialAIState={{ chatId: null, messages: [] }}>
-			<Chat />
+			<Chat id={null} />
 		</AI>
 	);
 }
