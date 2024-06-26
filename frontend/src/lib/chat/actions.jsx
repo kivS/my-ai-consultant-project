@@ -199,7 +199,7 @@ async function submitUserMessage(userInput) {
 										type: "tool-result",
 										toolName: "update_database_whiteboard",
 										toolCallId,
-										result: initialNodes,
+										result: { initialNodes },
 									},
 								],
 							},
@@ -349,7 +349,7 @@ export const AI = createAI({
 
 		const aiState = getAIState();
 
-		console.debug({ aiState });
+		console.debug({ aiState: JSON.stringify(aiState, null, 2) });
 
 		if (aiState) {
 			const messagesFromAiState = aiState.messages
@@ -359,13 +359,13 @@ export const AI = createAI({
 					display:
 						message.role === "tool" ? (
 							message.content.map((tool) => {
-								tool.toolName === "update_database_whiteboard" ? (
-									<AssistantMessage>
+								return tool.toolName === "update_database_whiteboard" ? (
+									<AssistantMessage key={tool.toolCallId}>
 										<DatabaseWhiteboard
-											initialNodes={initialNodes}
-											initialEdges={initialEdges}
+											initialNodes={tool.result.initialNodes}
+											initialEdges={[]}
 										/>
-										<ExportToPopUp toolResultId={toolResultId} />
+										<ExportToPopUp toolResultId={message.id} />
 									</AssistantMessage>
 								) : null;
 							})
@@ -377,6 +377,7 @@ export const AI = createAI({
 						) : null,
 				}));
 
+			console.log(JSON.stringify(messagesFromAiState, null, 2));
 			return messagesFromAiState;
 		}
 		return;
@@ -384,11 +385,9 @@ export const AI = createAI({
 	onSetAIState: async ({ key, state, done }) => {
 		"use server";
 
-		console.debug({ key });
-		console.log({ done });
-		console.debug(`${new Date().toISOString()} - `, { state });
+		console.debug(`${new Date().toISOString()}:`);
 
-		console.log(JSON.stringify(state, null, 2));
+		console.debug(JSON.stringify(state, null, 2));
 
 		if (done) {
 			const response = await saveChatMessages(state.chatId, state.messages);

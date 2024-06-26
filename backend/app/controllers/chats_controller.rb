@@ -29,7 +29,9 @@ class ChatsController < ApplicationController
 
   # PATCH/PUT /chats/1
   def update
-    if @chat.update(chat_params)
+    chat_update_params = params.require(:chat).permit!
+    
+    if @chat.update(chat_update_params)
       render json: @chat
     else
       render json: @chat.errors, status: :unprocessable_entity

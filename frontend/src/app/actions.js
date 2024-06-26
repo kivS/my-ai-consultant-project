@@ -9,7 +9,10 @@ export async function getChat(chatId){
 }
 
 export async function saveChatMessages(chatId, messages){
-	const result = await make_put_request(`/chats/${chatId}`, {messages: messages})
+
+	const payload = {messages: messages}
+	const result = await make_put_request(`/chats/${chatId}`, payload)
+	return result
 }
 
 export async function createChat(payload){
