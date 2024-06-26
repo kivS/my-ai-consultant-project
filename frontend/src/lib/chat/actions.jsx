@@ -245,9 +245,9 @@ async function exportDatabaseWhiteboard(to, toolResultId) {
 		`hello from the server from exportDatabaseWhiteboard. Exporting whiteboard to [${to}] from tool result with id: [${toolResultId}]`,
 	);
 
-	const history = getMutableAIState().get();
+	const aiState = getMutableAIState().get();
 
-	const toolHistoryEntry = history.find(
+	const toolHistoryEntry = aiState.messages.find(
 		(entry) => entry.role === "tool" && entry.id === toolResultId,
 	);
 	console.log("Tool History Entry:", toolHistoryEntry);
