@@ -1,4 +1,5 @@
 class Chat < ApplicationRecord
+    belongs_to :user
     before_create :generate_uuid
 
     private

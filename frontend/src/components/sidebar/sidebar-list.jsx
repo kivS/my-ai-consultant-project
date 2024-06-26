@@ -1,15 +1,17 @@
 import { wait } from "@/lib/utils";
 import { ThemeToggle } from "../theme-toggle";
+import { getChats } from "@/app/actions";
+import { SidebarItems } from "./sidebar-items";
 
 export async function SidebarList() {
-	const chats = [];
+	const chats = await getChats();
 
 	return (
 		<div className="flex flex-1 flex-col overflow-hidden">
 			<div className="flex-1 overflow-auto">
 				{chats?.length ? (
 					<div className="space-y-2 px-2">
-						{/* <SidebarItems chats={chats} /> */}
+						<SidebarItems chats={chats} />
 					</div>
 				) : (
 					<div className="p-8 text-center">

@@ -280,7 +280,7 @@ async function exportDatabaseWhiteboard(to, toolResultId) {
 				prompt: `${JSON.stringify(toolHistoryEntry)}`,
 			});
 
-			console.log({ commands_result });
+			console.debug({ commands_result });
 
 			exportedUI.done(
 				<ExportedDbWhiteboardDialog
@@ -305,7 +305,7 @@ async function exportDatabaseWhiteboard(to, toolResultId) {
 				prompt: `${JSON.stringify(toolHistoryEntry)}`,
 			});
 
-			console.log({ result });
+			console.debug({ result });
 
 			exportedUI.done(<ExportedToSqliteDialog data={result.object} />);
 			break;

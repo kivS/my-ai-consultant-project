@@ -11,6 +11,7 @@ import { useUIState, useActions, useAIState } from "ai/rsc";
 import { ChatList } from "@/components/chat/chat-list";
 import { ExportedDbWhiteboardDialog } from "../whiteboard/exported-to-rails-dialog";
 import { useScrollAnchor } from "@/hooks/use-scroll-anchor";
+import { useLocalStorage } from "@/hooks/use-local-storage";
 
 export function Chat({ id, className, session, missingKeys }) {
 	const router = useRouter();
@@ -22,6 +23,8 @@ export function Chat({ id, className, session, missingKeys }) {
 	const [messages] = useUIState();
 	const [aiState] = useAIState();
 
+	const [_, setNewChatId] = useLocalStorage("newChatId", id);
+
 	console.debug({ messages });
 
 	//  let's add the chatId to the url when the chat is new and was just created
@@ -30,6 +33,17 @@ export function Chat({ id, className, session, missingKeys }) {
 			window.history.replaceState({}, "", `/chat/${aiState.chatId}`);
 		}
 	}, [path, aiState.chatId]);
+
+	useEffect(() => {
+		const messagesLength = aiState.messages?.length;
+		if (messagesLength === 2) {
+			router.refresh();
+		}
+	}, [aiState.messages, router]);
+
+	useEffect(() => {
+		setNewChatId(id);
+	});
 
 	return (
 		<div

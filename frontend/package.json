@@ -21,6 +21,7 @@
     "ai": "^3.1.12",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
+    "framer-motion": "^11.2.12",
     "nanoid": "^5.0.6",
     "next": "14.2.3",
     "next-themes": "^0.3.0",

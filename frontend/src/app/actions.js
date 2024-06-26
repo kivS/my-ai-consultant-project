@@ -3,6 +3,11 @@
 import { getSessionData, logout } from "./(auth)/actions";
 
 
+export async function getChats(){
+	const result = await  make_get_request("/chats")
+	return result
+}
+
 export async function getChat(chatId){
 	const result = await make_get_request(`/chats/${chatId}`)
 	return result
