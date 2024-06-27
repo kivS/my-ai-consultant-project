@@ -24,7 +24,11 @@ import { generateId, generateObject, generateText } from "ai";
 import { wait } from "../utils";
 import { ExportedDbWhiteboardDialog } from "@/components/whiteboard/exported-to-rails-dialog";
 import { ExportedToSqliteDialog } from "@/components/whiteboard/exported-to-sqlite-dialog";
-import { createChat, saveChatMessages } from "@/app/actions";
+import {
+	createChat,
+	saveChatMessages,
+	updateChatDatabaseWhiteboard,
+} from "@/app/actions";
 
 const BOT_MODEL = openai("gpt-3.5-turbo");
 // const BOT_MODEL = openai("gpt-4o");
@@ -107,7 +111,7 @@ async function submitUserMessage(userInput) {
 	 */
 	const aiState = getMutableAIState();
 
-	console.debug("user submitted a message: ", aiState.get());
+	// console.debug("user submitted a message: ", aiState.get());
 
 	if (!aiState.get().chatId) {
 		console.debug("No chatId, must be a new chat. Creating a new chat...");
@@ -207,6 +211,13 @@ async function submitUserMessage(userInput) {
 					});
 
 					const initialEdges = [];
+
+					const updateWhiteboardResult = await updateChatDatabaseWhiteboard(
+						aiState.get().chatId,
+						initialNodes,
+					);
+
+					console.debug({ updateWhiteboardResult });
 
 					return (
 						<AssistantMessage>
@@ -377,7 +388,7 @@ export const AI = createAI({
 						) : null,
 				}));
 
-			console.log(JSON.stringify(messagesFromAiState, null, 2));
+			// console.log(JSON.stringify(messagesFromAiState, null, 2));
 			return messagesFromAiState;
 		}
 		return;
@@ -385,9 +396,8 @@ export const AI = createAI({
 	onSetAIState: async ({ key, state, done }) => {
 		"use server";
 
-		console.debug(`${new Date().toISOString()}:`);
-
-		console.debug(JSON.stringify(state, null, 2));
+		// console.debug(`${new Date().toISOString()}:`);
+		// console.debug(JSON.stringify(state, null, 2));
 
 		if (done) {
 			const response = await saveChatMessages(state.chatId, state.messages);

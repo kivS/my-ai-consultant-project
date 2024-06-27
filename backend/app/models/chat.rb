@@ -11,6 +11,6 @@ class Chat < ApplicationRecord
     end
 
     def add_whiteboard_to_chat
-        create_database_whiteboard
+        self.create_database_whiteboard
     end
 end

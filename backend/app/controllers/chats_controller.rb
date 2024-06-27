@@ -1,16 +1,24 @@
 class ChatsController < ApplicationController
   before_action :authorize_request
-  before_action :set_chat, only: %i[ show update destroy ]
+  before_action :set_chat, only: %i[ show update destroy update_whiteboard ]
 
   # GET /chats
   def index
     @chats =  @current_user.chats
-    render json: @chats
+    render json: @chats.as_json(
+      include: {
+        database_whiteboard: {}
+      }
+    )
   end
 
   # GET /chats/1
   def show
-    render json: @chat
+    render json: @chat.as_json(
+      include: {
+        database_whiteboard: {}
+      }
+    )
   end
 
   # POST /chats
@@ -41,6 +49,20 @@ class ChatsController < ApplicationController
   def destroy
     @chat.destroy!
   end
+
+
+  # PUT /chats/1/whiteboard
+  def update_whiteboard
+    whiteboard_update_params = params.require(:database_whiteboard).permit!
+    
+    if @chat.database_whiteboard.update(whiteboard_update_params)
+      render json: @chat.database_whiteboard
+    else
+      render json: @chat.database_whiteboard.errors, status: :unprocessable_entity
+    end
+
+  end
+
 
   private
     # Use callbacks to share common setup or constraints between actions.

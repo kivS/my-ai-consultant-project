@@ -1,6 +1,12 @@
 Rails.application.routes.draw do
-  resources :database_whiteboards
-  resources :chats
+
+  resources :chats do
+    member do
+      put 'update_whiteboard', to: 'chats#update_whiteboard'
+    end
+  end
+  
+  
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 

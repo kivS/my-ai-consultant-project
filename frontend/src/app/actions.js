@@ -3,26 +3,46 @@
 import { getSessionData, logout } from "./(auth)/actions";
 
 
-export async function getChats(){
-	const result = await  make_get_request("/chats")
-	return result
+export async function updateChatDatabaseWhiteboard(chatId, initialNodes) {
+	const payload = {
+		database_whiteboard: {
+			whiteboard: {
+				initialNodes,
+			},
+		},
+	};
+
+	// console.debug({ payload: JSON.stringify(payload, null, 2) });
+	try {		
+		const result = await make_put_request(
+			`/chats/${chatId}/update_whiteboard`,
+			payload,
+		);
+		return result;
+	} catch (error) {
+		console.error("Error updating the database whiteboard: ", error)
+	}
 }
 
-export async function getChat(chatId){
-	const result = await make_get_request(`/chats/${chatId}`)
-	return result
+export async function getChats() {
+	const result = await make_get_request("/chats");
+	return result;
 }
 
-export async function saveChatMessages(chatId, messages){
-
-	const payload = {messages: messages}
-	const result = await make_put_request(`/chats/${chatId}`, payload)
-	return result
+export async function getChat(chatId) {
+	const result = await make_get_request(`/chats/${chatId}`);
+	return result;
 }
 
-export async function createChat(payload){
-	const chat = await make_post_request("/chats", payload)
-	return chat
+export async function saveChatMessages(chatId, messages) {
+	const payload = { messages: messages };
+	const result = await make_put_request(`/chats/${chatId}`, payload);
+	return result;
+}
+
+export async function createChat(payload) {
+	const chat = await make_post_request("/chats", payload);
+	return chat;
 }
 
 export async function getUserData() {
@@ -34,8 +54,6 @@ export async function getUserData() {
 		return null;
 	}
 }
-
-
 
 async function make_put_request(endpoint, payload) {
 	const session = await getSessionData();
@@ -50,9 +68,9 @@ async function make_put_request(endpoint, payload) {
 			method: "PUT",
 			headers: {
 				Authorization: `Bearer ${session}`,
-				"Content-Type": "application/json"
+				"Content-Type": "application/json",
 			},
-			body: JSON.stringify(payload)
+			body: JSON.stringify(payload),
 		},
 	);
 
@@ -77,9 +95,9 @@ async function make_post_request(endpoint, payload) {
 			method: "POST",
 			headers: {
 				Authorization: `Bearer ${session}`,
-				"Content-Type": "application/json"
+				"Content-Type": "application/json",
 			},
-			body: JSON.stringify(payload)
+			body: JSON.stringify(payload),
 		},
 	);
 
@@ -90,7 +108,6 @@ async function make_post_request(endpoint, payload) {
 	const json_response = await response.json();
 	return json_response;
 }
-
 
 async function make_get_request(endpoint) {
 	const session = await getSessionData();
