@@ -138,6 +138,13 @@ async function submitUserMessage(userInput) {
 			const result = await streamText({
 				model: openai("gpt-3.5-turbo"),
 				temperature: 0,
+				tools: {
+					update_database_whiteboard: {
+						description:
+							"View or manipulate the database whiteboard, aka, the representation of the database architecture",
+						parameters: database_whiteboard_output_schema,
+					},
+				},
 				messages: [
 					...aiState.get().messages,
 					// {
@@ -176,6 +183,40 @@ async function submitUserMessage(userInput) {
 							},
 						],
 					});
+				} else if (type === "tool-call") {
+					const { toolName, args } = delta;
+
+					if (toolName === "update_database_whiteboard") {
+						const { initialNodes } = args;
+
+						uiStream.update(
+							<AssistantMessage>
+								<DatabaseWhiteboard
+									initialNodes={initialNodes}
+									initialEdges={[]}
+								/>
+								<ExportToPopUp toolResultId={""} />
+							</AssistantMessage>,
+						);
+
+						aiState.done({
+							...aiState.get(),
+							messages: [
+								...aiState.get().messages,
+								{
+									id: generateId(),
+									role: "assistant",
+									content: "here's the current database whiteboard",
+									display: {
+										name: "update_database_whiteboard",
+										props: {
+											initialNodes,
+										},
+									},
+								},
+							],
+						});
+					}
 				}
 			}
 
