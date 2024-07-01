@@ -161,22 +161,10 @@ async function submitUserMessage(userInput) {
 					messageStream.update(
 						<AssistantMarkdownMessage content={textContent} />,
 					);
-
-					// aiState.update({
-					// 	...aiState.get(),
-					// 	messages: [
-					// 		...aiState.get().messages,
-					// 		{
-					// 			id: generateId(),
-					// 			role: "assistant",
-					// 			content: textContent,
-					// 		},
-					// 	],
-					// });
 				} else if (type === "finish" && finishReason === "stop") {
-					console.log("finished text!");
-					console.log({ finishReason });
-					console.log({ textContent });
+					// console.log("finished text!");
+					// console.log({ finishReason });
+					// console.log({ textContent });
 					aiState.update({
 						...aiState.get(),
 						messages: [
