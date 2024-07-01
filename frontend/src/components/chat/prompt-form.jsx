@@ -16,6 +16,7 @@ import { useActions, useUIState } from "ai/rsc";
 import { nanoid } from "@/lib/utils";
 import { SpinnerMessage, UserMessage } from "@/components/chat/message";
 import { useEnterSubmit } from "@/hooks/use-enter-submit";
+import { generateId } from "ai";
 
 export function PromptForm({ input, setInput }) {
 	const router = useRouter();
@@ -57,22 +58,22 @@ export function PromptForm({ input, setInput }) {
 				setMessages((currentMessages) => [
 					...currentMessages,
 					{
-						id: nanoid(),
+						id: generateId(),
 						display: <UserMessage>{value}</UserMessage>,
 					},
-					{ id: nanoid(), temp: true, display: <SpinnerMessage /> },
+					// { id: nanoid(), temp: true, display: <SpinnerMessage /> },
 				]);
 
 				// Submit and get response message
 				const responseMessage = await submitUserMessage(value);
 
 				// let's remove the temp Spinner message before loading in the result message
-				setMessages((currentMessages) => {
-					if (currentMessages[currentMessages.length - 1]?.temp) {
-						currentMessages.pop();
-					}
-					return [...currentMessages];
-				});
+				// setMessages((currentMessages) => {
+				// 	if (currentMessages[currentMessages.length - 1]?.temp) {
+				// 		currentMessages.pop();
+				// 	}
+				// 	return [...currentMessages];
+				// });
 
 				setMessages((currentMessages) => [...currentMessages, responseMessage]);
 			}}

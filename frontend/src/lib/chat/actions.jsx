@@ -20,7 +20,7 @@ import DatabaseWhiteboard from "@/components/database-whiteboard";
 import { openai } from "@ai-sdk/openai";
 import { nanoid } from "nanoid";
 import ExportToPopUp from "@/components/whiteboard/export-to";
-import { generateId, generateObject, generateText } from "ai";
+import { generateId, generateObject, generateText, streamText } from "ai";
 import { wait } from "../utils";
 import { ExportedDbWhiteboardDialog } from "@/components/whiteboard/exported-to-rails-dialog";
 import { ExportedToSqliteDialog } from "@/components/whiteboard/exported-to-sqlite-dialog";
@@ -94,6 +94,108 @@ const database_whiteboard_output_schema = z.object({
 async function submitUserMessage(userInput) {
 	"use server";
 
+	const aiState = getMutableAIState();
+
+	let chat = null;
+
+	if (!aiState.get().chatId) {
+		// console.debug("user submitted a message: ", aiState.get());
+
+		console.debug("No chatId, must be a new chat. Creating a new chat...");
+
+		chat = await createChat({
+			title: userInput.substring(0, 100),
+		});
+
+		aiState.update({
+			...aiState.get(),
+			chatId: chat.id,
+		});
+	}
+
+	// Update the AI state with the new user message.
+	aiState.update({
+		...aiState.get(),
+		messages: [
+			...aiState.get().messages,
+			{
+				id: generateId(),
+				role: "user",
+				content: userInput,
+			},
+		],
+	});
+
+	chat = await getChat(aiState.get().chatId);
+
+	const textStream = createStreamableValue("");
+	const spinnerStream = createStreamableUI(<SpinnerMessage />);
+	const messageStream = createStreamableUI(null);
+	const uiStream = createStreamableUI();
+
+	(async () => {
+		try {
+			const result = await streamText({
+				model: openai("gpt-3.5-turbo"),
+				temperature: 0,
+				messages: [
+					...aiState.get().messages,
+					// {
+					// 	role: "system",
+					// 	content: `current database_whiteboard: ${JSON.stringify(chat.database_whiteboard.whiteboard)}`,
+					// },
+				],
+			});
+
+			let textContent = "";
+
+			spinnerStream.done(null);
+
+			for await (const delta of result.fullStream) {
+				const { type } = delta;
+
+				if (type === "text-delta") {
+					const { textDelta } = delta;
+
+					textContent += textDelta;
+					messageStream.update(
+						<AssistantMarkdownMessage content={textContent} />,
+					);
+
+					aiState.update({
+						...aiState.get(),
+						messages: [
+							...aiState.get().messages,
+							{
+								id: generateId(),
+								role: "assistant",
+								textContent,
+							},
+						],
+					});
+				}
+			}
+
+			uiStream.done();
+			textStream.done();
+			messageStream.done();
+		} catch (e) {
+			console.error(e);
+			aiState.done();
+		}
+	})();
+
+	return {
+		id: generateId(),
+		display: messageStream.value,
+		spinner: spinnerStream.value,
+		attachments: uiStream.value,
+	};
+}
+
+async function submitUserMessage2(userInput) {
+	"use server";
+
 	/**
 	 * Json context for the LLM
 	 */
@@ -135,7 +237,6 @@ async function submitUserMessage(userInput) {
 You are a database architect conversation bot and you can help users model their database architecture, step by step.
 You and the user discuss the database modeling in a high level, only going more detailed when the user asks for it.
 
-[ database_whiteboard: ${JSON.stringify(chat.database_whiteboard.whiteboard)} ]
 You have access to the current state of the database architecture, aka, database_whiteboard.
 If the current state of the database whiteboard is "{}" it just means the whiteboard is empty so you need to start from scratch.
 the database_whiteboard is the single source of thruth! any manipulation you do, you do it upon the database_whiteboard using the data that's there!
@@ -149,15 +250,19 @@ Unless instructed otherwise, primary keys on the tables should be named id.
 
 Besides that, you can also chat with the user and do some calculations if needed.`;
 
-	console.debug({ SYSTEM_PROMPT });
-
 	//  creates a generated, streamable UI.
 	const result = await streamUI({
 		model: BOT_MODEL,
 		initial: <SpinnerMessage />,
 		system: SYSTEM_PROMPT,
 		toolChoice: "auto",
-		messages: [...aiState.get().messages],
+		messages: [
+			...aiState.get().messages,
+			{
+				role: "system",
+				content: `current database_whiteboard: ${JSON.stringify(chat.database_whiteboard.whiteboard)}`,
+			},
+		],
 		// `text` is called when an AI returns a text response (as opposed to a tool call).
 		// Its content is streamed from the LLM, so this function will be called
 		// multiple times with `content` being incremental.
