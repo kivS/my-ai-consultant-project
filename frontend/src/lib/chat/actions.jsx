@@ -532,24 +532,23 @@ export const AI = createAI({
 				.map((message, index) => ({
 					id: `${aiState.chatId}-${index}`,
 					display:
-						message.role === "tool" ? (
-							message.content.map((tool) => {
-								return tool.toolName === "update_database_whiteboard" ? (
-									<AssistantMessage key={tool.toolCallId}>
-										<DatabaseWhiteboard
-											initialNodes={tool.result.initialNodes}
-											initialEdges={[]}
-										/>
-										<ExportToPopUp toolResultId={message.id} />
-									</AssistantMessage>
-								) : null;
-							})
+						message.role === "assistant" ? (
+							message.display?.name === "update_database_whiteboard" ? (
+								<AssistantMessage>
+									<DatabaseWhiteboard
+										initialNodes={message.display.props.initialNodes}
+										initialEdges={[]}
+									/>
+									<ExportToPopUp toolResultId={""} />
+								</AssistantMessage>
+							) : (
+								<UserMessage>{message.content}</UserMessage>
+							)
 						) : message.role === "user" ? (
 							<UserMessage>{message.content}</UserMessage>
-						) : message.role === "assistant" &&
-							typeof message.content === "string" ? (
+						) : (
 							<AssistantMarkdownMessage content={message.content} />
-						) : null,
+						),
 				}));
 
 			// console.log(JSON.stringify(messagesFromAiState, null, 2));
