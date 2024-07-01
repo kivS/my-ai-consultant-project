@@ -189,16 +189,6 @@ async function submitUserMessage(userInput) {
 					if (toolName === "update_database_whiteboard") {
 						const { initialNodes } = args;
 
-						uiStream.update(
-							<AssistantMessage>
-								<DatabaseWhiteboard
-									initialNodes={initialNodes}
-									initialEdges={[]}
-								/>
-								<ExportToPopUp toolResultId={""} />
-							</AssistantMessage>,
-						);
-
 						aiState.done({
 							...aiState.get(),
 							messages: [
@@ -216,6 +206,21 @@ async function submitUserMessage(userInput) {
 								},
 							],
 						});
+
+						uiStream.update(
+							<AssistantMessage>
+								<DatabaseWhiteboard
+									initialNodes={initialNodes}
+									initialEdges={[]}
+								/>
+								<ExportToPopUp toolResultId={""} />
+							</AssistantMessage>,
+						);
+
+						const updateWhiteboardResult = await updateChatDatabaseWhiteboard(
+							aiState.get().chatId,
+							initialNodes,
+						);
 					}
 				}
 			}
