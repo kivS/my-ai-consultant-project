@@ -34,12 +34,12 @@ export function Chat({ id, className, session, missingKeys }) {
 		}
 	}, [path, aiState.chatId]);
 
-	useEffect(() => {
-		const messagesLength = aiState.messages?.length;
-		if (messagesLength === 2) {
-			router.refresh();
-		}
-	}, [aiState.messages, router]);
+	// useEffect(() => {
+	// 	const messagesLength = aiState.messages?.length;
+	// 	if (messagesLength === 2) {
+	// 		router.refresh();
+	// 	}
+	// }, [aiState.messages, router]);
 
 	useEffect(() => {
 		setNewChatId(id);

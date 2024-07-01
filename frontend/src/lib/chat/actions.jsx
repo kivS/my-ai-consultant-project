@@ -99,7 +99,7 @@ async function submitUserMessage(userInput) {
 	let chat = null;
 
 	if (!aiState.get().chatId) {
-		// console.debug("user submitted a message: ", aiState.get());
+		console.debug("user submitted a message: ", aiState.get());
 
 		console.debug("No chatId, must be a new chat. Creating a new chat...");
 
@@ -152,7 +152,7 @@ async function submitUserMessage(userInput) {
 			spinnerStream.done(null);
 
 			for await (const delta of result.fullStream) {
-				const { type } = delta;
+				const { type, finishReason } = delta;
 
 				if (type === "text-delta") {
 					const { textDelta } = delta;
@@ -162,6 +162,21 @@ async function submitUserMessage(userInput) {
 						<AssistantMarkdownMessage content={textContent} />,
 					);
 
+					// aiState.update({
+					// 	...aiState.get(),
+					// 	messages: [
+					// 		...aiState.get().messages,
+					// 		{
+					// 			id: generateId(),
+					// 			role: "assistant",
+					// 			content: textContent,
+					// 		},
+					// 	],
+					// });
+				} else if (type === "finish" && finishReason === "stop") {
+					console.log("finished text!");
+					console.log({ finishReason });
+					console.log({ textContent });
 					aiState.update({
 						...aiState.get(),
 						messages: [
@@ -169,7 +184,7 @@ async function submitUserMessage(userInput) {
 							{
 								id: generateId(),
 								role: "assistant",
-								textContent,
+								content: textContent,
 							},
 						],
 					});
@@ -179,6 +194,7 @@ async function submitUserMessage(userInput) {
 			uiStream.done();
 			textStream.done();
 			messageStream.done();
+			aiState.done();
 		} catch (e) {
 			console.error(e);
 			aiState.done();
@@ -510,13 +526,15 @@ export const AI = createAI({
 	onSetAIState: async ({ key, state, done }) => {
 		"use server";
 
-		// console.debug(`${new Date().toISOString()}:`);
-		// console.debug(JSON.stringify(state, null, 2));
+		console.debug(`${new Date().toISOString()}:`);
+		console.debug({ done });
+		console.debug({ key });
+		console.debug(JSON.stringify(state, null, 2));
 
-		if (done) {
-			const response = await saveChatMessages(state.chatId, state.messages);
-			console.log({ saveChatMessages: response });
-		}
+		const response = await saveChatMessages(state.chatId, state.messages);
+		console.log({ saveChatMessages: response });
+		// if (done) {
+		// }
 		// console.log({ state });
 	},
 });

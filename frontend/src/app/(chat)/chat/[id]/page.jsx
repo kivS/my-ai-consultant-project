@@ -11,7 +11,7 @@ export default async function ChatPage({ params }) {
 	}
 
 	const chat = await getChat(params.id);
-	console.log({ chat });
+	// console.log({ chat });
 
 	return (
 		<AI initialAIState={{ chatId: chat.id, messages: chat.messages }}>
