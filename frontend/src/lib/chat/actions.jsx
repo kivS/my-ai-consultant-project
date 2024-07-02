@@ -138,6 +138,14 @@ async function submitUserMessage(userInput) {
 			const result = await streamText({
 				model: openai("gpt-3.5-turbo"),
 				temperature: 0,
+				system: `\
+				You are a friendly assitant that helps the user with their database architectures, from modeling databases from ideias, to understanding current database modeling/architecture and modifying it.
+				
+				The UTC date today is ${new Date().toUTCString()}.
+				
+				You have access to the database_whiteboard, which is where, alongside the user, you will work and present the database architecture/modeling/whiteboard to the user. That means that if the database whiteboard is not empty, every request from the user will use the current database_whiteboard as the source of thruth.
+
+				`,
 				tools: {
 					update_database_whiteboard: {
 						description:
