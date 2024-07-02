@@ -136,7 +136,7 @@ async function submitUserMessage(userInput) {
 	(async () => {
 		try {
 			const result = await streamText({
-				model: openai("gpt-3.5-turbo"),
+				model: openai("gpt-4o"),
 				temperature: 0,
 				system: `\
 				You are a friendly assitant that helps the user with their database architectures, from modeling databases from ideias, to understanding current database modeling/architecture and modifying it.
@@ -164,6 +164,9 @@ async function submitUserMessage(userInput) {
 						content: `current database_whiteboard: ${JSON.stringify(chat.database_whiteboard.whiteboard)}`,
 					},
 				],
+				onFinish: (event) => {
+					console.debug({ streamTextResult: JSON.stringify(event, null, 2) });
+				},
 			});
 
 			let textContent = "";
@@ -399,10 +402,10 @@ export const AI = createAI({
 	onSetAIState: async ({ key, state, done }) => {
 		"use server";
 
-		console.debug(`${new Date().toISOString()}:`);
-		console.debug({ done });
-		console.debug({ key });
-		console.debug(JSON.stringify(state, null, 2));
+		// console.debug(`${new Date().toISOString()}:`);
+		// console.debug({ done });
+		// console.debug({ key });
+		// console.debug(JSON.stringify(state, null, 2));
 
 		const response = await saveChatMessages(state.chatId, state.messages);
 		console.log({ saveChatMessages: response });
