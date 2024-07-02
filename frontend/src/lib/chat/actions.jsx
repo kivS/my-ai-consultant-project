@@ -532,7 +532,9 @@ export const AI = createAI({
 				.map((message, index) => ({
 					id: `${aiState.chatId}-${index}`,
 					display:
-						message.role === "assistant" ? (
+						message.role === "user" ? (
+							<UserMessage>{message.content}</UserMessage>
+						) : message.role === "assistant" ? (
 							message.display?.name === "update_database_whiteboard" ? (
 								<AssistantMessage>
 									<DatabaseWhiteboard
@@ -542,15 +544,10 @@ export const AI = createAI({
 									<ExportToPopUp toolResultId={""} />
 								</AssistantMessage>
 							) : (
-								<UserMessage>{message.content}</UserMessage>
+								<AssistantMarkdownMessage content={message.content} />
 							)
-						) : message.role === "user" ? (
-							<UserMessage>{message.content}</UserMessage>
-						) : (
-							<AssistantMarkdownMessage content={message.content} />
-						),
+						) : null,
 				}));
-
 			// console.log(JSON.stringify(messagesFromAiState, null, 2));
 			return messagesFromAiState;
 		}
