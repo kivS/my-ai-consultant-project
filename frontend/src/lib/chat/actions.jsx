@@ -147,10 +147,10 @@ async function submitUserMessage(userInput) {
 				},
 				messages: [
 					...aiState.get().messages,
-					// {
-					// 	role: "system",
-					// 	content: `current database_whiteboard: ${JSON.stringify(chat.database_whiteboard.whiteboard)}`,
-					// },
+					{
+						role: "system",
+						content: `current database_whiteboard: ${JSON.stringify(chat.database_whiteboard.whiteboard)}`,
+					},
 				],
 			});
 
