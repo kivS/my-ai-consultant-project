@@ -55,6 +55,29 @@ if git diff --name-only HEAD^ HEAD | grep --quiet -e "frontend/"; then
     exit 0
 fi
 
+if git diff --name-only HEAD^ HEAD | grep --quiet -e "backend/"; then
+    echo "✅ Changes detected in the backend/ directory. Processing..."
+
+    MAIN_FOLDER=/opt/homebrew/var/www/my-ai-consultant-project/backend
+
+  
+
+    echo "🚀 Building docker image locally for arm"
+    
+    docker build --platform linux/arm64 -t registry.gitlab.com/kivs/my-ai-consultant-project:arm-backend $MAIN_FOLDER
+    docker push registry.gitlab.com/kivs/my-ai-consultant-project:arm-backend
+    
+
+    echo "🚀 Updating frontend on my Helsinki VPS"
+    ssh $myhelsinkivps_host -p 54321 "cd /home/horse/www/ai-db-architecture-consultant-project/backend; git pull"
+    ssh $myhelsinkivps_host -p 54321 "docker pull registry.gitlab.com/kivs/my-ai-consultant-project:arm-backend"
+    ssh $myhelsinkivps_host -p 54321 "docker stop ai-db-consultant-backend-container; docker rm ai-db-consultant-backend-container"
+    ssh $myhelsinkivps_host -p 54321 "docker run -d --restart unless-stopped  -p 3001:3000 --name ai-db-consultant-backend-container registry.gitlab.com/kivs/my-ai-consultant-project:arm-backend; docker image  prune -f"
+    ssh $myhelsinkivps_host -p 54321 "docker ps --latest; docker logs ai-db-consultant-backend-container"
+
+
+    exit 0
+fi
 
 
 echo "❌ No valid changes detected, carry on!"
