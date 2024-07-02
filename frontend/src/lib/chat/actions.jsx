@@ -204,12 +204,14 @@ async function submitUserMessage(userInput) {
 					if (toolName === "update_database_whiteboard") {
 						const { initialNodes } = args;
 
+						const resultId = generateId();
+
 						aiState.done({
 							...aiState.get(),
 							messages: [
 								...aiState.get().messages,
 								{
-									id: generateId(),
+									id: resultId,
 									role: "assistant",
 									content: "here's the current database whiteboard",
 									display: {
@@ -228,7 +230,7 @@ async function submitUserMessage(userInput) {
 									initialNodes={initialNodes}
 									initialEdges={[]}
 								/>
-								<ExportToPopUp toolResultId={""} />
+								<ExportToPopUp toolResultId={resultId} />
 							</AssistantMessage>,
 						);
 
@@ -278,7 +280,7 @@ async function exportDatabaseWhiteboard(to, toolResultId) {
 	const aiState = getMutableAIState().get();
 
 	const toolHistoryEntry = aiState.messages.find(
-		(entry) => entry.role === "tool" && entry.id === toolResultId,
+		(entry) => entry.role === "assistant" && entry.id === toolResultId,
 	);
 	console.log("Tool History Entry:", toolHistoryEntry);
 
