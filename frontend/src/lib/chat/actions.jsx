@@ -154,7 +154,11 @@ async function submitUserMessage(userInput) {
 					},
 				},
 				messages: [
-					...aiState.get().messages,
+					...aiState
+						.get()
+						.messages.filter(
+							(message) => !(message.role === "assistant" && message.display),
+						),
 					{
 						role: "system",
 						content: `current database_whiteboard: ${JSON.stringify(chat.database_whiteboard.whiteboard)}`,
@@ -251,168 +255,6 @@ async function submitUserMessage(userInput) {
 	};
 }
 
-async function submitUserMessage2(userInput) {
-	"use server";
-
-	/**
-	 * Json context for the LLM
-	 */
-	const aiState = getMutableAIState();
-
-	let chat = null;
-
-	// console.debug("user submitted a message: ", aiState.get());
-
-	if (!aiState.get().chatId) {
-		console.debug("No chatId, must be a new chat. Creating a new chat...");
-
-		chat = await createChat({
-			title: userInput.substring(0, 100),
-		});
-
-		aiState.update({
-			...aiState.get(),
-			chatId: chat.id,
-		});
-	}
-
-	// Update the AI state with the new user message.
-	aiState.update({
-		...aiState.get(),
-		messages: [
-			...aiState.get().messages,
-			{
-				id: generateId(),
-				role: "user",
-				content: userInput,
-			},
-		],
-	});
-
-	chat = await getChat(aiState.get().chatId);
-
-	const SYSTEM_PROMPT = `\
-You are a database architect conversation bot and you can help users model their database architecture, step by step.
-You and the user discuss the database modeling in a high level, only going more detailed when the user asks for it.
-
-You have access to the current state of the database architecture, aka, database_whiteboard.
-If the current state of the database whiteboard is "{}" it just means the whiteboard is empty so you need to start from scratch.
-the database_whiteboard is the single source of thruth! any manipulation you do, you do it upon the database_whiteboard using the data that's there!
-
-If the user requests to see or manipulate the database_whiteboard/architecture of the database, call  \`update_database_whiteboard\` to show or manipulate the database_whiteboard.
-
-If you're answering with text(no UI returned) answer with a pretty formatted markdown.
-
-The names of the everything you generate--tables, fields, types, etc--should be SQL complient, also unless instructed otherwise prefer lower snake_case for table names.
-Unless instructed otherwise, primary keys on the tables should be named id.
-
-Besides that, you can also chat with the user and do some calculations if needed.`;
-
-	//  creates a generated, streamable UI.
-	const result = await streamUI({
-		model: BOT_MODEL,
-		initial: <SpinnerMessage />,
-		system: SYSTEM_PROMPT,
-		toolChoice: "auto",
-		messages: [
-			...aiState.get().messages,
-			{
-				role: "system",
-				content: `current database_whiteboard: ${JSON.stringify(chat.database_whiteboard.whiteboard)}`,
-			},
-		],
-		// `text` is called when an AI returns a text response (as opposed to a tool call).
-		// Its content is streamed from the LLM, so this function will be called
-		// multiple times with `content` being incremental.
-		text: ({ content, done }) => {
-			if (done) {
-				aiState.done({
-					...aiState.get(),
-					messages: [
-						...aiState.get().messages,
-						{
-							id: generateId(),
-							role: "assistant",
-							content,
-						},
-					],
-				});
-			}
-
-			return <AssistantMarkdownMessage content={content} />;
-		},
-		tools: {
-			update_database_whiteboard: {
-				description:
-					"Update the whiteboard for the database modeling or to show the current state of everything so far. it generates the current state of the database based on the conversation context ",
-				parameters: database_whiteboard_output_schema,
-				generate: async function* ({ initialNodes }) {
-					yield <SpinnerMessage />;
-
-					const toolCallId = generateId();
-
-					const toolResultId = generateId();
-
-					aiState.done({
-						...aiState.get(),
-						messages: [
-							...aiState.get().messages,
-							{
-								id: generateId(),
-								role: "assistant",
-								content: [
-									{
-										type: "tool-call",
-										toolName: "update_database_whiteboard",
-										toolCallId,
-										args: {},
-									},
-								],
-							},
-							{
-								id: toolResultId,
-								role: "tool",
-								content: [
-									{
-										type: "tool-result",
-										toolName: "update_database_whiteboard",
-										toolCallId,
-										result: { initialNodes },
-									},
-								],
-							},
-						],
-					});
-
-					const initialEdges = [];
-
-					const updateWhiteboardResult = await updateChatDatabaseWhiteboard(
-						aiState.get().chatId,
-						initialNodes,
-					);
-
-					console.debug({ updateWhiteboardResult });
-
-					return (
-						<AssistantMessage>
-							<DatabaseWhiteboard
-								initialNodes={initialNodes}
-								initialEdges={initialEdges}
-							/>
-							<ExportToPopUp toolResultId={toolResultId} />
-						</AssistantMessage>
-					);
-				},
-			},
-		},
-	});
-
-	return {
-		id: generateId(),
-		display: result.value,
-	};
-}
-
 /**
  *
  * @param {string} to - What system we are exporting to. [rails]
@@ -503,13 +345,6 @@ async function exportDatabaseWhiteboard(to, toolResultId) {
 	return { export_to: to, display: exportedUI.value };
 }
 
-// Define the initial state of the AI. It can be any JSON object.
-// [{
-//   role: 'user' | 'assistant' | 'system' | 'function';
-//   content: string;
-//   id ?: string;
-//   name ?: string;
-// }]
 const initialAIState = { chatId: null, messages: [] };
 
 // The initial UI state that the client will keep track of, which contains the message IDs and their UI nodes.
