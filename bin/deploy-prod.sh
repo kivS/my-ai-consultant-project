@@ -48,7 +48,7 @@ if git diff --name-only HEAD^ HEAD | grep --quiet -e "frontend/"; then
     ssh $myhelsinkivps_host -p 54321 "cd /home/horse/www/ai-db-architecture-consultant-project/frontend; git pull"
     ssh $myhelsinkivps_host -p 54321 "docker pull registry.gitlab.com/kivs/my-ai-consultant-project:arm-frontend"
     ssh $myhelsinkivps_host -p 54321 "docker stop ai-db-consultant-frontend-container; docker rm ai-db-consultant-frontend-container"
-    ssh $myhelsinkivps_host -p 54321 "docker run -d --restart unless-stopped /home/horse/www/ai-db-architecture-consultant-project/frontend:/app  -p 3000:3000 --name ai-db-consultant-frontend-container registry.gitlab.com/kivs/my-ai-consultant-project:arm-frontend; docker image  prune -f"
+    ssh $myhelsinkivps_host -p 54321 "docker run -d --restart unless-stopped  -p 3000:3000 --name ai-db-consultant-frontend-container registry.gitlab.com/kivs/my-ai-consultant-project:arm-frontend; docker image  prune -f"
     ssh $myhelsinkivps_host -p 54321 "docker ps --latest; docker logs ai-db-consultant-frontend-container"
 
 
