@@ -1,7 +1,12 @@
 services:
-  backend:
+  db_copilot_backend:
     platform: linux/arm64
     build:
       context: ./backend
     volumes:
       - /home/horse/www/ai-db-architecture-consultant-project/backend:/rails
+
+  db_copilot_frontend:
+    platform: linux/arm64
+    build:
+      context: ./frontend
