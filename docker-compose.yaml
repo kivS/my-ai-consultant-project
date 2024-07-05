@@ -4,7 +4,7 @@ services:
     build:
       context: ./backend
     volumes:
-      - /home/horse/www/ai-db-architecture-consultant-project/backend:/rails
+      - /home/horse/www/ai-db-architecture-consultant-project/backend/config/credentials/production.key:/rails/config/credentials/production.key
 
   db_copilot_frontend:
     platform: linux/arm64
