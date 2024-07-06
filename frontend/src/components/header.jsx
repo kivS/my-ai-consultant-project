@@ -27,10 +27,6 @@ export function Header() {
 					<UserOrLogin />
 				</React.Suspense>
 			</div>
-
-			<React.Suspense fallback={<div className="flex-1" />}>
-				<EmailNotVerifiedNotice />
-			</React.Suspense>
 		</header>
 	);
 }
@@ -71,24 +67,5 @@ async function UserOrLogin() {
 				)}
 			</div>
 		</>
-	);
-}
-
-async function EmailNotVerifiedNotice() {
-	const session = await getSessionData();
-	if (!session) return null;
-
-	const user = await getUserData();
-
-	console.log({ user });
-
-	if (user?.is_email_verified || !user) return null;
-	return (
-		<div>
-			<div className="text-sm border mr-8 p-2 flex gap-2 rounded border-white bg-red-500 text-white font-semibold">
-				<IconUser className="animate-pulse" /> Check your emailbox and verify
-				your email to continue
-			</div>
-		</div>
 	);
 }
