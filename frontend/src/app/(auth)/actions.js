@@ -25,8 +25,10 @@ export async function login(formData) {
 	}
 }
 
-export async function register(formData) {
-	console.log(formData);
+export async function register(prevState, formData) {
+	
+	console.debug({prevState})
+	console.debug({formData});
 
 	const response = await fetch(
 		`${process.env.BACKEND_API_ENDPOINT}/auth/register`,
@@ -34,17 +36,20 @@ export async function register(formData) {
 			method: "POST",
 			body: formData,
 		},
-	).then((res) => {
-		console.log(res);
-		return res.json();
-	});
+	)
+	
+	const json_response = await response.json()
 
-	console.log({ response });
+	console.debug({ response });
 
-	if (response?.token) {
-		await saveSessionData(response.token);
-		redirect("/");
+	if (json_response?.token) {
+		await saveSessionData(json_response.token);
+		return redirect("/");
 	}
+
+	return json_response
+	
+
 }
 
 // ------------------------------------------------------------------------------
