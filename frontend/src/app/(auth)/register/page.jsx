@@ -8,7 +8,7 @@ export default async function LoginPage() {
 	console.debug({ session });
 
 	return (
-		<div>
+		<div className="flex justify-center mt-20">
 			<RegisterForm />
 		</div>
 	);

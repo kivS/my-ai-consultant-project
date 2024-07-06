@@ -21,18 +21,30 @@ function FieldsetElement({ state }) {
 			className="flex flex-col gap-4"
 			inert={pending ? pending.toString() : undefined}
 		>
-			<div>
-				<label htmlFor="email">Email:</label>
-				<input type="email" id="email" name="email" required />
+			<h1 className="text-center mb-10 text-3xl font-semibold">
+				Register account
+			</h1>
+
+			<div className="flex flex-col gap-2">
+				<label htmlFor="email">Email</label>
+				<input type="email" id="email" name="email" required className="h-8" />
 			</div>
 
-			<div>
-				<label htmlFor="password">Password:</label>
-				<input type="password" id="password" name="password" required />
+			<div className="flex flex-col gap-2">
+				<label htmlFor="password">Password</label>
+				<input
+					type="password"
+					id="password"
+					name="password"
+					required
+					className="h-8"
+				/>
 			</div>
 
-			<div>
-				<button type="submit">{pending ? "Creating..." : "Register"}</button>
+			<div className="flex justify-center">
+				<button type="submit" className="rounded border p-2">
+					{pending ? "Creating..." : "Register"}
+				</button>
 			</div>
 
 			{state?.error ? (
