@@ -3,8 +3,8 @@ services:
     platform: linux/arm64
     build:
       context: ./backend
-      volumes:
-        - /home/horse/www/db-arch-copilot/backend/storage:/rails/storage
+    volumes:
+      - /home/horse/www/db-arch-copilot/backend/storage:/rails/storage
         # healthcheck:
         #   test: curl --fail http://localhost:3000/up || exit 1
         #   interval: 30s
