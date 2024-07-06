@@ -3,15 +3,15 @@ services:
     platform: linux/arm64
     build:
       context: ./backend
-    volumes:
-      - /home/horse/www/ai-db-architecture-consultant-project/backend/storage:/rails/storage
-      - /home/horse/www/ai-db-architecture-consultant-project/backend/config/credentials/production.key:/rails/config/credentials/production.key
-    # healthcheck:
-    #   test: curl --fail http://localhost:3000/up || exit 1
-    #   interval: 30s
-    #   timeout: 30s
-    #   retries: 5
-    #   start_period: 30s
+      # volumes:
+      # - /home/horse/www/ai-db-architecture-consultant-project/backend/storage:/rails/storage
+      # - /home/horse/www/ai-db-architecture-consultant-project/backend/config/credentials/production.key:/rails/config/credentials/production.key
+      # healthcheck:
+      #   test: curl --fail http://localhost:3000/up || exit 1
+      #   interval: 30s
+      #   timeout: 30s
+      #   retries: 5
+      #   start_period: 30s
   db_copilot_frontend:
     platform: linux/arm64
     build:
