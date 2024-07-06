@@ -18,7 +18,10 @@ function FieldsetElement({ state }) {
 	const { pending } = useFormStatus();
 
 	return (
-		<fieldset className="flex flex-col gap-4">
+		<fieldset
+			className="flex flex-col gap-4"
+			inert={pending ? pending.toString() : undefined}
+		>
 			<div>
 				<label htmlFor="email">Email:</label>
 				<input type="email" id="email" name="email" required />
