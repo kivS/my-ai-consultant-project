@@ -17,7 +17,7 @@ services:
     build:
       context: ./frontend
     healthcheck:
-      test: wget --no-verbose --tries=1 --spider http://localhost:3000 || exit 1
+      test: wget --no-verbose --tries=1 --spider http://0.0.0.0:3000 || exit 1
       interval: 30s
       timeout: 30s
       retries: 5
