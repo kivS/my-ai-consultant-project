@@ -19,20 +19,28 @@ function FieldsetElement({ state }) {
 
 	return (
 		<fieldset
-			className="flex flex-col gap-4"
+			className="flex flex-col gap-4 w-80"
 			inert={pending ? pending.toString() : undefined}
 		>
-			<div>
-				<label htmlFor="email">Email:</label>
-				<input type="email" id="email" name="email" required />
+			<h1 className="text-center mb-10 text-3xl font-semibold">Login</h1>
+
+			<div className="flex flex-col gap-2">
+				<label htmlFor="email">Email</label>
+				<input type="email" id="email" name="email" required className="h-8" />
 			</div>
 
-			<div>
-				<label htmlFor="password">Password:</label>
-				<input type="password" id="password" name="password" required />
+			<div className="flex flex-col gap-2">
+				<label htmlFor="password">Password</label>
+				<input
+					type="password"
+					id="password"
+					name="password"
+					required
+					className="h-8"
+				/>
 			</div>
 
-			<div>
+			<div className="text-sm">
 				Or{" "}
 				<Link href="/register" className="text-cyan-400">
 					register
@@ -40,11 +48,13 @@ function FieldsetElement({ state }) {
 				an account
 			</div>
 
-			<div>
-				<button type="submit">{pending ? "Login..." : "Login"}</button>
+			<div className="flex justify-center">
+				<button type="submit" className="rounded border p-2">
+					{pending ? "Login..." : "Login"}
+				</button>
 			</div>
 			{state?.error ? (
-				<p className="p-2 font-semibold border rounded w-56 text-center text-pretty text-red-500">
+				<p className="p-2 font-semibold border rounded text-center text-pretty text-red-500">
 					{state.error}
 				</p>
 			) : null}

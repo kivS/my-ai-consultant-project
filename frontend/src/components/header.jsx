@@ -65,7 +65,7 @@ async function UserOrLogin() {
 							<Link href="/login">Login</Link>
 						</Button>
 						<Button variant="link" asChild className="-ml-2">
-							<Link href="/register">SignUp</Link>
+							<Link href="/register">Sign Up</Link>
 						</Button>
 					</>
 				)}

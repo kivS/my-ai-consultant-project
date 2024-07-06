@@ -8,7 +8,7 @@ export default async function LoginPage() {
 	console.log({ session });
 
 	return (
-		<div className="flex justify-center mt-40">
+		<div className="flex justify-center mt-20">
 			<LoginForm />
 		</div>
 	);

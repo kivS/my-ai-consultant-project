@@ -18,7 +18,7 @@ function FieldsetElement({ state }) {
 
 	return (
 		<fieldset
-			className="flex flex-col gap-4"
+			className="flex flex-col gap-4 w-80"
 			inert={pending ? pending.toString() : undefined}
 		>
 			<h1 className="text-center mb-10 text-3xl font-semibold">
@@ -48,7 +48,7 @@ function FieldsetElement({ state }) {
 			</div>
 
 			{state?.error ? (
-				<p className="p-2 font-semibold border rounded w-56 text-center text-pretty text-red-500">
+				<p className="p-2 font-semibold border rounded text-center text-pretty text-red-500">
 					{state.error}
 				</p>
 			) : null}
