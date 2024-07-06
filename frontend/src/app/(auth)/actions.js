@@ -3,26 +3,28 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-export async function login(formData) {
-	console.log({ formData });
+export async function login(prevState, formData) {
 
-	const response = await fetch(
+	console.debug({ prevState });
+	console.debug({ formData });
+
+	const request = await fetch(
 		`${process.env.BACKEND_API_ENDPOINT}/auth/login`,
 		{
 			method: "POST",
 			body: formData,
 		},
-	).then((res) => {
-		console.log(res);
-		return res.json();
-	});
+	)
 
+	const response = await request.json()
 	console.log({ response });
 
 	if (response?.token) {
 		await saveSessionData(response.token);
-		redirect("/");
+		return redirect("/");
 	}
+
+	return response
 }
 
 export async function register(prevState, formData) {
