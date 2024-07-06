@@ -3,7 +3,6 @@ services:
     platform: linux/arm64
     build:
       context: ./backend
-    user: "horse"
     volumes:
       - /home/horse/www/db-arch-copilot/backend/storage:/rails/storage
         # healthcheck:
