@@ -39,7 +39,7 @@ function HomePage() {
 	return (
 		<div className="container py-20">
 			<h1 className="text-center text-2xl">
-				Hello! Start by creating an account, it takes less than 5 minutes!!
+				Hello! Start by creating an account, it takes less than 5 minutes!
 			</h1>
 		</div>
 	);
