@@ -18,4 +18,5 @@ Rails.application.routes.draw do
   post 'auth/register', to: 'auth#register'
   post 'auth/verify-email', to: 'auth#verify_email'
   get 'auth/get-user', to: 'auth#get_user'
+  get 'auth/is-user-rate-limited', to: 'auth#is_user_rate_limited'
 end

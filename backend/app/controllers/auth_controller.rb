@@ -1,6 +1,6 @@
 class AuthController < ApplicationController
   before_action :authorize_request, except: [:login, :register, :verify_email]
-
+ 
 
   def get_user
     @current_user = @current_user
@@ -71,6 +71,18 @@ class AuthController < ApplicationController
 
     return render json: {is_verified: @user.is_email_verified}, status: :ok
 
+  end
+
+  def is_user_rate_limited
+    count_of_messages_in_last_x_time  = @current_user.chats.flat_map(&:messages).select { |m| m["timestamp"] && m["timestamp"] > 2.hours.ago }.count { |m| m["role"] == 'assistant' }
+    
+    Rails.logger.info("USER_ID:#{@current_user.id} - Count of messages in last 2 hours: #{count_of_messages_in_last_x_time}")
+    
+    if count_of_messages_in_last_x_time >= 10
+      return render json: {is_rate_limited: true}
+    end
+
+    return render json: {is_rate_limited: false}
   end
 
   

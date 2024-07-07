@@ -27,6 +27,7 @@ import { ExportedToSqliteDialog } from "@/components/whiteboard/exported-to-sqli
 import {
 	createChat,
 	getChat,
+	isUserRateLimited,
 	saveChatMessages,
 	updateChatDatabaseWhiteboard,
 } from "@/app/actions";
@@ -98,6 +99,27 @@ async function submitUserMessage(userInput) {
 
 	let chat = null;
 
+	const textStream = createStreamableValue("");
+	const spinnerStream = createStreamableUI(<SpinnerMessage />);
+	const messageStream = createStreamableUI(null);
+	const uiStream = createStreamableUI();
+
+	const userIsRateLimited = await isUserRateLimited();
+	if (userIsRateLimited.is_rate_limited) {
+		const msg = "Too many messages.. try again later!";
+		spinnerStream.update(null);
+		messageStream.done(<AssistantMarkdownMessage content={msg} />);
+		uiStream.done();
+		aiState.done();
+
+		return {
+			id: generateId(),
+			display: messageStream.value,
+			spinner: spinnerStream.value,
+			attachments: uiStream.value,
+		};
+	}
+
 	if (!aiState.get().chatId) {
 		console.debug("user submitted a message: ", aiState.get());
 
@@ -120,6 +142,7 @@ async function submitUserMessage(userInput) {
 			...aiState.get().messages,
 			{
 				id: generateId(),
+				timestamp: new Date().toISOString(),
 				role: "user",
 				content: userInput,
 			},
@@ -127,11 +150,6 @@ async function submitUserMessage(userInput) {
 	});
 
 	chat = await getChat(aiState.get().chatId);
-
-	const textStream = createStreamableValue("");
-	const spinnerStream = createStreamableUI(<SpinnerMessage />);
-	const messageStream = createStreamableUI(null);
-	const uiStream = createStreamableUI();
 
 	(async () => {
 		try {
@@ -193,6 +211,7 @@ async function submitUserMessage(userInput) {
 							...aiState.get().messages,
 							{
 								id: generateId(),
+								timestamp: new Date().toISOString(),
 								role: "assistant",
 								content: textContent,
 							},
@@ -213,6 +232,7 @@ async function submitUserMessage(userInput) {
 								{
 									id: resultId,
 									role: "assistant",
+									timestamp: new Date().toISOString(),
 									content: "here's the current database whiteboard",
 									display: {
 										name: "update_database_whiteboard",

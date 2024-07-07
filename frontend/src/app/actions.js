@@ -3,6 +3,16 @@
 import { getSessionData, logout } from "./(auth)/actions";
 
 
+/**
+ * 
+ * @returns {boolean}
+ */
+export async function isUserRateLimited(){
+	const result = await make_get_request("/auth/is-user-rate-limited")
+	console.debug({isUserRateLimited: result})
+	return result
+}
+
 export async function updateChatDatabaseWhiteboard(chatId, initialNodes) {
 	const payload = {
 		database_whiteboard: {
