@@ -32,9 +32,7 @@ import {
 	updateChatDatabaseWhiteboard,
 } from "@/app/actions";
 
-const BOT_MODEL = openai("gpt-3.5-turbo");
-// const BOT_MODEL = openai("gpt-4o");
-
+const MODEL_FOR_USER_SUBMITTED_MESSAGES = openai("gpt-3.5-turbo");
 const MODEL_TO_GENERATE_EXPORTED_WHITEBOARD_TO_CODE = openai("gpt-3.5-turbo");
 // const MODEL_TO_GENERATE_EXPORTED_WHITEBOARD_TO_CODE = openai("gpt-4o");
 
@@ -154,7 +152,7 @@ async function submitUserMessage(userInput) {
 	(async () => {
 		try {
 			const result = await streamText({
-				model: openai("gpt-4o"),
+				model: MODEL_FOR_USER_SUBMITTED_MESSAGES,
 				temperature: 0,
 				system: `\
 				You are a friendly assitant that helps the user with their database architectures, from modeling databases from ideias, to understanding current database modeling/architecture and modifying it.
