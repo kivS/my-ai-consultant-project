@@ -368,6 +368,21 @@ async function exportDatabaseWhiteboard(to, toolResultId) {
 	return { export_to: to, display: exportedUI.value };
 }
 
+async function importSchema() {
+	"use server";
+	const ui = createStreamableUI();
+	const spinner = createStreamableUI(<div>loading...</div>);
+
+	await wait(2000);
+	spinner.done(null);
+	ui.append(<div>Hello potato</div>);
+
+	return {
+		display: ui.value,
+		spinner: spinner.value,
+	};
+}
+
 const initialAIState = { chatId: null, messages: [] };
 
 // The initial UI state that the client will keep track of, which contains the message IDs and their UI nodes.

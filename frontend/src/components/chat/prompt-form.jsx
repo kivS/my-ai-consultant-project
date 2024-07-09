@@ -10,11 +10,6 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from "@/components/ui/popover";
 
 import { useRouter } from "next/navigation";
 import { useActions, useUIState } from "ai/rsc";
@@ -24,6 +19,8 @@ import { useEnterSubmit } from "@/hooks/use-enter-submit";
 import { generateId } from "ai";
 import Link from "next/link";
 import { TooltipArrow } from "@radix-ui/react-tooltip";
+import { Input } from "../ui/input";
+import PanelMenu from "./panel-menu";
 
 export function PromptForm({ input, setInput }) {
 	const router = useRouter();
@@ -86,35 +83,7 @@ export function PromptForm({ input, setInput }) {
 			}}
 		>
 			<div className="relative flex max-h-60 w-full grow flex-col overflow-hidden bg-background px-8 sm:rounded-md sm:border sm:px-12">
-				<Popover>
-					<PopoverTrigger asChild>
-						<Button
-							variant="outline"
-							size="icon"
-							className="absolute left-0 top-[14px] size-8 rounded-full bg-background p-0 sm:left-4"
-						>
-							<IconPlus />
-							<span className="sr-only">More options</span>
-						</Button>
-					</PopoverTrigger>
-					<PopoverContent>
-						<div className="flex gap-2">
-							<div className="p-2 ">
-								<Link href="/">New Chat</Link>
-							</div>
-							<div className=" px-2">
-								<Button
-									variant="outline"
-									onClick={() => {
-										console.log("poop");
-									}}
-								>
-									Import Schema
-								</Button>
-							</div>
-						</div>
-					</PopoverContent>
-				</Popover>
+				<PanelMenu />
 
 				<Textarea
 					ref={inputRef}

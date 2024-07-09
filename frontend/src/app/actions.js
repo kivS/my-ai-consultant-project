@@ -1,7 +1,15 @@
 "use server";
 
+import { wait } from "@/lib/utils";
 import { getSessionData, logout } from "./(auth)/actions";
 
+
+
+export async function importSchema(data){
+	console.log(data)
+	await wait(3000)
+	return {ok: true}
+}
 
 /**
  * 
