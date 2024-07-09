@@ -36,7 +36,7 @@ const MODEL_FOR_USER_SUBMITTED_MESSAGES = openai("gpt-3.5-turbo");
 const MODEL_TO_GENERATE_EXPORTED_WHITEBOARD_TO_CODE = openai("gpt-3.5-turbo");
 // const MODEL_TO_GENERATE_EXPORTED_WHITEBOARD_TO_CODE = openai("gpt-4o");
 
-const database_whiteboard_output_schema = z.object({
+export const database_whiteboard_output_schema = z.object({
 	initialNodes: z
 		.array(
 			z.object({
@@ -366,21 +366,6 @@ async function exportDatabaseWhiteboard(to, toolResultId) {
 	}
 
 	return { export_to: to, display: exportedUI.value };
-}
-
-async function importSchema() {
-	"use server";
-	const ui = createStreamableUI();
-	const spinner = createStreamableUI(<div>loading...</div>);
-
-	await wait(2000);
-	spinner.done(null);
-	ui.append(<div>Hello potato</div>);
-
-	return {
-		display: ui.value,
-		spinner: spinner.value,
-	};
 }
 
 const initialAIState = { chatId: null, messages: [] };

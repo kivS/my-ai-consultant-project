@@ -22,7 +22,7 @@ import { TooltipArrow } from "@radix-ui/react-tooltip";
 import { Input } from "../ui/input";
 import PanelMenu from "./panel-menu";
 
-export function PromptForm({ input, setInput }) {
+export function PromptForm({ id, input, setInput }) {
 	const router = useRouter();
 	const { formRef, onKeyDown } = useEnterSubmit();
 	const inputRef = React.useRef(null);
@@ -83,7 +83,7 @@ export function PromptForm({ input, setInput }) {
 			}}
 		>
 			<div className="relative flex max-h-60 w-full grow flex-col overflow-hidden bg-background px-8 sm:rounded-md sm:border sm:px-12">
-				<PanelMenu />
+				<PanelMenu chatId={id} />
 
 				<Textarea
 					ref={inputRef}

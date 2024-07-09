@@ -21,7 +21,7 @@ import { Input } from "../ui/input";
 import { wait } from "@/lib/utils";
 import { importSchema } from "@/app/actions";
 
-export default function PanelMenu() {
+export default function PanelMenu({ chatId }) {
 	return (
 		<Popover>
 			<PopoverTrigger asChild>
@@ -74,7 +74,7 @@ export default function PanelMenu() {
 													const fileText = event.target.result;
 													console.log({ fileText });
 
-													const result = await importSchema(fileText);
+													const result = await importSchema(chatId, fileText);
 													console.log({ result });
 												};
 

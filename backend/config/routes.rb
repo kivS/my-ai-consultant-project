@@ -3,6 +3,7 @@ Rails.application.routes.draw do
   resources :chats do
     member do
       put 'update_whiteboard', to: 'chats#update_whiteboard'
+      post 'import-schema-into-whiteboard', to: 'chats#import_schema_into_whiteboard'
     end
   end
   

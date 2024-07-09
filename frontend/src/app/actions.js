@@ -2,12 +2,43 @@
 
 import { wait } from "@/lib/utils";
 import { getSessionData, logout } from "./(auth)/actions";
+import { database_whiteboard_output_schema } from "@/lib/chat/actions";
+import { generateObject } from "ai";
+import { openai } from "@ai-sdk/openai";
 
 
 
-export async function importSchema(data){
-	console.log(data)
-	await wait(3000)
+export async function importSchema(chatId, schema){
+
+	// Given the schema, schema.rb(rails) for now, we need to:
+	// Convert into into a representation of the database whiteboard
+	// Save the whiteboard representation in the chat whiteboard
+	console.log({chatId})
+	// console.log(schema)
+
+	const db_whiteboard_response = await generateObject({
+		model: openai("gpt-3.5-turbo"),
+		mode: "auto",
+		schema: database_whiteboard_output_schema,
+		temperature: 0,
+		system: `\
+	You are a bot that  given a Ruby on Rails schema.rb(current state of the database) 
+	into the database whiteboard schema representation. the schema is in json.
+`,
+		prompt: schema,
+	});
+
+	console.debug(db_whiteboard_response);
+
+	console.debug({db_whiteboard_response: JSON.stringify(db_whiteboard_response, null, 2)})
+
+
+	// const payload = {
+	// 	schema
+	// }
+
+	// const result = make_post_request(`/chats/${chatId}/import-schema-into-whiteboard`, payload)
+	// console.log({result})
 	return {ok: true}
 }
 
