@@ -15,15 +15,25 @@ import {
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "../ui/button";
-import { IconPlus } from "../ui/icons";
+import { IconPlus, IconSpinner } from "../ui/icons";
 import Link from "next/link";
 import { Input } from "../ui/input";
 import { wait } from "@/lib/utils";
 import { importSchema } from "@/app/actions";
+import { useState, useTransition } from "react";
+
+import { generateId } from "ai";
+import { AssistantMessage } from "./message";
+import DatabaseWhiteboard from "../database-whiteboard";
+import { useUIState } from "ai/rsc";
 
 export default function PanelMenu({ chatId }) {
+	const [isSchemaImportPending, startSchemaImportTransition] = useTransition();
+	const [_, setMessages] = useUIState();
+	const [popoverIsOpen, setPopoverOpen] = useState(false);
+	const [alertIsOpen, setAlertOpen] = useState(false);
 	return (
-		<Popover>
+		<Popover open={popoverIsOpen} onOpenChange={setPopoverOpen}>
 			<PopoverTrigger asChild>
 				<Button
 					variant="outline"
@@ -40,7 +50,7 @@ export default function PanelMenu({ chatId }) {
 						<Link href="/">New Chat</Link>
 					</div>
 					<div className=" px-2">
-						<AlertDialog>
+						<AlertDialog open={alertIsOpen} onOpenChange={setAlertOpen}>
 							<AlertDialogTrigger asChild>
 								<Button
 									onClick={() => {
@@ -71,25 +81,72 @@ export default function PanelMenu({ chatId }) {
 
 												const reader = new FileReader();
 												reader.onload = async (event) => {
-													const fileText = event.target.result;
-													console.log({ fileText });
+													startSchemaImportTransition(async () => {
+														const fileText = event.target.result;
+														console.log({ fileText });
 
-													const result = await importSchema(chatId, fileText);
-													console.log({ result });
+														const result = await importSchema(chatId, fileText);
+														console.log({ result });
+
+														if (!result.id) {
+															console.error(
+																"failed to import schema. try again...",
+															);
+															return;
+														}
+
+														setMessages((currentMessages) => [
+															...currentMessages,
+															{
+																id: generateId(),
+																display: (
+																	<AssistantMessage>
+																		<DatabaseWhiteboard
+																			initialNodes={
+																				result.whiteboard.initialNodes
+																			}
+																			initialEdges={[]}
+																		/>
+																		{/* <ExportToPopUp toolResultId={resultId} /> */}
+																	</AssistantMessage>
+																),
+															},
+														]);
+
+														setPopoverOpen(false);
+														setAlertOpen(false);
+													});
 												};
 
 												reader.readAsText(file);
 											}}
 										>
-											<Input name="schema_file" type="file" />
+											<Input
+												name="schema_file"
+												type="file"
+												disabled={isSchemaImportPending}
+											/>
 										</form>
 									</div>
 								</AlertDialogHeader>
 								<AlertDialogFooter>
-									<AlertDialogCancel>Cancel</AlertDialogCancel>
+									<AlertDialogCancel disabled={isSchemaImportPending}>
+										Cancel
+									</AlertDialogCancel>
 
-									<Button type="submit" form="rails_schema_form">
-										Continue
+									<Button
+										type="submit"
+										form="rails_schema_form"
+										disabled={isSchemaImportPending}
+										className="flex gap-1"
+									>
+										{isSchemaImportPending ? (
+											<>
+												Importing <IconSpinner />
+											</>
+										) : (
+											<>Continue</>
+										)}
 									</Button>
 								</AlertDialogFooter>
 							</AlertDialogContent>
