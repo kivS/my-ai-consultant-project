@@ -125,6 +125,7 @@ export default function PanelMenu({ chatId }) {
 												name="schema_file"
 												type="file"
 												disabled={isSchemaImportPending}
+												required
 											/>
 										</form>
 									</div>
