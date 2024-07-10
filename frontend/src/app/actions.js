@@ -14,7 +14,6 @@ export async function importSchema(chatId, schema){
 	// Convert into into a representation of the database whiteboard
 	// Save the whiteboard representation in the chat whiteboard
 	console.log({chatId})
-	// console.log(schema)
 
 	const db_whiteboard_response = await generateObject({
 		model: openai("gpt-3.5-turbo"),
@@ -32,14 +31,9 @@ export async function importSchema(chatId, schema){
 
 	console.debug({db_whiteboard_response: JSON.stringify(db_whiteboard_response, null, 2)})
 
-
-	// const payload = {
-	// 	schema
-	// }
-
-	// const result = make_post_request(`/chats/${chatId}/import-schema-into-whiteboard`, payload)
-	// console.log({result})
-	return {ok: true}
+	const update_whiteboard_respone = await updateChatDatabaseWhiteboard(chatId, db_whiteboard_response.object.initialNodes)
+	console.debug({update_whiteboard_respone})
+	return update_whiteboard_respone
 }
 
 /**
