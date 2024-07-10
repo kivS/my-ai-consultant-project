@@ -52,13 +52,7 @@ export default function PanelMenu({ chatId }) {
 					<div className=" px-2">
 						<AlertDialog open={alertIsOpen} onOpenChange={setAlertOpen}>
 							<AlertDialogTrigger asChild>
-								<Button
-									onClick={() => {
-										console.log("poooop");
-									}}
-								>
-									Import Schema
-								</Button>
+								<Button>Import Schema</Button>
 							</AlertDialogTrigger>
 							<AlertDialogContent>
 								<AlertDialogHeader>
