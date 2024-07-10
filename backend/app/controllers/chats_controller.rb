@@ -1,6 +1,6 @@
 class ChatsController < ApplicationController
   before_action :authorize_request
-  before_action :set_chat, only: %i[ show update destroy update_whiteboard import_schema_into_whiteboard]
+  before_action :set_chat, only: %i[ show update destroy update_whiteboard ]
 
   # GET /chats
   def index
