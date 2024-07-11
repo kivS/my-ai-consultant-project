@@ -52,7 +52,7 @@ export default function PanelMenu({ chatId }) {
 					<div className=" px-2">
 						<AlertDialog open={alertIsOpen} onOpenChange={setAlertOpen}>
 							<AlertDialogTrigger asChild>
-								<Button>Import Schema</Button>
+								<Button>Import Rails Schema</Button>
 							</AlertDialogTrigger>
 							<AlertDialogContent>
 								<AlertDialogHeader>
