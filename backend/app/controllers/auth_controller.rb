@@ -78,7 +78,7 @@ class AuthController < ApplicationController
     
     Rails.logger.info("USER_ID:#{@current_user.id} - Count of messages in last 2 hours: #{count_of_messages_in_last_x_time}")
     
-    if count_of_messages_in_last_x_time >= 10
+    if count_of_messages_in_last_x_time >= 15
       return render json: {is_rate_limited: true}
     end
 
