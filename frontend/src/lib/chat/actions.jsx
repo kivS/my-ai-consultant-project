@@ -36,7 +36,7 @@ import {
 
 const MODEL_FOR_USER_SUBMITTED_MESSAGES = openai("gpt-3.5-turbo");
 const MODEL_TO_GENERATE_EXPORTED_WHITEBOARD_TO_CODE = openai("gpt-3.5-turbo");
-// const MODEL_TO_GENERATE_EXPORTED_WHITEBOARD_TO_CODE = openai("gpt-4o");
+const MODEL_FOR_SCHEMA_IMPORT = openai("gpt-3.5-turbo");
 
 export const database_whiteboard_output_schema = z.object({
 	initialNodes: z
@@ -402,7 +402,7 @@ the schema is in json.
 	}
 
 	const db_whiteboard_response = await generateObject({
-		model: openai("gpt-3.5-turbo"),
+		model: MODEL_FOR_SCHEMA_IMPORT,
 		mode: "auto",
 		schema: database_whiteboard_output_schema,
 		temperature: 0,
