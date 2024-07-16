@@ -344,7 +344,7 @@ export async function importSchema(fromChatId, type, schema) {
 		console.debug("No chatId, must be a new chat. Creating a new chat...");
 
 		const chat = await createChat({
-			title: `From ${type} schema`,
+			title: `Chat from a ${type} schema`,
 		});
 
 		aiState.update({
