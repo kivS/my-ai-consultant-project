@@ -337,6 +337,7 @@ async function submitUserMessage(userInput) {
 			textStream.done();
 			messageStream.done();
 			aiState.done();
+			console.debug(`[submitUserMessage] - ${Date.now() - timeStart} ms`);
 		} catch (e) {
 			console.error(e);
 			aiState.done();
