@@ -20,6 +20,13 @@ export async function isUserRateLimited(){
 	return result
 }
 
+
+export async function getCurrentDatabaseWhiteboard(chatId){
+	const result = await make_get_request(`/chats/${chatId}`);
+	return result?.database_whiteboard?.whiteboard;
+
+}
+
 export async function updateChatDatabaseWhiteboard(chatId, initialNodes) {
 	const payload = {
 		database_whiteboard: {

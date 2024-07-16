@@ -28,6 +28,7 @@ import { ExportedToSqliteDialog } from "@/components/whiteboard/exported-to-sqli
 import {
 	createChat,
 	getChat,
+	getCurrentDatabaseWhiteboard,
 	isUserRateLimited,
 	saveChatMessages,
 	updateChatDatabaseWhiteboard,
@@ -160,14 +161,24 @@ async function submitUserMessage(userInput) {
 				
 				The UTC date today is ${new Date().toUTCString()}.
 				
-				You have access to the database_whiteboard, which is where, alongside the user, you will work and present the database architecture/modeling/whiteboard to the user. That means that if the database whiteboard is not empty, every request from the user will use the current database_whiteboard as the source of thruth.
+				You have access to the database_whiteboard, which is where, alongside the user, you will work and present the database architecture/modeling/whiteboard to the user. That means that if the database whiteboard is not empty, every request from the user will use the current database_whiteboard as the source of thruth:
+				This means that:
+				- if the database_whiteboard needs to be manipulated you should call the \`update_database_whiteboard\` function
+				- to display the current state of the database/whiteboard, ie, the database_whiteboard, you should call the \`show_database_whiteboard\` function.
 
+				Messages between square brackets(eg: [ Database whiteboard updated]) are system messages and are there only to show the user that a action was taken. Don't use it for anything else.
 				`,
 				tools: {
 					update_database_whiteboard: {
 						description:
-							"View or manipulate the database whiteboard, aka, the representation of the database architecture",
+							"Manipulate the database whiteboard, aka, the representation of the database architecture",
 						parameters: database_whiteboard_output_schema,
+					},
+
+					show_database_whiteboard: {
+						description:
+							"Show the current state of the database whiteboard, aka, the representation of the database architecture",
+						parameters: z.object({}),
 					},
 				},
 				messages: [
@@ -236,6 +247,7 @@ async function submitUserMessage(userInput) {
 									display: {
 										name: "update_database_whiteboard",
 										props: {
+											messageId: resultId,
 											initialNodes,
 										},
 									},
@@ -259,20 +271,46 @@ async function submitUserMessage(userInput) {
 						);
 					}
 
-					// if (toolName === "show_database_whiteboard") {
-					// 	// get the current database whiteboard from db
-					// 	// render it for the user to check
+					if (toolName === "show_database_whiteboard") {
+						// get the current database whiteboard from db
+						// render it for the user to check
 
-					// 	uiStream.update(
-					// 		<AssistantMessage>
-					// 			<DatabaseWhiteboard
-					// 				initialNodes={initialNodes}
-					// 				initialEdges={[]}
-					// 			/>
-					// 			{/* <ExportToPopUp toolResultId={resultId} /> */}
-					// 		</AssistantMessage>,
-					// 	);
-					// }
+						const whiteboard = await getCurrentDatabaseWhiteboard(
+							aiState.get().chatId,
+						);
+
+						const msgId = generateId();
+
+						aiState.done({
+							...aiState.get(),
+							messages: [
+								...aiState.get().messages,
+								{
+									id: msgId,
+									role: "assistant",
+									timestamp: new Date().toISOString(),
+									content: "here's the current database whiteboard",
+									display: {
+										name: "show_database_whiteboard",
+										props: {
+											messageId: msgId,
+											initialNodes: whiteboard.initialNodes,
+										},
+									},
+								},
+							],
+						});
+
+						uiStream.update(
+							<AssistantMessage>
+								<DatabaseWhiteboard
+									initialNodes={whiteboard.initialNodes}
+									initialEdges={[]}
+								/>
+								<ExportToPopUp toolResultId={msgId} />
+							</AssistantMessage>,
+						);
+					}
 				}
 			}
 
@@ -487,13 +525,16 @@ export const AI = createAI({
 						) : message.role === "system" ? (
 							<SystemMessage>{message.content}</SystemMessage>
 						) : message.role === "assistant" ? (
+							message.display?.name === "show_database_whiteboard" ||
 							message.display?.name === "update_database_whiteboard" ? (
 								<AssistantMessage>
 									<DatabaseWhiteboard
 										initialNodes={message.display.props.initialNodes}
 										initialEdges={[]}
 									/>
-									<ExportToPopUp toolResultId={""} />
+									<ExportToPopUp
+										toolResultId={message.display.props.messageId}
+									/>
 								</AssistantMessage>
 							) : (
 								<AssistantMarkdownMessage content={message.content} />
