@@ -28,10 +28,8 @@ import DatabaseWhiteboard from "../database-whiteboard";
 import { useUIState } from "ai/rsc";
 
 export default function PanelMenu({ chatId }) {
-	const [isSchemaImportPending, startSchemaImportTransition] = useTransition();
-	const [_, setMessages] = useUIState();
 	const [popoverIsOpen, setPopoverOpen] = useState(false);
-	const [alertIsOpen, setAlertOpen] = useState(false);
+
 	return (
 		<Popover open={popoverIsOpen} onOpenChange={setPopoverOpen}>
 			<PopoverTrigger asChild>
@@ -45,110 +43,240 @@ export default function PanelMenu({ chatId }) {
 				</Button>
 			</PopoverTrigger>
 			<PopoverContent>
-				<div className="flex gap-2">
+				<div className="flex flex-wrap gap-2 ">
 					<div className="p-2 ">
 						<Link href="/">New Chat</Link>
 					</div>
+
 					<div className=" px-2">
-						<AlertDialog open={alertIsOpen} onOpenChange={setAlertOpen}>
-							<AlertDialogTrigger asChild>
-								<Button>Import Rails Schema</Button>
-							</AlertDialogTrigger>
-							<AlertDialogContent>
-								<AlertDialogHeader>
-									<AlertDialogTitle>Import Schema</AlertDialogTitle>
-									<AlertDialogDescription>
-										<p>Add your schema from Ruby on Rails</p>
-									</AlertDialogDescription>
-									<div className="my-8">
-										<form
-											id="rails_schema_form"
-											method="post"
-											onSubmit={async (e) => {
-												e.preventDefault();
+						<ImportRailsSchema
+							chatId={chatId}
+							popoverIsOpen={popoverIsOpen}
+							setPopoverOpen={setPopoverOpen}
+						/>
+					</div>
 
-												const formData = new FormData(e.target);
-
-												console.log(Object.fromEntries(formData));
-
-												const file = formData.get("schema_file");
-
-												const reader = new FileReader();
-												reader.onload = async (event) => {
-													startSchemaImportTransition(async () => {
-														const fileText = event.target.result;
-														console.log({ fileText });
-
-														const result = await importSchema(chatId, fileText);
-														console.log({ result });
-
-														if (!result.id) {
-															console.error(
-																"failed to import schema. try again...",
-															);
-															return;
-														}
-
-														setMessages((currentMessages) => [
-															...currentMessages,
-															{
-																id: generateId(),
-																display: (
-																	<AssistantMessage>
-																		<DatabaseWhiteboard
-																			initialNodes={
-																				result.whiteboard.initialNodes
-																			}
-																			initialEdges={[]}
-																		/>
-																		{/* <ExportToPopUp toolResultId={resultId} /> */}
-																	</AssistantMessage>
-																),
-															},
-														]);
-
-														setPopoverOpen(false);
-														setAlertOpen(false);
-													});
-												};
-
-												reader.readAsText(file);
-											}}
-										>
-											<Input
-												name="schema_file"
-												type="file"
-												disabled={isSchemaImportPending}
-												required
-											/>
-										</form>
-									</div>
-								</AlertDialogHeader>
-								<AlertDialogFooter>
-									<AlertDialogCancel disabled={isSchemaImportPending}>
-										Cancel
-									</AlertDialogCancel>
-
-									<Button
-										type="submit"
-										form="rails_schema_form"
-										disabled={isSchemaImportPending}
-										className="flex gap-1"
-									>
-										{isSchemaImportPending ? (
-											<>
-												Importing <IconSpinner />
-											</>
-										) : (
-											<>Continue</>
-										)}
-									</Button>
-								</AlertDialogFooter>
-							</AlertDialogContent>
-						</AlertDialog>
+					<div className=" px-2">
+						<ImportPostgresSchema
+							chatId={chatId}
+							popoverIsOpen={popoverIsOpen}
+							setPopoverOpen={setPopoverOpen}
+						/>
 					</div>
 				</div>
 			</PopoverContent>
 		</Popover>
+	);
+}
+
+function ImportPostgresSchema({ chatId, popoverIsOpen, setPopoverOpen }) {
+	const [isSchemaImportPending, startSchemaImportTransition] = useTransition();
+	const [alertIsOpen, setAlertOpen] = useState(false);
+	const [_, setMessages] = useUIState();
+
+	return (
+		<AlertDialog open={alertIsOpen} onOpenChange={setAlertOpen}>
+			<AlertDialogTrigger asChild>
+				<Button>Import PostGres Schema</Button>
+			</AlertDialogTrigger>
+			<AlertDialogContent>
+				<AlertDialogHeader>
+					<AlertDialogTitle>Import Schema</AlertDialogTitle>
+					<AlertDialogDescription>
+						<p>Add your PostGRES schema</p>
+					</AlertDialogDescription>
+					<div className="my-8">
+						<form
+							id="postgres_schema_form"
+							method="post"
+							onSubmit={async (e) => {
+								e.preventDefault();
+
+								const formData = new FormData(e.target);
+
+								console.debug(Object.fromEntries(formData));
+
+								const file = formData.get("schema_file");
+
+								const reader = new FileReader();
+								reader.onload = async (event) => {
+									startSchemaImportTransition(async () => {
+										const fileText = event.target.result;
+										console.log({ fileText });
+
+										const result = await importSchema(
+											chatId,
+											"postgres",
+											fileText,
+										);
+										console.log({ result });
+
+										if (!result.id) {
+											console.error("failed to import schema. try again...");
+											return;
+										}
+
+										setMessages((currentMessages) => [
+											...currentMessages,
+											{
+												id: generateId(),
+												display: (
+													<AssistantMessage>
+														<DatabaseWhiteboard
+															initialNodes={result.whiteboard.initialNodes}
+															initialEdges={[]}
+														/>
+														{/* <ExportToPopUp toolResultId={resultId} /> */}
+													</AssistantMessage>
+												),
+											},
+										]);
+
+										setPopoverOpen(false);
+										setAlertOpen(false);
+									});
+								};
+
+								reader.readAsText(file);
+							}}
+						>
+							<Input
+								name="schema_file"
+								type="file"
+								accept=".sql"
+								disabled={isSchemaImportPending}
+								required
+							/>
+						</form>
+					</div>
+				</AlertDialogHeader>
+				<AlertDialogFooter>
+					<AlertDialogCancel disabled={isSchemaImportPending}>
+						Cancel
+					</AlertDialogCancel>
+
+					<Button
+						type="submit"
+						form="postgres_schema_form"
+						disabled={isSchemaImportPending}
+						className="flex gap-1"
+					>
+						{isSchemaImportPending ? (
+							<>
+								Importing <IconSpinner />
+							</>
+						) : (
+							<>Continue</>
+						)}
+					</Button>
+				</AlertDialogFooter>
+			</AlertDialogContent>
+		</AlertDialog>
+	);
+}
+
+function ImportRailsSchema({ chatId, popoverIsOpen, setPopoverOpen }) {
+	const [isSchemaImportPending, startSchemaImportTransition] = useTransition();
+	const [alertIsOpen, setAlertOpen] = useState(false);
+	const [_, setMessages] = useUIState();
+
+	return (
+		<AlertDialog open={alertIsOpen} onOpenChange={setAlertOpen}>
+			<AlertDialogTrigger asChild>
+				<Button>Import Rails Schema</Button>
+			</AlertDialogTrigger>
+			<AlertDialogContent>
+				<AlertDialogHeader>
+					<AlertDialogTitle>Import Schema</AlertDialogTitle>
+					<AlertDialogDescription>
+						<p>Add your `schema.rb` from Ruby on Rails</p>
+					</AlertDialogDescription>
+					<div className="my-8">
+						<form
+							id="rails_schema_form"
+							method="post"
+							onSubmit={async (e) => {
+								e.preventDefault();
+
+								const formData = new FormData(e.target);
+
+								console.log(Object.fromEntries(formData));
+
+								const file = formData.get("schema_file");
+
+								const reader = new FileReader();
+								reader.onload = async (event) => {
+									startSchemaImportTransition(async () => {
+										const fileText = event.target.result;
+										console.log({ fileText });
+
+										const result = await importSchema(
+											chatId,
+											"rails",
+											fileText,
+										);
+										console.log({ result });
+
+										if (!result.id) {
+											console.error("failed to import schema. try again...");
+											return;
+										}
+
+										setMessages((currentMessages) => [
+											...currentMessages,
+											{
+												id: generateId(),
+												display: (
+													<AssistantMessage>
+														<DatabaseWhiteboard
+															initialNodes={result.whiteboard.initialNodes}
+															initialEdges={[]}
+														/>
+														{/* <ExportToPopUp toolResultId={resultId} /> */}
+													</AssistantMessage>
+												),
+											},
+										]);
+
+										setPopoverOpen(false);
+										setAlertOpen(false);
+									});
+								};
+
+								reader.readAsText(file);
+							}}
+						>
+							<Input
+								name="schema_file"
+								type="file"
+								disabled={isSchemaImportPending}
+								accept=".rb"
+								required
+							/>
+						</form>
+					</div>
+				</AlertDialogHeader>
+				<AlertDialogFooter>
+					<AlertDialogCancel disabled={isSchemaImportPending}>
+						Cancel
+					</AlertDialogCancel>
+
+					<Button
+						type="submit"
+						form="rails_schema_form"
+						disabled={isSchemaImportPending}
+						className="flex gap-1"
+					>
+						{isSchemaImportPending ? (
+							<>
+								Importing <IconSpinner />
+							</>
+						) : (
+							<>Continue</>
+						)}
+					</Button>
+				</AlertDialogFooter>
+			</AlertDialogContent>
+		</AlertDialog>
 	);
 }

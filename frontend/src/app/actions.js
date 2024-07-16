@@ -8,22 +8,44 @@ import { openai } from "@ai-sdk/openai";
 
 
 
-export async function importSchema(chatId, schema){
+export async function importSchema(chatId, type , schema){
 
-	// Given the schema, schema.rb(rails) for now, we need to:
-	// Convert into into a representation of the database whiteboard
-	// Save the whiteboard representation in the chat whiteboard
-	console.log({chatId})
+	let system_prompt = ""
+
+	console.log(`Processing ${type} schema for chat:${chatId}`)
+
+	switch (type) {
+		case "rails":{
+
+			system_prompt = `\
+You are a bot that  given a Ruby on Rails schema.rb, you generate the database whiteboard schema representation(current state of the database). 
+the schema is in json.
+`
+			break
+		}
+			
+		case "postgres":{
+
+			system_prompt = `\
+You are a bot that  given a Postgres schema, you generate the database whiteboard schema representation(current state of the database).
+the schema is in json.
+`
+			break
+		}
+		
+	
+		default:
+			throw new Error(`[${type}] is not allowed`)
+			
+	}
+	
 
 	const db_whiteboard_response = await generateObject({
 		model: openai("gpt-3.5-turbo"),
 		mode: "auto",
 		schema: database_whiteboard_output_schema,
 		temperature: 0,
-		system: `\
-	You are a bot that  given a Ruby on Rails schema.rb(current state of the database) 
-	into the database whiteboard schema representation. the schema is in json.
-`,
+		system: system_prompt,
 		prompt: schema,
 	});
 
