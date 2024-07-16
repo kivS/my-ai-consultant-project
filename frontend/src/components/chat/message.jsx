@@ -36,6 +36,17 @@ export function AssistantMessage({ children }) {
 		</div>
 	);
 }
+
+export function SystemMessage({ children }) {
+	return (
+		<div className="group relative flex items-start">
+			<div className="text-sm text-muted-foreground font-semibold flex-1 space-y-2 text-center overflow-hidden">
+				{children}
+			</div>
+		</div>
+	);
+}
+
 export function AssistantMarkdownMessage({ content }) {
 	// const [generationText, setGenerationText] = useState("");
 	console.log(content);

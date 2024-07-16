@@ -13,6 +13,7 @@ import {
 	AssistantMarkdownMessage,
 	AssistantMessage,
 	SpinnerMessage,
+	SystemMessage,
 	UserMessage,
 } from "@/components/chat/message";
 import Whiteboard from "@/components/whiteboard/whiteboard";
@@ -231,7 +232,7 @@ async function submitUserMessage(userInput) {
 									id: resultId,
 									role: "assistant",
 									timestamp: new Date().toISOString(),
-									content: "here's the current database whiteboard",
+									content: "here's the updated database whiteboard",
 									display: {
 										name: "update_database_whiteboard",
 										props: {
@@ -257,6 +258,21 @@ async function submitUserMessage(userInput) {
 							initialNodes,
 						);
 					}
+
+					// if (toolName === "show_database_whiteboard") {
+					// 	// get the current database whiteboard from db
+					// 	// render it for the user to check
+
+					// 	uiStream.update(
+					// 		<AssistantMessage>
+					// 			<DatabaseWhiteboard
+					// 				initialNodes={initialNodes}
+					// 				initialEdges={[]}
+					// 			/>
+					// 			{/* <ExportToPopUp toolResultId={resultId} /> */}
+					// 		</AssistantMessage>,
+					// 	);
+					// }
 				}
 			}
 
@@ -276,6 +292,73 @@ async function submitUserMessage(userInput) {
 		spinner: spinnerStream.value,
 		attachments: uiStream.value,
 	};
+}
+
+export async function importSchema(chatId, type, schema) {
+	"use server";
+
+	let system_prompt = "";
+
+	console.log(`Processing ${type} schema for chat:${chatId}`);
+
+	switch (type) {
+		case "rails": {
+			system_prompt = `\
+You are a bot that  given a Ruby on Rails schema.rb, you generate the database whiteboard schema representation(current state of the database). 
+the schema is in json.
+`;
+			break;
+		}
+
+		case "postgres": {
+			system_prompt = `\
+You are a bot that  given a Postgres schema, you generate the database whiteboard schema representation(current state of the database).
+the schema is in json.
+`;
+			break;
+		}
+
+		default:
+			throw new Error(`[${type}] is not allowed`);
+	}
+
+	const db_whiteboard_response = await generateObject({
+		model: openai("gpt-3.5-turbo"),
+		mode: "auto",
+		schema: database_whiteboard_output_schema,
+		temperature: 0,
+		system: system_prompt,
+		prompt: schema,
+	});
+
+	console.debug(db_whiteboard_response);
+
+	console.debug({
+		db_whiteboard_response: JSON.stringify(db_whiteboard_response, null, 2),
+	});
+
+	const update_whiteboard_respone = await updateChatDatabaseWhiteboard(
+		chatId,
+		db_whiteboard_response.object.initialNodes,
+	);
+	console.debug({ update_whiteboard_respone });
+
+	const aiState = getMutableAIState();
+
+	aiState.done({
+		...aiState.get(),
+		messages: [
+			...aiState.get().messages,
+			{
+				id: generateId(),
+				timestamp: new Date().toISOString(),
+				role: "system",
+				content: "[ Database whiteboard updated ]",
+			},
+		],
+	});
+
+	return update_whiteboard_respone;
 }
 
 /**
@@ -382,6 +465,7 @@ export const AI = createAI({
 	actions: {
 		submitUserMessage,
 		exportDatabaseWhiteboard,
+		importSchema,
 	},
 	// Each state can be any shape of object, but for chat applications
 	// it makes sense to have an array of messages. Or you may prefer something like { id: number, messages: Message[] }
@@ -394,12 +478,14 @@ export const AI = createAI({
 
 		if (aiState) {
 			const messagesFromAiState = aiState.messages
-				.filter((message) => message.role !== "system")
+				// .filter((message) => message.role !== "system")
 				.map((message, index) => ({
 					id: `${aiState.chatId}-${index}`,
 					display:
 						message.role === "user" ? (
 							<UserMessage>{message.content}</UserMessage>
+						) : message.role === "system" ? (
+							<SystemMessage>{message.content}</SystemMessage>
 						) : message.role === "assistant" ? (
 							message.display?.name === "update_database_whiteboard" ? (
 								<AssistantMessage>

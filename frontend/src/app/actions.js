@@ -5,58 +5,10 @@ import { getSessionData, logout } from "./(auth)/actions";
 import { database_whiteboard_output_schema } from "@/lib/chat/actions";
 import { generateObject } from "ai";
 import { openai } from "@ai-sdk/openai";
+import { getMutableAIState } from "ai/rsc";
 
 
 
-export async function importSchema(chatId, type , schema){
-
-	let system_prompt = ""
-
-	console.log(`Processing ${type} schema for chat:${chatId}`)
-
-	switch (type) {
-		case "rails":{
-
-			system_prompt = `\
-You are a bot that  given a Ruby on Rails schema.rb, you generate the database whiteboard schema representation(current state of the database). 
-the schema is in json.
-`
-			break
-		}
-			
-		case "postgres":{
-
-			system_prompt = `\
-You are a bot that  given a Postgres schema, you generate the database whiteboard schema representation(current state of the database).
-the schema is in json.
-`
-			break
-		}
-		
-	
-		default:
-			throw new Error(`[${type}] is not allowed`)
-			
-	}
-	
-
-	const db_whiteboard_response = await generateObject({
-		model: openai("gpt-3.5-turbo"),
-		mode: "auto",
-		schema: database_whiteboard_output_schema,
-		temperature: 0,
-		system: system_prompt,
-		prompt: schema,
-	});
-
-	console.debug(db_whiteboard_response);
-
-	console.debug({db_whiteboard_response: JSON.stringify(db_whiteboard_response, null, 2)})
-
-	const update_whiteboard_respone = await updateChatDatabaseWhiteboard(chatId, db_whiteboard_response.object.initialNodes)
-	console.debug({update_whiteboard_respone})
-	return update_whiteboard_respone
-}
 
 /**
  * 

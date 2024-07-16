@@ -30,7 +30,7 @@ export function PromptForm({ id, input, setInput }) {
 	/**
 	 *
 	 */
-	const { submitUserMessage, testing } = useActions();
+	const { submitUserMessage } = useActions();
 
 	const [_, setMessages] = useUIState();
 

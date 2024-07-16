@@ -19,13 +19,12 @@ import { IconPlus, IconSpinner } from "../ui/icons";
 import Link from "next/link";
 import { Input } from "../ui/input";
 import { wait } from "@/lib/utils";
-import { importSchema } from "@/app/actions";
 import { useState, useTransition } from "react";
 
 import { generateId } from "ai";
-import { AssistantMessage } from "./message";
+import { AssistantMessage, SystemMessage } from "./message";
 import DatabaseWhiteboard from "../database-whiteboard";
-import { useUIState } from "ai/rsc";
+import { useActions, useUIState } from "ai/rsc";
 
 export default function PanelMenu({ chatId }) {
 	const [popoverIsOpen, setPopoverOpen] = useState(false);
@@ -73,6 +72,7 @@ function ImportPostgresSchema({ chatId, popoverIsOpen, setPopoverOpen }) {
 	const [isSchemaImportPending, startSchemaImportTransition] = useTransition();
 	const [alertIsOpen, setAlertOpen] = useState(false);
 	const [_, setMessages] = useUIState();
+	const { importSchema } = useActions();
 
 	return (
 		<AlertDialog open={alertIsOpen} onOpenChange={setAlertOpen}>
@@ -118,6 +118,14 @@ function ImportPostgresSchema({ chatId, popoverIsOpen, setPopoverOpen }) {
 
 										setMessages((currentMessages) => [
 											...currentMessages,
+											{
+												id: generateId(),
+												display: (
+													<SystemMessage>
+														[ Database whiteboard updated ]
+													</SystemMessage>
+												),
+											},
 											{
 												id: generateId(),
 												display: (
@@ -179,6 +187,7 @@ function ImportRailsSchema({ chatId, popoverIsOpen, setPopoverOpen }) {
 	const [isSchemaImportPending, startSchemaImportTransition] = useTransition();
 	const [alertIsOpen, setAlertOpen] = useState(false);
 	const [_, setMessages] = useUIState();
+	const { importSchema } = useActions();
 
 	return (
 		<AlertDialog open={alertIsOpen} onOpenChange={setAlertOpen}>
@@ -224,6 +233,14 @@ function ImportRailsSchema({ chatId, popoverIsOpen, setPopoverOpen }) {
 
 										setMessages((currentMessages) => [
 											...currentMessages,
+											{
+												id: generateId(),
+												display: (
+													<SystemMessage>
+														[ Database whiteboard updated ]
+													</SystemMessage>
+												),
+											},
 											{
 												id: generateId(),
 												display: (
