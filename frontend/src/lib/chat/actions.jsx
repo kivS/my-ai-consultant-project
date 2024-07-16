@@ -95,6 +95,8 @@ export const database_whiteboard_output_schema = z.object({
 async function submitUserMessage(userInput) {
 	"use server";
 
+	const timeStart = Date.now();
+
 	const aiState = getMutableAIState();
 
 	let chat = null;
@@ -207,6 +209,12 @@ async function submitUserMessage(userInput) {
 				if (type === "text-delta") {
 					const { textDelta } = delta;
 
+					if (!textContent) {
+						console.debug(
+							`[submitUserMessage:text-stream-start] - ${Date.now() - timeStart} ms`,
+						);
+					}
+
 					textContent += textDelta;
 					messageStream.update(
 						<AssistantMarkdownMessage content={textContent} />,
@@ -227,6 +235,9 @@ async function submitUserMessage(userInput) {
 							},
 						],
 					});
+					console.debug(
+						`[submitUserMessage:text-stream-finish] - ${Date.now() - timeStart} ms`,
+					);
 				} else if (type === "tool-call") {
 					const { toolName, args } = delta;
 
@@ -269,6 +280,10 @@ async function submitUserMessage(userInput) {
 							aiState.get().chatId,
 							initialNodes,
 						);
+
+						console.debug(
+							`[submitUserMessage:update_database_whiteboard] - ${Date.now() - timeStart} ms`,
+						);
 					}
 
 					if (toolName === "show_database_whiteboard") {
@@ -310,6 +325,10 @@ async function submitUserMessage(userInput) {
 								<ExportToPopUp toolResultId={msgId} />
 							</AssistantMessage>,
 						);
+
+						console.debug(
+							`[submitUserMessage:show_database_whiteboard] - ${Date.now() - timeStart} ms`,
+						);
 					}
 				}
 			}
@@ -335,6 +354,7 @@ async function submitUserMessage(userInput) {
 export async function importSchema(fromChatId, type, schema) {
 	"use server";
 
+	const timeStart = Date.now();
 	const aiState = getMutableAIState();
 
 	let system_prompt = "";
@@ -414,6 +434,7 @@ the schema is in json.
 		],
 	});
 
+	console.debug(`[importSchema] - ${Date.now() - timeStart} ms`);
 	return update_whiteboard_respone;
 }
 
@@ -425,6 +446,8 @@ the schema is in json.
  */
 async function exportDatabaseWhiteboard(to, toolResultId) {
 	"use server";
+
+	const timeStart = Date.now();
 
 	const exportedUI = createStreamableUI();
 
@@ -477,6 +500,9 @@ async function exportDatabaseWhiteboard(to, toolResultId) {
 					data={commands_result.object}
 				/>,
 			);
+			console.debug(
+				`[exportDatabaseWhiteboard:rails] - ${Date.now() - timeStart} ms`,
+			);
 			break;
 		}
 
@@ -497,6 +523,9 @@ async function exportDatabaseWhiteboard(to, toolResultId) {
 			console.debug({ result });
 
 			exportedUI.done(<ExportedToSqliteDialog data={result.object} />);
+			console.debug(
+				`[exportDatabaseWhiteboard:sqlite] - ${Date.now() - timeStart} ms`,
+			);
 			break;
 		}
 
