@@ -332,10 +332,30 @@ async function submitUserMessage(userInput) {
 	};
 }
 
-export async function importSchema(chatId, type, schema) {
+export async function importSchema(fromChatId, type, schema) {
 	"use server";
 
+	const aiState = getMutableAIState();
+
 	let system_prompt = "";
+	let chatId = null;
+
+	if (!fromChatId) {
+		console.debug("No chatId, must be a new chat. Creating a new chat...");
+
+		const chat = await createChat({
+			title: `From ${type} schema`,
+		});
+
+		aiState.update({
+			...aiState.get(),
+			chatId: chat.id,
+		});
+
+		chatId = chat.id;
+	} else {
+		chatId = fromChatId;
+	}
 
 	console.log(`Processing ${type} schema for chat:${chatId}`);
 
@@ -369,7 +389,7 @@ the schema is in json.
 		prompt: schema,
 	});
 
-	console.debug(db_whiteboard_response);
+	// console.debug(db_whiteboard_response);
 
 	console.debug({
 		db_whiteboard_response: JSON.stringify(db_whiteboard_response, null, 2),
@@ -380,8 +400,6 @@ the schema is in json.
 		db_whiteboard_response.object.initialNodes,
 	);
 	console.debug({ update_whiteboard_respone });
-
-	const aiState = getMutableAIState();
 
 	aiState.done({
 		...aiState.get(),
