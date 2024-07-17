@@ -1,20 +1,31 @@
 "use client";
 
 import React, { useMemo } from "react";
-import ReactFlow, { MiniMap, Controls, Background } from "reactflow";
+import ReactFlow, {
+	MiniMap,
+	Controls,
+	Background,
+	useNodesState,
+	useEdgesState,
+} from "reactflow";
 
 import "reactflow/dist/style.css";
 
 export default function DatabaseWhiteboard({ initialNodes, initialEdges }) {
 	const nodeTypes = useMemo(() => ({ dbTableNode: DbTableNode }), []);
 
+	const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+	// const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+
 	console.log({ initialNodes });
 
 	return (
 		<div className="w-[800px] h-[400px] border p-2 rounded bg-orange-300 text-black">
 			<ReactFlow
-				nodes={initialNodes}
+				nodes={nodes}
 				edges={initialEdges}
+				onNodesChange={onNodesChange}
+				// onEdgesChange={onEdgesChange}
 				nodeTypes={nodeTypes}
 				proOptions={{
 					hideAttribution: true,
