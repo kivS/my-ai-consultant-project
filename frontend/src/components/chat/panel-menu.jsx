@@ -230,7 +230,8 @@ function ImportRailsSchema({ chatId, popoverIsOpen, setPopoverOpen }) {
 										console.log({ result });
 
 										if (!result.ok) {
-											console.error("failed to import schema. try again...");
+											alert("failed to import schema. try again...");
+											console.error("failed to import schema: ", result?.error);
 											return;
 										}
 

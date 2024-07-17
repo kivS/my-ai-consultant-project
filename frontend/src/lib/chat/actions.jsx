@@ -356,110 +356,118 @@ async function submitUserMessage(userInput) {
 export async function importSchema(fromChatId, type, schema) {
 	"use server";
 
-	const timeStart = Date.now();
-	const aiState = getMutableAIState();
+	try {
+		const timeStart = Date.now();
+		const aiState = getMutableAIState();
 
-	let system_prompt = "";
-	let chatId = null;
+		let system_prompt = "";
+		let chatId = null;
 
-	if (!fromChatId) {
-		console.debug("No chatId, must be a new chat. Creating a new chat...");
+		if (!fromChatId) {
+			console.debug("No chatId, must be a new chat. Creating a new chat...");
 
-		const chat = await createChat({
-			title: `Chat from a ${type} schema`,
-		});
+			const chat = await createChat({
+				title: `Chat from a ${type} schema`,
+			});
 
-		aiState.update({
-			...aiState.get(),
-			chatId: chat.id,
-		});
+			aiState.update({
+				...aiState.get(),
+				chatId: chat.id,
+			});
 
-		chatId = chat.id;
-	} else {
-		chatId = fromChatId;
-	}
+			chatId = chat.id;
+		} else {
+			chatId = fromChatId;
+		}
 
-	console.log(`Processing ${type} schema for chat:${chatId}`);
+		console.log(`Processing ${type} schema for chat:${chatId}`);
 
-	switch (type) {
-		case "rails": {
-			system_prompt = `\
+		switch (type) {
+			case "rails": {
+				system_prompt = `\
 You are a bot that  given a Ruby on Rails schema.rb, you generate the database whiteboard schema representation(current state of the database). 
 the schema is in json.
 `;
-			break;
-		}
+				break;
+			}
 
-		case "postgres": {
-			system_prompt = `\
+			case "postgres": {
+				system_prompt = `\
 You are a bot that  given a Postgres schema, you generate the database whiteboard schema representation(current state of the database).
 the schema is in json.
 `;
-			break;
+				break;
+			}
+
+			default:
+				throw new Error(`[${type}] is not allowed`);
 		}
 
-		default:
-			throw new Error(`[${type}] is not allowed`);
-	}
+		const db_whiteboard_response = await generateObject({
+			model: MODEL_FOR_SCHEMA_IMPORT,
+			mode: "auto",
+			schema: database_whiteboard_output_schema,
+			temperature: 0,
+			system: system_prompt,
+			prompt: schema,
+		});
 
-	const db_whiteboard_response = await generateObject({
-		model: MODEL_FOR_SCHEMA_IMPORT,
-		mode: "auto",
-		schema: database_whiteboard_output_schema,
-		temperature: 0,
-		system: system_prompt,
-		prompt: schema,
-	});
+		// console.debug(db_whiteboard_response);
 
-	// console.debug(db_whiteboard_response);
+		console.debug({
+			db_whiteboard_response: JSON.stringify(db_whiteboard_response, null, 2),
+		});
 
-	console.debug({
-		db_whiteboard_response: JSON.stringify(db_whiteboard_response, null, 2),
-	});
+		const update_whiteboard_respone = await updateChatDatabaseWhiteboard(
+			chatId,
+			db_whiteboard_response.object.initialNodes,
+		);
+		console.debug({ update_whiteboard_respone });
 
-	const update_whiteboard_respone = await updateChatDatabaseWhiteboard(
-		chatId,
-		db_whiteboard_response.object.initialNodes,
-	);
-	console.debug({ update_whiteboard_respone });
+		const messageId = generateId();
+		const systemMessageText = `[ Imported ${type?.toUpperCase()} schema ]`;
 
-	const messageId = generateId();
-	const systemMessageText = `[ Imported ${type?.toUpperCase()} schema ]`;
-
-	aiState.done({
-		...aiState.get(),
-		messages: [
-			...aiState.get().messages,
-			{
-				id: generateId(),
-				timestamp: new Date().toISOString(),
-				role: "system",
-				content: systemMessageText,
-			},
-			{
-				id: messageId,
-				role: "assistant",
-				timestamp: new Date().toISOString(),
-				content: "here's the current database whiteboard",
-				display: {
-					name: "show_database_whiteboard",
-					props: {
-						messageId,
-						initialNodes: db_whiteboard_response.object.initialNodes,
+		aiState.done({
+			...aiState.get(),
+			messages: [
+				...aiState.get().messages,
+				{
+					id: generateId(),
+					timestamp: new Date().toISOString(),
+					role: "system",
+					content: systemMessageText,
+				},
+				{
+					id: messageId,
+					role: "assistant",
+					timestamp: new Date().toISOString(),
+					content: "here's the current database whiteboard",
+					display: {
+						name: "show_database_whiteboard",
+						props: {
+							messageId,
+							initialNodes: db_whiteboard_response.object.initialNodes,
+						},
 					},
 				},
-			},
-		],
-	});
+			],
+		});
 
-	console.debug(`[importSchema] - ${Date.now() - timeStart} ms`);
+		console.debug(`[importSchema] - ${Date.now() - timeStart} ms`);
 
-	return {
-		ok: true,
-		messageId,
-		systemMessageText,
-		initialNodes: db_whiteboard_response.object.initialNodes,
-	};
+		return {
+			ok: true,
+			messageId,
+			systemMessageText,
+			initialNodes: db_whiteboard_response.object.initialNodes,
+		};
+	} catch (error) {
+		console.error("Failed to import schema: ", error);
+		return {
+			ok: false,
+			error: error?.message,
+		};
+	}
 }
 
 /**
