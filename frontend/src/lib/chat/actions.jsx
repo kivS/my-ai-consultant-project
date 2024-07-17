@@ -35,8 +35,8 @@ import {
 } from "@/app/actions";
 
 const MODEL_FOR_USER_SUBMITTED_MESSAGES = openai("gpt-4o");
-const MODEL_TO_GENERATE_EXPORTED_WHITEBOARD_TO_CODE = openai("gpt-3.5-turbo");
-const MODEL_FOR_SCHEMA_IMPORT = openai("gpt-3.5-turbo");
+const MODEL_TO_GENERATE_EXPORTED_WHITEBOARD_TO_CODE = openai("gpt-4o");
+const MODEL_FOR_SCHEMA_IMPORT = openai("gpt-4o");
 
 export const database_whiteboard_output_schema = z.object({
 	initialNodes: z
