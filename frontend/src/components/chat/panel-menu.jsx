@@ -25,6 +25,9 @@ import { generateId } from "ai";
 import { AssistantMessage, SystemMessage } from "./message";
 import DatabaseWhiteboard from "../database-whiteboard";
 import { useActions, useUIState } from "ai/rsc";
+import { useRouter } from "next/navigation";
+import ExportToPopUp from "../whiteboard/export-to";
+import { revalidatePath } from "next/cache";
 
 export default function PanelMenu({ chatId }) {
 	const [popoverIsOpen, setPopoverOpen] = useState(false);
@@ -111,7 +114,7 @@ function ImportPostgresSchema({ chatId, popoverIsOpen, setPopoverOpen }) {
 										);
 										console.log({ result });
 
-										if (!result.id) {
+										if (!result.ok) {
 											console.error("failed to import schema. try again...");
 											return;
 										}
@@ -122,7 +125,7 @@ function ImportPostgresSchema({ chatId, popoverIsOpen, setPopoverOpen }) {
 												id: generateId(),
 												display: (
 													<SystemMessage>
-														[ Database whiteboard updated ]
+														{result.systemMessageText}
 													</SystemMessage>
 												),
 											},
@@ -131,10 +134,10 @@ function ImportPostgresSchema({ chatId, popoverIsOpen, setPopoverOpen }) {
 												display: (
 													<AssistantMessage>
 														<DatabaseWhiteboard
-															initialNodes={result.whiteboard.initialNodes}
+															initialNodes={result.initialNodes}
 															initialEdges={[]}
 														/>
-														{/* <ExportToPopUp toolResultId={resultId} /> */}
+														<ExportToPopUp toolResultId={result.messageId} />
 													</AssistantMessage>
 												),
 											},
@@ -226,7 +229,7 @@ function ImportRailsSchema({ chatId, popoverIsOpen, setPopoverOpen }) {
 										);
 										console.log({ result });
 
-										if (!result.id) {
+										if (!result.ok) {
 											console.error("failed to import schema. try again...");
 											return;
 										}
@@ -237,7 +240,7 @@ function ImportRailsSchema({ chatId, popoverIsOpen, setPopoverOpen }) {
 												id: generateId(),
 												display: (
 													<SystemMessage>
-														[ Database whiteboard updated ]
+														{result.systemMessageText}
 													</SystemMessage>
 												),
 											},
@@ -246,10 +249,10 @@ function ImportRailsSchema({ chatId, popoverIsOpen, setPopoverOpen }) {
 												display: (
 													<AssistantMessage>
 														<DatabaseWhiteboard
-															initialNodes={result.whiteboard.initialNodes}
+															initialNodes={result.initialNodes}
 															initialEdges={[]}
 														/>
-														{/* <ExportToPopUp toolResultId={resultId} /> */}
+														<ExportToPopUp toolResultId={result.messageId} />
 													</AssistantMessage>
 												),
 											},

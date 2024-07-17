@@ -34,9 +34,12 @@ import {
 	updateChatDatabaseWhiteboard,
 } from "@/app/actions";
 
-const MODEL_FOR_USER_SUBMITTED_MESSAGES = openai("gpt-4o");
-const MODEL_TO_GENERATE_EXPORTED_WHITEBOARD_TO_CODE = openai("gpt-4o");
-const MODEL_FOR_SCHEMA_IMPORT = openai("gpt-4o");
+// const MODEL_FOR_USER_SUBMITTED_MESSAGES = openai("gpt-4o");
+const MODEL_FOR_USER_SUBMITTED_MESSAGES = openai("gpt-3.5-turbo");
+// const MODEL_TO_GENERATE_EXPORTED_WHITEBOARD_TO_CODE = openai("gpt-4o");
+const MODEL_TO_GENERATE_EXPORTED_WHITEBOARD_TO_CODE = openai("gpt-3.5-turbo");
+// const MODEL_FOR_SCHEMA_IMPORT = openai("gpt-4o");
+const MODEL_FOR_SCHEMA_IMPORT = openai("gpt-3.5-turbo");
 
 export const database_whiteboard_output_schema = z.object({
 	initialNodes: z
@@ -163,10 +166,8 @@ async function submitUserMessage(userInput) {
 				
 				The UTC date today is ${new Date().toUTCString()}.
 				
-				You have access to the database_whiteboard, which is where, alongside the user, you will work and present the database architecture/modeling/whiteboard to the user. That means that if the database whiteboard is not empty, every request from the user will use the current database_whiteboard as the source of thruth:
-				This means that:
-				- if the database_whiteboard needs to be manipulated you should call the \`update_database_whiteboard\` function
-				- to display the current state of the database/whiteboard, ie, the database_whiteboard, you should call the \`show_database_whiteboard\` function.
+				- If the user user wants to manipulate the database/whiteboard--by adding, modifying, removing and etc from it--you should call the \`update_database_whiteboard\` function
+				- If the user wants to display the current state of the database/whiteboard, you should call the \`show_database_whiteboard\` function.
 
 				Messages between square brackets(eg: [ Database whiteboard updated]) are system messages and are there only to show the user that a action was taken. Don't use it for anything else.
 				`,
@@ -422,6 +423,9 @@ the schema is in json.
 	);
 	console.debug({ update_whiteboard_respone });
 
+	const messageId = generateId();
+	const systemMessageText = `[ Imported ${type?.toUpperCase()} schema ]`;
+
 	aiState.done({
 		...aiState.get(),
 		messages: [
@@ -430,13 +434,32 @@ the schema is in json.
 				id: generateId(),
 				timestamp: new Date().toISOString(),
 				role: "system",
-				content: "[ Database whiteboard updated ]",
+				content: systemMessageText,
+			},
+			{
+				id: messageId,
+				role: "assistant",
+				timestamp: new Date().toISOString(),
+				content: "here's the current database whiteboard",
+				display: {
+					name: "show_database_whiteboard",
+					props: {
+						messageId,
+						initialNodes: db_whiteboard_response.object.initialNodes,
+					},
+				},
 			},
 		],
 	});
 
 	console.debug(`[importSchema] - ${Date.now() - timeStart} ms`);
-	return update_whiteboard_respone;
+
+	return {
+		ok: true,
+		messageId,
+		systemMessageText,
+		initialNodes: db_whiteboard_response.object.initialNodes,
+	};
 }
 
 /**
