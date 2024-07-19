@@ -404,6 +404,14 @@ the schema is in json.
 				break;
 			}
 
+			case "mysql": {
+				system_prompt = `\
+You are a bot that  given a MySQL schema, you generate the database whiteboard schema representation(current state of the database).
+the schema is in json.
+`;
+				break;
+			}
+
 			default:
 				throw new Error(`[${type}] is not allowed`);
 		}
