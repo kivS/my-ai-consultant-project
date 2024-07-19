@@ -34,12 +34,9 @@ import {
 	updateChatDatabaseWhiteboard,
 } from "@/app/actions";
 
-// const MODEL_FOR_USER_SUBMITTED_MESSAGES = openai("gpt-4o");
-const MODEL_FOR_USER_SUBMITTED_MESSAGES = openai("gpt-3.5-turbo");
-// const MODEL_TO_GENERATE_EXPORTED_WHITEBOARD_TO_CODE = openai("gpt-4o");
-const MODEL_TO_GENERATE_EXPORTED_WHITEBOARD_TO_CODE = openai("gpt-3.5-turbo");
-// const MODEL_FOR_SCHEMA_IMPORT = openai("gpt-4o");
-const MODEL_FOR_SCHEMA_IMPORT = openai("gpt-3.5-turbo");
+const MODEL_FOR_USER_SUBMITTED_MESSAGES = openai("gpt-4o-mini");
+const MODEL_TO_GENERATE_EXPORTED_WHITEBOARD_TO_CODE = openai("gpt-4o-mini");
+const MODEL_FOR_SCHEMA_IMPORT = openai("gpt-4o-mini");
 
 export const database_whiteboard_output_schema = z.object({
 	initialNodes: z
@@ -394,6 +391,14 @@ the schema is in json.
 			case "postgres": {
 				system_prompt = `\
 You are a bot that  given a Postgres schema, you generate the database whiteboard schema representation(current state of the database).
+the schema is in json.
+`;
+				break;
+			}
+
+			case "mssql": {
+				system_prompt = `\
+You are a bot that  given a mssql(Microsoft SQL Server) schema, you generate the database whiteboard schema representation(current state of the database).
 the schema is in json.
 `;
 				break;

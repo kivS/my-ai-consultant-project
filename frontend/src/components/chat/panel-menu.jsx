@@ -65,12 +65,134 @@ export default function PanelMenu({ chatId }) {
 							setPopoverOpen={setPopoverOpen}
 						/>
 					</div>
+
+					<div className=" px-2">
+						<ImportMicrosoftSql
+							chatId={chatId}
+							popoverIsOpen={popoverIsOpen}
+							setPopoverOpen={setPopoverOpen}
+						/>
+					</div>
 				</div>
 			</PopoverContent>
 		</Popover>
 	);
 }
 
+function ImportMicrosoftSql({ chatId, popoverIsOpen, setPopoverOpen }) {
+	const [isSchemaImportPending, startSchemaImportTransition] = useTransition();
+	const [alertIsOpen, setAlertOpen] = useState(false);
+	const [_, setMessages] = useUIState();
+	const { importSchema } = useActions();
+
+	return (
+		<AlertDialog open={alertIsOpen} onOpenChange={setAlertOpen}>
+			<AlertDialogTrigger asChild>
+				<Button>Import MsSql Schema</Button>
+			</AlertDialogTrigger>
+			<AlertDialogContent>
+				<AlertDialogHeader>
+					<AlertDialogTitle>Import Schema</AlertDialogTitle>
+					<AlertDialogDescription>
+						<p>Add your Microsoft SQL schema</p>
+					</AlertDialogDescription>
+					<div className="my-8">
+						<form
+							id="mssql_schema_form"
+							method="post"
+							onSubmit={async (e) => {
+								e.preventDefault();
+
+								const formData = new FormData(e.target);
+
+								console.debug(Object.fromEntries(formData));
+
+								const file = formData.get("schema_file");
+
+								const reader = new FileReader();
+								reader.onload = async (event) => {
+									startSchemaImportTransition(async () => {
+										const fileText = event.target.result;
+										console.log({ fileText });
+
+										const result = await importSchema(
+											chatId,
+											"mssql",
+											fileText,
+										);
+										console.log({ result });
+
+										if (!result.ok) {
+											console.error("failed to import schema. try again...");
+											return;
+										}
+
+										setMessages((currentMessages) => [
+											...currentMessages,
+											{
+												id: generateId(),
+												display: (
+													<SystemMessage>
+														{result.systemMessageText}
+													</SystemMessage>
+												),
+											},
+											{
+												id: generateId(),
+												display: (
+													<AssistantMessage>
+														<DatabaseWhiteboard
+															initialNodes={result.initialNodes}
+															initialEdges={[]}
+														/>
+														<ExportToPopUp toolResultId={result.messageId} />
+													</AssistantMessage>
+												),
+											},
+										]);
+
+										setPopoverOpen(false);
+										setAlertOpen(false);
+									});
+								};
+
+								reader.readAsText(file);
+							}}
+						>
+							<Input
+								name="schema_file"
+								type="file"
+								accept=".sql"
+								disabled={isSchemaImportPending}
+								required
+							/>
+						</form>
+					</div>
+				</AlertDialogHeader>
+				<AlertDialogFooter>
+					<AlertDialogCancel disabled={isSchemaImportPending}>
+						Cancel
+					</AlertDialogCancel>
+
+					<Button
+						type="submit"
+						form="mssql_schema_form"
+						disabled={isSchemaImportPending}
+						className="flex gap-1"
+					>
+						{isSchemaImportPending ? (
+							<>
+								Importing <IconSpinner />
+							</>
+						) : (
+							<>Continue</>
+						)}
+					</Button>
+				</AlertDialogFooter>
+			</AlertDialogContent>
+		</AlertDialog>
+	);
+}
 function ImportPostgresSchema({ chatId, popoverIsOpen, setPopoverOpen }) {
 	const [isSchemaImportPending, startSchemaImportTransition] = useTransition();
 	const [alertIsOpen, setAlertOpen] = useState(false);
