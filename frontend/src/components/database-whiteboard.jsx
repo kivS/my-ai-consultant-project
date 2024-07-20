@@ -1,5 +1,6 @@
 "use client";
 
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import React, { useMemo } from "react";
 import ReactFlow, {
 	MiniMap,
@@ -41,15 +42,21 @@ export default function DatabaseWhiteboard({ initialNodes, initialEdges }) {
 
 function DbTableNode({ data }) {
 	return (
-		<>
-			<div className="border p-2 rounded">
-				<div className="m-2 text-cyan-700 font-bold text-2xl ">{data.name}</div>
-				<ul>
-					{data?.columns?.map((col) => (
-						<li key={col.id}>{col.name}</li>
-					))}
-				</ul>
-			</div>
-		</>
+		<Card className="w-full max-w-2xl">
+			<CardHeader>
+				<CardTitle className="text-center">{data.name}</CardTitle>
+			</CardHeader>
+			<CardContent className="grid gap-4 border-y py-4">
+				{data?.columns?.map((col) => (
+					<div
+						key={col.id}
+						className="grid grid-cols-[minmax(100px,1fr)_minmax(100px,1fr)] items-center gap-4"
+					>
+						<div className="font-medium">{col.name}</div>
+						<div className="text-muted-foreground">{col.type}</div>
+					</div>
+				))}
+			</CardContent>
+		</Card>
 	);
 }
