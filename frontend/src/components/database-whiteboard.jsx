@@ -9,15 +9,22 @@ import {
 } from "@/components/ui/tooltip";
 
 import React, { useMemo } from "react";
-import ReactFlow, {
-	MiniMap,
-	Controls,
+
+import {
+	ReactFlow,
 	Background,
 	useNodesState,
 	useEdgesState,
-} from "reactflow";
+	Controls,
+	MiniMap,
+} from "@xyflow/react";
 
-import "reactflow/dist/style.css";
+// you also need to adjust the style import
+// import "@xyflow/react/dist/style.css";
+
+// or if you just want basic styles
+import "@xyflow/react/dist/base.css";
+
 import { IconKey, IconSpline } from "./ui/icons";
 
 export default function DatabaseWhiteboard({ initialNodes, initialEdges }) {
@@ -29,8 +36,9 @@ export default function DatabaseWhiteboard({ initialNodes, initialEdges }) {
 	console.log({ initialNodes });
 
 	return (
-		<div className="w-[800px] h-[400px] border p-2 rounded bg-orange-300 text-black">
+		<div className="w-[800px] h-[400px] border p-2 rounded ">
 			<ReactFlow
+				colorMode="system"
 				nodes={nodes}
 				edges={initialEdges}
 				onNodesChange={onNodesChange}
