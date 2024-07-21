@@ -23,6 +23,7 @@
     "ai": "^3.1.12",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
+    "d3-force": "^3.0.0",
     "framer-motion": "^11.2.12",
     "nanoid": "^5.0.6",
     "next": "14.2.4",
