@@ -74,13 +74,13 @@ export const database_whiteboard_output_schema = z.object({
 								.string()
 								.optional()
 								.describe(
-									"The table name that this field refers to, if the field is a foreign_key",
+									"The table name of the foreign table that this field refers to. If the column item is a foreign_key.",
 								),
 							foreign_key_field: z
 								.string()
 								.optional()
 								.describe(
-									"A field in the foreign table that this field refers to",
+									"A field in the foreign table that this field refers to. If the column item is a foreign key.",
 								),
 						}),
 					),

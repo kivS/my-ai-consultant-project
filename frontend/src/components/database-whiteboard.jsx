@@ -1,6 +1,13 @@
 "use client";
 
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipProvider,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
+
 import React, { useMemo } from "react";
 import ReactFlow, {
 	MiniMap,
@@ -11,6 +18,7 @@ import ReactFlow, {
 } from "reactflow";
 
 import "reactflow/dist/style.css";
+import { IconKey, IconSpline } from "./ui/icons";
 
 export default function DatabaseWhiteboard({ initialNodes, initialEdges }) {
 	const nodeTypes = useMemo(() => ({ dbTableNode: DbTableNode }), []);
@@ -52,7 +60,40 @@ function DbTableNode({ data }) {
 						key={col.id}
 						className="grid grid-cols-[minmax(100px,1fr)_minmax(100px,1fr)] items-center gap-4"
 					>
-						<div className="font-medium">{col.name}</div>
+						<div className="font-medium">
+							<div className="flex gap-3">
+								{col.is_primary_key ? (
+									<TooltipProvider>
+										<Tooltip>
+											<TooltipTrigger>
+												<IconKey />
+											</TooltipTrigger>
+											<TooltipContent>
+												<p>Primary key</p>
+											</TooltipContent>
+										</Tooltip>
+									</TooltipProvider>
+								) : null}
+
+								{col.is_foreign_key ? (
+									<TooltipProvider>
+										<Tooltip>
+											<TooltipTrigger>
+												<IconSpline />
+											</TooltipTrigger>
+											<TooltipContent>
+												<p className="text-center">Foreign key</p>
+												<p className="">
+													{col.foreign_key_table} &gt; {col.foreign_key_field}
+												</p>
+											</TooltipContent>
+										</Tooltip>
+									</TooltipProvider>
+								) : null}
+
+								<div>{col.name}</div>
+							</div>
+						</div>
 						<div className="text-muted-foreground">{col.type}</div>
 					</div>
 				))}
