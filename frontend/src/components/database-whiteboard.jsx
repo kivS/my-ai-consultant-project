@@ -44,7 +44,7 @@ export default function DatabaseWhiteboard({ initialNodes, initialEdges }) {
 	// const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
 	return (
-		<div className="w-[800px] h-[400px] border p-2 rounded ">
+		<div className="w-[800px] h-[400px] border p-2 rounde">
 			<ReactFlow
 				colorMode="system"
 				nodes={nodes}
