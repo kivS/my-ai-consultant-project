@@ -35,14 +35,14 @@ import { Button } from "./ui/button";
 export default function DatabaseWhiteboard({ initialNodes, initialEdges }) {
 	const nodeTypes = useMemo(() => ({ dbTableNode: DbTableNode }), []);
 
-	const { theme, resolvedTheme } = useTheme();
+	const { resolvedTheme } = useTheme();
 
 	let positionedNodes = null;
 	try {
 		positionedNodes = positionNodesConsideringRelations(initialNodes);
 	} catch (error) {
 		console.error("Failed to position nodes: ", error);
-		positionedNodes = initialNodes;
+		positionedNodes = positionNodesPlainly(initialNodes);
 	}
 
 	const [nodes, setNodes, onNodesChange] = useNodesState(positionedNodes);
@@ -65,7 +65,7 @@ export default function DatabaseWhiteboard({ initialNodes, initialEdges }) {
 				fitView
 				fitViewOptions={{ padding: 0.2 }}
 			>
-				<Controls />
+				<Controls showZoom={false} showInteractive={false} />
 				{/* <MiniMap /> */}
 
 				{resolvedTheme === "light" ? (
@@ -80,7 +80,7 @@ export default function DatabaseWhiteboard({ initialNodes, initialEdges }) {
 
 function DbTableNode({ data }) {
 	const store = useStoreApi();
-	const { zoomIn, zoomOut, setCenter } = useReactFlow();
+	const { setCenter } = useReactFlow();
 	return (
 		<Card className="w-full max-w-2xl">
 			<CardHeader>
@@ -192,7 +192,24 @@ function positionNodesConsideringRelations(initialNodes) {
 	for (let i = 0; i < 100; ++i) simulation.tick();
 
 	// Update node positions
-	return initialNodes.map((node) => ({
+	return initialNodes?.map((node) => ({
+		...node,
+		position: { x: node.x, y: node.y },
+	}));
+}
+
+function positionNodesPlainly(initialNodes) {
+	const simulation = d3
+		.forceSimulation(initialNodes)
+		.force("charge", d3.forceManyBody().strength(-500)) // Adjust strength to prevent overlap
+		.force("center", d3.forceCenter(400, 200))
+		.stop();
+
+	// Run the simulation for a fixed number of ticks
+	for (let i = 0; i < 100; ++i) simulation.tick();
+
+	// Update node positions
+	return initialNodes?.map((node) => ({
 		...node,
 		position: { x: node.x, y: node.y },
 	}));
