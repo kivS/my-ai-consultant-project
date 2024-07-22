@@ -27,9 +27,12 @@ import * as d3 from "d3-force";
 import "@xyflow/react/dist/base.css";
 
 import { IconKey, IconSpline } from "./ui/icons";
+import { useTheme } from "next-themes";
 
 export default function DatabaseWhiteboard({ initialNodes, initialEdges }) {
 	const nodeTypes = useMemo(() => ({ dbTableNode: DbTableNode }), []);
+
+	const { theme, resolvedTheme } = useTheme();
 
 	let positionedNodes = null;
 	try {
@@ -62,7 +65,11 @@ export default function DatabaseWhiteboard({ initialNodes, initialEdges }) {
 				<Controls />
 				{/* <MiniMap /> */}
 
-				<Background variant="dots" gap={12} size={1} />
+				{resolvedTheme === "light" ? (
+					<Background bgColor="#fdba74" variant="dots" gap={12} size={1} />
+				) : (
+					<Background variant="dots" gap={12} size={1} />
+				)}
 			</ReactFlow>
 		</div>
 	);
