@@ -3,7 +3,18 @@
 import DatabaseWhiteboard from "@/components/database-whiteboard";
 import { redirect } from "next/navigation";
 import { useMemo } from "react";
-import ReactFlow, { MiniMap, Controls, Background } from "reactflow";
+import {
+	ReactFlow,
+	Background,
+	useNodesState,
+	useEdgesState,
+	Controls,
+	MiniMap,
+} from "@xyflow/react";
+// import "@xyflow/react/dist/style.css";
+
+// or if you just want basic styles
+import "@xyflow/react/dist/base.css";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,7 +24,6 @@ import {
 	PopoverTrigger,
 } from "@/components/ui/popover";
 
-import "reactflow/dist/style.css";
 import { ExportedDbWhiteboardDialog } from "@/components/whiteboard/exported-to-rails-dialog";
 import ExportToPopUp from "@/components/whiteboard/export-to";
 
