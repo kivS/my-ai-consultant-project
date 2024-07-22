@@ -31,12 +31,17 @@ import { IconKey, IconSpline } from "./ui/icons";
 export default function DatabaseWhiteboard({ initialNodes, initialEdges }) {
 	const nodeTypes = useMemo(() => ({ dbTableNode: DbTableNode }), []);
 
-	const positionedNodes = positionNodesConsideringRelations(initialNodes);
+	let positionedNodes = null;
+	try {
+		positionedNodes = positionNodesConsideringRelations(initialNodes);
+	} catch (error) {
+		console.error("Failed to position nodes: ", error);
+		positionedNodes = initialNodes;
+	}
 
 	const [nodes, setNodes, onNodesChange] = useNodesState(positionedNodes);
-	// const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
-	console.log({ nodes });
+	// const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
 	return (
 		<div className="w-[800px] h-[400px] border p-2 rounded ">
