@@ -119,23 +119,29 @@ function DbTableNode({ data }) {
 													<Button
 														variant="link"
 														data-to_table={col.foreign_key_table}
-														className="text-cyan-200"
+														className="text-cyan-200 dark:text-cyan-800"
 														onClick={(e) => {
-															console.log(e.target);
-															const to_table = e.target.dataset.to_table;
-															const { nodeLookup } = store.getState();
+															try {
+																const to_table = e.target.dataset.to_table;
+																const { nodeLookup } = store.getState();
 
-															const targetNode = nodeLookup.get(to_table);
+																const targetNode = nodeLookup.get(to_table);
 
-															const x =
-																targetNode.position.x +
-																targetNode.measured.width / 2;
-															const y =
-																targetNode.position.y +
-																targetNode.measured.height / 2;
-															const zoom = 1.05;
+																const x =
+																	targetNode.position.x +
+																	targetNode.measured.width / 2;
+																const y =
+																	targetNode.position.y +
+																	targetNode.measured.height / 2;
+																const zoom = 1.05;
 
-															setCenter(x, y, { zoom, duration: 800 });
+																setCenter(x, y, { zoom, duration: 800 });
+															} catch (error) {
+																console.error(
+																	"Failed to navigate to table: ",
+																	error,
+																);
+															}
 														}}
 													>
 														{col.foreign_key_table} &gt; {col.foreign_key_field}
