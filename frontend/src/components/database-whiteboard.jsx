@@ -17,6 +17,8 @@ import {
 	useEdgesState,
 	Controls,
 	MiniMap,
+	useStoreApi,
+	useReactFlow,
 } from "@xyflow/react";
 
 import * as d3 from "d3-force";
@@ -28,6 +30,7 @@ import "@xyflow/react/dist/base.css";
 
 import { IconKey, IconSpline } from "./ui/icons";
 import { useTheme } from "next-themes";
+import { Button } from "./ui/button";
 
 export default function DatabaseWhiteboard({ initialNodes, initialEdges }) {
 	const nodeTypes = useMemo(() => ({ dbTableNode: DbTableNode }), []);
@@ -76,6 +79,8 @@ export default function DatabaseWhiteboard({ initialNodes, initialEdges }) {
 }
 
 function DbTableNode({ data }) {
+	const store = useStoreApi();
+	const { zoomIn, zoomOut, setCenter } = useReactFlow();
 	return (
 		<Card className="w-full max-w-2xl">
 			<CardHeader>
@@ -104,14 +109,37 @@ function DbTableNode({ data }) {
 
 								{col.is_foreign_key ? (
 									<TooltipProvider>
-										<Tooltip>
+										<Tooltip delayDuration={0}>
 											<TooltipTrigger>
 												<IconSpline />
 											</TooltipTrigger>
 											<TooltipContent>
 												<p className="text-center">Foreign key</p>
 												<p className="">
-													{col.foreign_key_table} &gt; {col.foreign_key_field}
+													<Button
+														variant="link"
+														data-to_table={col.foreign_key_table}
+														className="text-cyan-200"
+														onClick={(e) => {
+															console.log(e.target);
+															const to_table = e.target.dataset.to_table;
+															const { nodeLookup } = store.getState();
+
+															const targetNode = nodeLookup.get(to_table);
+
+															const x =
+																targetNode.position.x +
+																targetNode.measured.width / 2;
+															const y =
+																targetNode.position.y +
+																targetNode.measured.height / 2;
+															const zoom = 1.05;
+
+															setCenter(x, y, { zoom, duration: 800 });
+														}}
+													>
+														{col.foreign_key_table} &gt; {col.foreign_key_field}
+													</Button>
 												</p>
 											</TooltipContent>
 										</Tooltip>
