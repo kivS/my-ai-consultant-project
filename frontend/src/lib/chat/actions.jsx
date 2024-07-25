@@ -39,9 +39,12 @@ const groq = createGroq({
 	apiKey: process.env.GROQ_API_KEY,
 });
 
-const MODEL_FOR_USER_SUBMITTED_MESSAGES = openai("gpt-4o-mini");
-const MODEL_TO_GENERATE_EXPORTED_WHITEBOARD_TO_CODE = openai("gpt-4o-mini");
-const MODEL_FOR_SCHEMA_IMPORT = openai("gpt-4o-mini");
+//  openai("gpt-4o-mini");
+const MODEL_FOR_USER_SUBMITTED_MESSAGES = groq("llama-3.1-70b-versatile");
+const MODEL_TO_GENERATE_EXPORTED_WHITEBOARD_TO_CODE = groq(
+	"llama-3.1-70b-versatile",
+);
+const MODEL_FOR_SCHEMA_IMPORT = groq("llama-3.1-70b-versatile");
 
 export const database_whiteboard_output_schema = z.object({
 	initialNodes: z
@@ -163,16 +166,22 @@ async function submitUserMessage(userInput) {
 			const result = await streamText({
 				model: MODEL_FOR_USER_SUBMITTED_MESSAGES,
 				temperature: 0,
-				system: `\
-				You are a friendly assitant that helps the user with their database architectures, from modeling databases from ideias, to understanding current database modeling/architecture and modifying it.
-				
-				The UTC date today is ${new Date().toUTCString()}.
-				
-				- If the user user wants to manipulate the database/whiteboard--by adding, modifying, removing and etc from it--you should call the \`update_database_whiteboard\` function
-				- If the user wants to display the current state of the database/whiteboard, you should call the \`show_database_whiteboard\` function.
+				// system: `\
+				// You are a friendly assitant that helps the user with their database architectures, from modeling databases from ideias, to understanding current database modeling/architecture and modifying it.
 
-				Messages between square brackets(eg: [ Database whiteboard updated]) are system messages and are there only to show the user that a action was taken. Don't use it for anything else.
+				// The UTC date today is ${new Date().toUTCString()}.
+
+				// - If the user user wants to manipulate the database/whiteboard--by adding, modifying, removing and etc from it--you should call the \`update_database_whiteboard\` function
+				// - If the user wants to display the current state of the database/whiteboard, you should call the \`show_database_whiteboard\` function.
+
+				// Messages between square brackets(eg: [ Database whiteboard updated]) are system messages and are there only to show the user that a action was taken. Don't use it for anything else.
+				// `,
+				system: `\
+				You are NabuOne a helpful assitant that knows everything about databases and databases architectures. 
+				You help users with everything related to the database, from modeling database from scratch, to understanding current architectures and modifiyng it.
+				
 				`,
+				toolChoice: "auto",
 				tools: {
 					update_database_whiteboard: {
 						description:
