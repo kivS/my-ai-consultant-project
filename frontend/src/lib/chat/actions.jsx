@@ -18,7 +18,7 @@ import {
 } from "@/components/chat/message";
 import Whiteboard from "@/components/whiteboard/whiteboard";
 import DatabaseWhiteboard from "@/components/database-whiteboard";
-import { openai } from "@ai-sdk/openai";
+import { openai, createOpenAI as createGroq } from "@ai-sdk/openai";
 import { nanoid } from "nanoid";
 import ExportToPopUp from "@/components/whiteboard/export-to";
 import { generateId, generateObject, generateText, streamText } from "ai";
@@ -33,6 +33,11 @@ import {
 	saveChatMessages,
 	updateChatDatabaseWhiteboard,
 } from "@/app/actions";
+
+const groq = createGroq({
+	baseURL: "https://api.groq.com/openai/v1",
+	apiKey: process.env.GROQ_API_KEY,
+});
 
 const MODEL_FOR_USER_SUBMITTED_MESSAGES = openai("gpt-4o-mini");
 const MODEL_TO_GENERATE_EXPORTED_WHITEBOARD_TO_CODE = openai("gpt-4o-mini");
@@ -199,13 +204,13 @@ async function submitUserMessage(userInput) {
 
 			let textContent = "";
 
-			spinnerStream.done(null);
-
 			for await (const delta of result.fullStream) {
 				const { type, finishReason } = delta;
 
 				if (type === "text-delta") {
 					const { textDelta } = delta;
+
+					spinnerStream.update(null);
 
 					if (!textContent) {
 						console.debug(
@@ -241,6 +246,8 @@ async function submitUserMessage(userInput) {
 
 					if (toolName === "update_database_whiteboard") {
 						const { initialNodes } = args;
+
+						spinnerStream.update(null);
 
 						const resultId = generateId();
 
@@ -292,6 +299,8 @@ async function submitUserMessage(userInput) {
 							aiState.get().chatId,
 						);
 
+						spinnerStream.update(null);
+
 						const msgId = generateId();
 
 						aiState.done({
@@ -334,6 +343,7 @@ async function submitUserMessage(userInput) {
 			uiStream.done();
 			textStream.done();
 			messageStream.done();
+			spinnerStream.done();
 			aiState.done();
 			console.debug(`[submitUserMessage] - ${Date.now() - timeStart} ms`);
 		} catch (e) {
