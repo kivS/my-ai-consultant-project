@@ -34,7 +34,7 @@ class AuthController < ApplicationController
 
         verification_token = encode_token({ email: @user.email})
 
-        UserMailer.registration_confirmation_email(@user, verification_token).deliver_later
+        UserMailer.registration_confirmation_email(@user, verification_token).deliver_now
         
         render json: { token: token }, status: :created
       else
