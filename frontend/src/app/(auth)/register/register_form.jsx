@@ -27,7 +27,13 @@ function FieldsetElement({ state }) {
 
 			<div className="flex flex-col gap-2">
 				<label htmlFor="email">Email</label>
-				<input type="email" id="email" name="email" required className="h-8" />
+				<input
+					type="email"
+					id="email"
+					name="email"
+					required
+					className="h-8 p-2"
+				/>
 			</div>
 
 			<div className="flex flex-col gap-2">
@@ -37,7 +43,7 @@ function FieldsetElement({ state }) {
 					id="password"
 					name="password"
 					required
-					className="h-8"
+					className="h-8 p-2"
 				/>
 			</div>
 
