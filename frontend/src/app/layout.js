@@ -8,7 +8,7 @@ import { Header } from "@/components/header";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-	title: "NabuBit - Streamline Database Design, Management, and Evolution",
+	title: "NabuBit - Your Database Architect Copilot",
 	description: "Streamline Database Design, Management, and Evolution",
 };
 
