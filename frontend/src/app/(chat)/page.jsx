@@ -38,9 +38,12 @@ export default async function ChatPage({ params }) {
 function HomePage() {
 	return (
 		<div className="container py-20">
-			<h1 className="text-center text-2xl">
-				Streamline Database Design, Management, and Evolution
+			<h1 className="text-center text-4xl font-bold mb-4">
+				Your Database Design Copilot
 			</h1>
+			<h2 className="text-center text-2xl">
+				Streamline Database Design, Management, and Evolution
+			</h2>
 		</div>
 	);
 }
