@@ -15,7 +15,7 @@ export function useSidebar() {
 }
 
 export function SidebarProvider({ children }) {
-	const [isSidebarOpen, setSidebarOpen] = React.useState(true);
+	const [isSidebarOpen, setSidebarOpen] = React.useState(false);
 	const [isLoading, setLoading] = React.useState(true);
 
 	React.useEffect(() => {
