@@ -21,12 +21,12 @@ export function EmptyScreen() {
 	return (
 		<div className="mx-auto max-w-2xl px-4">
 			<div className="flex flex-col gap-2 rounded-lg border bg-background p-8">
-				<h1 className="text-lg font-semibold">
-					Copilot for your database architecture
+				<h1 className="text-lg font-semibold text-center">
+					Your Database Design Copilot
 				</h1>
 
-				<p className="leading-normal text-muted-foreground">
-					Start by describing what you want to build and we take it from there
+				<p className="leading-normal text-muted-foreground text-center">
+					What do you want to build?
 				</p>
 			</div>
 		</div>
