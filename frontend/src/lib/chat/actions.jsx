@@ -164,7 +164,7 @@ async function submitUserMessage(userInput) {
 				model: MODEL_FOR_USER_SUBMITTED_MESSAGES,
 				temperature: 0,
 				system: `\
-				You are a friendly assitant that helps the user with their database architectures, from modeling databases from ideias, to understanding current database modeling/architecture and modifying it.
+				Your name is Nabubit and you are a friendly assitant that helps the user with their database architectures, from modeling databases from ideias, to understanding current database modeling/architecture and modifying it.
 				
 				The UTC date today is ${new Date().toUTCString()}.
 				
