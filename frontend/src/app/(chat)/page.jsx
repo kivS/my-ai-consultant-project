@@ -5,6 +5,7 @@ import { generateId } from "ai";
 import { getSessionData } from "../(auth)/actions";
 import { IconUser } from "@/components/ui/icons";
 import { getUserData } from "../actions";
+import Script from "next/script";
 
 export default async function ChatPage({ params }) {
 	const session = await getSessionData();
@@ -44,6 +45,13 @@ function HomePage() {
 			<h2 className="text-center text-2xl">
 				Streamline Database Design, Management, and Evolution
 			</h2>
+			{process.env.NODE_ENV === "production" && (
+				<Script
+					src="https://umami.arm.vikborges.com/script.js"
+					data-website-id="24f5a451-3e53-4a1e-bf4a-b7bc6faea873"
+					strategy="afterInteractive"
+				/>
+			)}
 		</div>
 	);
 }
