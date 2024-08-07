@@ -69,6 +69,9 @@ class AuthController < ApplicationController
     @user.is_email_verified = true
     @user.save!
 
+    message = "We have a new user! 🚀 \n\n ID: #{@user.id} \n\n EMAIL: #{@user.email}"
+    SendAdminNotificationJob.perform_now(message)    
+
     return render json: {is_verified: @user.is_email_verified}, status: :ok
 
   end
