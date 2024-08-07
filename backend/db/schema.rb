@@ -10,12 +10,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_06_26_133416) do
+ActiveRecord::Schema[7.2].define(version: 2024_08_07_150416) do
 # Could not dump table "chats" because of following StandardError
 #   Unknown type 'uuid' for column 'id'
 
+
 # Could not dump table "database_whiteboards" because of following StandardError
 #   Unknown type 'uuid' for column 'chat_id'
+
 
   create_table "users", force: :cascade do |t|
     t.string "email"
