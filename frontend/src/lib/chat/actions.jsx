@@ -198,7 +198,9 @@ async function submitUserMessage(userInput) {
 					},
 				],
 				onFinish: (event) => {
-					console.debug({ streamTextResult: JSON.stringify(event, null, 2) });
+					// console.debug({
+					// 	streamTextResult_onFinish: JSON.stringify(event, null, 2),
+					// });
 				},
 			});
 
@@ -206,6 +208,8 @@ async function submitUserMessage(userInput) {
 
 			for await (const delta of result.fullStream) {
 				const { type, finishReason } = delta;
+
+				console.debug({ delta });
 
 				if (type === "text-delta") {
 					const { textDelta } = delta;
@@ -657,7 +661,7 @@ export const AI = createAI({
 		// console.debug(JSON.stringify(state, null, 2));
 
 		const response = await saveChatMessages(state.chatId, state.messages);
-		console.log({ saveChatMessages: response });
+		// console.log({ saveChatMessages: response });
 		// if (done) {
 		// }
 		// console.log({ state });
