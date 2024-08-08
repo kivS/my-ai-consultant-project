@@ -443,6 +443,9 @@ the schema is in json.
 		const stream = createStreamableValue();
 		const isStreaming = createStreamableValue(true);
 
+		const messageId = generateId();
+		const systemMessageText = `[ Imported ${type?.toUpperCase()} schema ]`;
+
 		(async () => {
 			const { partialObjectStream } = await streamObject({
 				model: MODEL_FOR_SCHEMA_IMPORT,
@@ -451,10 +454,56 @@ the schema is in json.
 				temperature: 0,
 				system: system_prompt,
 				prompt: schema,
+				onFinish: async (event) => {
+					// console.debug({
+					// 	streamObject_onFinish: JSON.stringify(event, null, 2),
+					// });
+
+					const update_whiteboard_respone = await updateChatDatabaseWhiteboard(
+						chatId,
+						event.object.initialNodes,
+					);
+					console.debug({ update_whiteboard_respone });
+
+					aiState.update({
+						...aiState.get(),
+						messages: [
+							...aiState.get().messages,
+							{
+								id: generateId(),
+								timestamp: new Date().toISOString(),
+								role: "system",
+								content: systemMessageText,
+							},
+							{
+								id: messageId,
+								role: "assistant",
+								timestamp: new Date().toISOString(),
+								content: "here's the current database whiteboard",
+								display: {
+									name: "show_database_whiteboard",
+									props: {
+										messageId,
+										initialNodes: event.object.initialNodes,
+									},
+								},
+							},
+						],
+					});
+
+					console.debug(
+						`[importSchema:end_streamObject] - ${Date.now() - timeStart} ms`,
+					);
+				},
 			});
+
+			console.debug(
+				`[importSchema:start_streamObject] - ${Date.now() - timeStart} ms`,
+			);
 
 			for await (const partialObject of partialObjectStream) {
 				stream.update(partialObject);
+
 				console.debug({ partialObject });
 			}
 
@@ -462,50 +511,8 @@ the schema is in json.
 
 			stream.done();
 			isStreaming.done();
+			aiState.done();
 		})();
-
-		// console.debug(db_whiteboard_response);
-
-		// console.debug({
-		// 	db_whiteboard_response: JSON.stringify(db_whiteboard_response, null, 2),
-		// });
-
-		// const update_whiteboard_respone = await updateChatDatabaseWhiteboard(
-		// 	chatId,
-		// 	db_whiteboard_response.object.initialNodes,
-		// );
-		// console.debug({ update_whiteboard_respone });
-
-		const messageId = generateId();
-		const systemMessageText = `[ Imported ${type?.toUpperCase()} schema ]`;
-
-		// aiState.done({
-		// 	...aiState.get(),
-		// 	messages: [
-		// 		...aiState.get().messages,
-		// 		{
-		// 			id: generateId(),
-		// 			timestamp: new Date().toISOString(),
-		// 			role: "system",
-		// 			content: systemMessageText,
-		// 		},
-		// 		{
-		// 			id: messageId,
-		// 			role: "assistant",
-		// 			timestamp: new Date().toISOString(),
-		// 			content: "here's the current database whiteboard",
-		// 			display: {
-		// 				name: "show_database_whiteboard",
-		// 				props: {
-		// 					messageId,
-		// 					initialNodes: db_whiteboard_response.object.initialNodes,
-		// 				},
-		// 			},
-		// 		},
-		// 	],
-		// });
-
-		// console.debug(`[importSchema] - ${Date.now() - timeStart} ms`);
 
 		return {
 			ok: true,
