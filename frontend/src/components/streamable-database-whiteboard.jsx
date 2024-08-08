@@ -74,6 +74,7 @@ export default function StreamableDatabaseWhiteboard({
 					/**
 					 *  the minimum we need to render a node seems to be:
 					 *  the id, and the position with x and y.
+					 *  let's add the default custom table type as well.
 					 *  So here we add a 0 for x and y and make sure the id already exists
 					 *  in order to add the node.
 					 */
@@ -82,6 +83,7 @@ export default function StreamableDatabaseWhiteboard({
 							...nds,
 							{
 								position: { x: 0, y: 0 },
+								type: "dbTableNode",
 								...node,
 							},
 						]);
@@ -92,7 +94,7 @@ export default function StreamableDatabaseWhiteboard({
 		}
 
 		loadNodeStream();
-	}, [initialNodesStream]);
+	}, []);
 
 	return (
 		<div className="w-[800px] h-[400px] border p-2 rounded bg-orange-300 dark:bg-transparent">
