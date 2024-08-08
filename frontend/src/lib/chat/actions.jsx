@@ -21,7 +21,13 @@ import DatabaseWhiteboard from "@/components/database-whiteboard";
 import { openai, createOpenAI as createGroq } from "@ai-sdk/openai";
 import { nanoid } from "nanoid";
 import ExportToPopUp from "@/components/whiteboard/export-to";
-import { generateId, generateObject, generateText, streamText } from "ai";
+import {
+	generateId,
+	generateObject,
+	generateText,
+	streamObject,
+	streamText,
+} from "ai";
 import { wait } from "../utils";
 import { ExportedDbWhiteboardDialog } from "@/components/whiteboard/exported-to-rails-dialog";
 import { ExportedToSqliteDialog } from "@/components/whiteboard/exported-to-sqlite-dialog";
@@ -434,63 +440,74 @@ the schema is in json.
 				throw new Error(`[${type}] is not allowed`);
 		}
 
-		const db_whiteboard_response = await generateObject({
-			model: MODEL_FOR_SCHEMA_IMPORT,
-			mode: "auto",
-			schema: database_whiteboard_output_schema,
-			temperature: 0,
-			system: system_prompt,
-			prompt: schema,
-		});
+		const stream = createStreamableValue();
+
+		(async () => {
+			const { partialObjectStream } = await streamObject({
+				model: MODEL_FOR_SCHEMA_IMPORT,
+				mode: "auto",
+				schema: database_whiteboard_output_schema,
+				temperature: 0,
+				system: system_prompt,
+				prompt: schema,
+			});
+
+			for await (const partialObject of partialObjectStream) {
+				stream.update(partialObject);
+				console.debug({ partialObject });
+			}
+
+			stream.done();
+		})();
 
 		// console.debug(db_whiteboard_response);
 
-		console.debug({
-			db_whiteboard_response: JSON.stringify(db_whiteboard_response, null, 2),
-		});
+		// console.debug({
+		// 	db_whiteboard_response: JSON.stringify(db_whiteboard_response, null, 2),
+		// });
 
-		const update_whiteboard_respone = await updateChatDatabaseWhiteboard(
-			chatId,
-			db_whiteboard_response.object.initialNodes,
-		);
-		console.debug({ update_whiteboard_respone });
+		// const update_whiteboard_respone = await updateChatDatabaseWhiteboard(
+		// 	chatId,
+		// 	db_whiteboard_response.object.initialNodes,
+		// );
+		// console.debug({ update_whiteboard_respone });
 
 		const messageId = generateId();
 		const systemMessageText = `[ Imported ${type?.toUpperCase()} schema ]`;
 
-		aiState.done({
-			...aiState.get(),
-			messages: [
-				...aiState.get().messages,
-				{
-					id: generateId(),
-					timestamp: new Date().toISOString(),
-					role: "system",
-					content: systemMessageText,
-				},
-				{
-					id: messageId,
-					role: "assistant",
-					timestamp: new Date().toISOString(),
-					content: "here's the current database whiteboard",
-					display: {
-						name: "show_database_whiteboard",
-						props: {
-							messageId,
-							initialNodes: db_whiteboard_response.object.initialNodes,
-						},
-					},
-				},
-			],
-		});
+		// aiState.done({
+		// 	...aiState.get(),
+		// 	messages: [
+		// 		...aiState.get().messages,
+		// 		{
+		// 			id: generateId(),
+		// 			timestamp: new Date().toISOString(),
+		// 			role: "system",
+		// 			content: systemMessageText,
+		// 		},
+		// 		{
+		// 			id: messageId,
+		// 			role: "assistant",
+		// 			timestamp: new Date().toISOString(),
+		// 			content: "here's the current database whiteboard",
+		// 			display: {
+		// 				name: "show_database_whiteboard",
+		// 				props: {
+		// 					messageId,
+		// 					initialNodes: db_whiteboard_response.object.initialNodes,
+		// 				},
+		// 			},
+		// 		},
+		// 	],
+		// });
 
-		console.debug(`[importSchema] - ${Date.now() - timeStart} ms`);
+		// console.debug(`[importSchema] - ${Date.now() - timeStart} ms`);
 
 		return {
 			ok: true,
 			messageId,
 			systemMessageText,
-			initialNodes: db_whiteboard_response.object.initialNodes,
+			initialNodes: stream.value,
 		};
 	} catch (error) {
 		console.error("Failed to import schema: ", error);

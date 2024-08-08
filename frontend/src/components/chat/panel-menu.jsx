@@ -24,7 +24,7 @@ import { useState, useTransition } from "react";
 import { generateId } from "ai";
 import { AssistantMessage, SystemMessage } from "./message";
 import DatabaseWhiteboard from "../database-whiteboard";
-import { useActions, useUIState } from "ai/rsc";
+import { readStreamableValue, useActions, useUIState } from "ai/rsc";
 import { useRouter } from "next/navigation";
 import ExportToPopUp from "../whiteboard/export-to";
 import { revalidatePath } from "next/cache";
@@ -128,7 +128,7 @@ function ImportMySql({ chatId, popoverIsOpen, setPopoverOpen }) {
 											"mysql",
 											fileText,
 										);
-										console.log({ result });
+										console.deubg({ result });
 
 										if (!result.ok) {
 											console.error("failed to import schema. try again...");
@@ -474,35 +474,41 @@ function ImportRailsSchema({ chatId, popoverIsOpen, setPopoverOpen }) {
 										);
 										console.log({ result });
 
+										for await (const partialObject of readStreamableValue(
+											result?.initialNodes,
+										)) {
+											console.debug({ partialObject });
+										}
+
 										if (!result.ok) {
 											alert("failed to import schema. try again...");
 											console.error("failed to import schema: ", result?.error);
 											return;
 										}
 
-										setMessages((currentMessages) => [
-											...currentMessages,
-											{
-												id: generateId(),
-												display: (
-													<SystemMessage>
-														{result.systemMessageText}
-													</SystemMessage>
-												),
-											},
-											{
-												id: generateId(),
-												display: (
-													<AssistantMessage>
-														<DatabaseWhiteboard
-															initialNodes={result.initialNodes}
-															initialEdges={[]}
-														/>
-														<ExportToPopUp toolResultId={result.messageId} />
-													</AssistantMessage>
-												),
-											},
-										]);
+										// setMessages((currentMessages) => [
+										// 	...currentMessages,
+										// 	{
+										// 		id: generateId(),
+										// 		display: (
+										// 			<SystemMessage>
+										// 				{result.systemMessageText}
+										// 			</SystemMessage>
+										// 		),
+										// 	},
+										// 	{
+										// 		id: generateId(),
+										// 		display: (
+										// 			<AssistantMessage>
+										// 				<DatabaseWhiteboard
+										// 					initialNodes={result.initialNodes}
+										// 					initialEdges={[]}
+										// 				/>
+										// 				<ExportToPopUp toolResultId={result.messageId} />
+										// 			</AssistantMessage>
+										// 		),
+										// 	},
+										// ]);
 
 										setPopoverOpen(false);
 										setAlertOpen(false);
