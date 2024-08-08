@@ -441,6 +441,7 @@ the schema is in json.
 		}
 
 		const stream = createStreamableValue();
+		const isStreaming = createStreamableValue(true);
 
 		(async () => {
 			const { partialObjectStream } = await streamObject({
@@ -457,7 +458,10 @@ the schema is in json.
 				console.debug({ partialObject });
 			}
 
+			isStreaming.update(false);
+
 			stream.done();
+			isStreaming.done();
 		})();
 
 		// console.debug(db_whiteboard_response);
@@ -508,6 +512,7 @@ the schema is in json.
 			messageId,
 			systemMessageText,
 			initialNodes: stream.value,
+			isStreaming: isStreaming.value,
 		};
 	} catch (error) {
 		console.error("Failed to import schema: ", error);

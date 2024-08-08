@@ -10,6 +10,7 @@ import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import { useEffect, useState } from "react";
 import { readStreamableValue } from "ai/rsc";
+import clsx from "clsx";
 
 export function UserMessage({ children }) {
 	return (
@@ -24,11 +25,11 @@ export function UserMessage({ children }) {
 	);
 }
 
-export function AssistantMessage({ children }) {
+export function AssistantMessage({ children, isStreaming = null }) {
 	return (
 		<div className="group relative flex items-start md:-ml-12">
 			<div className="flex size-[25px] shrink-0 select-none items-center justify-center rounded-md border bg-background shadow-sm">
-				<IconOrigami />
+				<IconOrigami className={clsx("", isStreaming ? "animate-pulse" : "")} />
 			</div>
 			<div className="ml-4 flex-1 space-y-2 overflow-hidden pl-2">
 				{children}

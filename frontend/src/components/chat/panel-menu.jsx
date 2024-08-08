@@ -435,6 +435,7 @@ function ImportPostgresSchema({ chatId, popoverIsOpen, setPopoverOpen }) {
 function ImportRailsSchema({ chatId, popoverIsOpen, setPopoverOpen }) {
 	const [isSchemaImportPending, startSchemaImportTransition] = useTransition();
 	const [alertIsOpen, setAlertOpen] = useState(false);
+	const [isStreaming, setIsStreaming] = useState(true);
 	const [_, setMessages] = useUIState();
 	const { importSchema } = useActions();
 
@@ -494,10 +495,11 @@ function ImportRailsSchema({ chatId, popoverIsOpen, setPopoverOpen }) {
 											{
 												id: generateId(),
 												display: (
-													<AssistantMessage>
+													<AssistantMessage isStreaming={isStreaming}>
 														<StreamableDatabaseWhiteboard
 															initialNodesStream={result.initialNodes}
 															initialEdges={[]}
+															setIsStreaming={setIsStreaming}
 														/>
 														<ExportToPopUp toolResultId={result.messageId} />
 													</AssistantMessage>

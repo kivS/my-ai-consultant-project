@@ -36,6 +36,7 @@ import { readStreamableValue } from "ai/rsc";
 export default function StreamableDatabaseWhiteboard({
 	initialNodesStream,
 	initialEdges,
+	setIsStreaming,
 }) {
 	const nodeTypes = useMemo(() => ({ dbTableNode: DbTableNode }), []);
 
@@ -53,8 +54,6 @@ export default function StreamableDatabaseWhiteboard({
 
 	const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
-	const [isStreaming, setIsStreaming] = useState(true);
-
 	useEffect(() => {
 		async function loadNodeStream() {
 			for await (const partialObject of readStreamableValue(
@@ -65,21 +64,25 @@ export default function StreamableDatabaseWhiteboard({
 
 				console.debug(partialObject);
 
+				/**
+				 * before each chunk is processed let's clear the nodes so
+				 * there's no funny biz going
+				 */
 				setNodes([]);
 
-				for (const item of partialObject.initialNodes) {
+				for (const node of partialObject.initialNodes) {
 					/**
 					 *  the minimum we need to render a node seems to be:
 					 *  the id, and the position with x and y.
 					 *  So here we add a 0 for x and y and make sure the id already exists
 					 *  in order to add the node.
 					 */
-					if (item.id && item.id !== "") {
+					if (node.id && node.id !== "") {
 						setNodes((nds) => [
 							...nds,
 							{
 								position: { x: 0, y: 0 },
-								...item,
+								...node,
 							},
 						]);
 					}
@@ -89,7 +92,7 @@ export default function StreamableDatabaseWhiteboard({
 		}
 
 		loadNodeStream();
-	}, [initialNodesStream, setNodes]);
+	}, [initialNodesStream]);
 
 	return (
 		<div className="w-[800px] h-[400px] border p-2 rounded bg-orange-300 dark:bg-transparent">
@@ -106,7 +109,6 @@ export default function StreamableDatabaseWhiteboard({
 				}}
 				fitView
 				fitViewOptions={{ padding: 0.2 }}
-				inert={isStreaming}
 			>
 				<Controls showZoom={false} showInteractive={false} />
 				{/* <MiniMap /> */}
