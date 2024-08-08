@@ -265,7 +265,7 @@ async function submitUserMessage(userInput) {
 
 						const resultId = generateId();
 
-						aiState.done({
+						aiState.update({
 							...aiState.get(),
 							messages: [
 								...aiState.get().messages,
@@ -317,7 +317,7 @@ async function submitUserMessage(userInput) {
 
 						const msgId = generateId();
 
-						aiState.done({
+						aiState.update({
 							...aiState.get(),
 							messages: [
 								...aiState.get().messages,
