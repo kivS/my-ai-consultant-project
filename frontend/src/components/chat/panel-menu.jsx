@@ -28,6 +28,7 @@ import { readStreamableValue, useActions, useUIState } from "ai/rsc";
 import { useRouter } from "next/navigation";
 import ExportToPopUp from "../whiteboard/export-to";
 import { revalidatePath } from "next/cache";
+import StreamableDatabaseWhiteboard from "../streamable-database-whiteboard";
 
 export default function PanelMenu({ chatId }) {
 	const [popoverIsOpen, setPopoverOpen] = useState(false);
@@ -474,13 +475,12 @@ function ImportRailsSchema({ chatId, popoverIsOpen, setPopoverOpen }) {
 										);
 										console.log({ result });
 
-										for await (const partialObject of readStreamableValue(
-											result?.initialNodes,
-										)) {
-											setPopoverOpen(false);
-											setAlertOpen(false);
-											console.debug({ partialObject });
-										}
+										// for await (const partialObject of readStreamableValue(
+										// 	result?.initialNodes,
+										// )) {
+
+										// 	console.debug({ partialObject });
+										// }
 
 										if (!result.ok) {
 											alert("failed to import schema. try again...");
@@ -488,29 +488,32 @@ function ImportRailsSchema({ chatId, popoverIsOpen, setPopoverOpen }) {
 											return;
 										}
 
-										// setMessages((currentMessages) => [
-										// 	...currentMessages,
-										// 	{
-										// 		id: generateId(),
-										// 		display: (
-										// 			<SystemMessage>
-										// 				{result.systemMessageText}
-										// 			</SystemMessage>
-										// 		),
-										// 	},
-										// 	{
-										// 		id: generateId(),
-										// 		display: (
-										// 			<AssistantMessage>
-										// 				<DatabaseWhiteboard
-										// 					initialNodes={result.initialNodes}
-										// 					initialEdges={[]}
-										// 				/>
-										// 				<ExportToPopUp toolResultId={result.messageId} />
-										// 			</AssistantMessage>
-										// 		),
-										// 	},
-										// ]);
+										setMessages((currentMessages) => [
+											...currentMessages,
+											{
+												id: generateId(),
+												display: (
+													<SystemMessage>
+														{result.systemMessageText}
+													</SystemMessage>
+												),
+											},
+											{
+												id: generateId(),
+												display: (
+													<AssistantMessage>
+														<StreamableDatabaseWhiteboard
+															initialNodesStream={result.initialNodes}
+															initialEdges={[]}
+														/>
+														<ExportToPopUp toolResultId={result.messageId} />
+													</AssistantMessage>
+												),
+											},
+										]);
+
+										setPopoverOpen(false);
+										setAlertOpen(false);
 									});
 								};
 
