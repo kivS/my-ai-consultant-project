@@ -93,6 +93,7 @@ function ImportMySql({ chatId, popoverIsOpen, setPopoverOpen }) {
 	const [alertIsOpen, setAlertOpen] = useState(false);
 	const [_, setMessages] = useUIState();
 	const { importSchema } = useActions();
+	const [isStreaming, setIsStreaming] = useState(true);
 
 	return (
 		<AlertDialog open={alertIsOpen} onOpenChange={setAlertOpen}>
@@ -149,10 +150,11 @@ function ImportMySql({ chatId, popoverIsOpen, setPopoverOpen }) {
 											{
 												id: generateId(),
 												display: (
-													<AssistantMessage>
-														<DatabaseWhiteboard
-															initialNodes={result.initialNodes}
+													<AssistantMessage isStreaming={isStreaming}>
+														<StreamableDatabaseWhiteboard
+															initialNodesStream={result.initialNodes}
 															initialEdges={[]}
+															setIsStreaming={setIsStreaming}
 														/>
 														<ExportToPopUp toolResultId={result.messageId} />
 													</AssistantMessage>
@@ -206,6 +208,7 @@ function ImportMySql({ chatId, popoverIsOpen, setPopoverOpen }) {
 function ImportMicrosoftSql({ chatId, popoverIsOpen, setPopoverOpen }) {
 	const [isSchemaImportPending, startSchemaImportTransition] = useTransition();
 	const [alertIsOpen, setAlertOpen] = useState(false);
+	const [isStreaming, setIsStreaming] = useState(true);
 	const [_, setMessages] = useUIState();
 	const { importSchema } = useActions();
 
@@ -264,10 +267,11 @@ function ImportMicrosoftSql({ chatId, popoverIsOpen, setPopoverOpen }) {
 											{
 												id: generateId(),
 												display: (
-													<AssistantMessage>
-														<DatabaseWhiteboard
-															initialNodes={result.initialNodes}
+													<AssistantMessage isStreaming={isStreaming}>
+														<StreamableDatabaseWhiteboard
+															initialNodesStream={result.initialNodes}
 															initialEdges={[]}
+															setIsStreaming={setIsStreaming}
 														/>
 														<ExportToPopUp toolResultId={result.messageId} />
 													</AssistantMessage>
@@ -320,6 +324,7 @@ function ImportMicrosoftSql({ chatId, popoverIsOpen, setPopoverOpen }) {
 function ImportPostgresSchema({ chatId, popoverIsOpen, setPopoverOpen }) {
 	const [isSchemaImportPending, startSchemaImportTransition] = useTransition();
 	const [alertIsOpen, setAlertOpen] = useState(false);
+	const [isStreaming, setIsStreaming] = useState(true);
 	const [_, setMessages] = useUIState();
 	const { importSchema } = useActions();
 
@@ -378,10 +383,11 @@ function ImportPostgresSchema({ chatId, popoverIsOpen, setPopoverOpen }) {
 											{
 												id: generateId(),
 												display: (
-													<AssistantMessage>
-														<DatabaseWhiteboard
-															initialNodes={result.initialNodes}
+													<AssistantMessage isStreaming={isStreaming}>
+														<StreamableDatabaseWhiteboard
+															initialNodesStream={result.initialNodes}
 															initialEdges={[]}
+															setIsStreaming={setIsStreaming}
 														/>
 														<ExportToPopUp toolResultId={result.messageId} />
 													</AssistantMessage>
