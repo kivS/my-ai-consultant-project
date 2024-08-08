@@ -53,8 +53,12 @@ Messages between square brackets(eg: [ Database whiteboard updated]) are system 
 const MODEL_FOR_USER_SUBMITTED_MESSAGES = openai("gpt-4o-mini", {
 	structuredOutputs: true,
 });
-const MODEL_TO_GENERATE_EXPORTED_WHITEBOARD_TO_CODE = openai("gpt-4o-mini");
-const MODEL_FOR_SCHEMA_IMPORT = openai("gpt-4o-mini");
+const MODEL_TO_GENERATE_EXPORTED_WHITEBOARD_TO_CODE = openai("gpt-4o-mini", {
+	structuredOutputs: true,
+});
+const MODEL_FOR_SCHEMA_IMPORT = openai("gpt-4o-mini", {
+	structuredOutputs: false,
+});
 
 export const database_whiteboard_output_schema = z.object({
 	initialNodes: z
