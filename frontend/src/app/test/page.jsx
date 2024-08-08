@@ -101,10 +101,7 @@ export default function Test() {
 		<>
 			<ExportedDbWhiteboardDialog title={"RubyOnRails"} data={result} />
 
-			<DatabaseWhiteboard
-				initialNodes={initialNodes}
-				initialEdges={initialEdges}
-			/>
+			<DatabaseWhiteboard initialNodes={[]} initialEdges={initialEdges} />
 		</>
 	);
 }

@@ -475,13 +475,6 @@ function ImportRailsSchema({ chatId, popoverIsOpen, setPopoverOpen }) {
 										);
 										console.log({ result });
 
-										// for await (const partialObject of readStreamableValue(
-										// 	result?.initialNodes,
-										// )) {
-
-										// 	console.debug({ partialObject });
-										// }
-
 										if (!result.ok) {
 											alert("failed to import schema. try again...");
 											console.error("failed to import schema: ", result?.error);

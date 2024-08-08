@@ -8,7 +8,7 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 import {
 	ReactFlow,
@@ -51,22 +51,45 @@ export default function StreamableDatabaseWhiteboard({
 
 	const [nodes, setNodes, onNodesChange] = useNodesState([]);
 
-	// const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+	const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+
+	const [isStreaming, setIsStreaming] = useState(true);
 
 	useEffect(() => {
 		async function loadNodeStream() {
 			for await (const partialObject of readStreamableValue(
 				initialNodesStream,
 			)) {
-				if (partialObject?.initialNodes) {
-					console.debug(partialObject);
-					// setNodes(partialObject.initialNodes);
+				if (!partialObject?.initialNodes) continue; // initialNodes is still empty
+				if (partialObject?.initialNodes.length < 1) continue; // no items yet
+
+				console.debug(partialObject);
+
+				setNodes([]);
+
+				for (const item of partialObject.initialNodes) {
+					/**
+					 *  the minimum we need to render a node seems to be:
+					 *  the id, and the position with x and y.
+					 *  So here we add a 0 for x and y and make sure the id already exists
+					 *  in order to add the node.
+					 */
+					if (item.id && item.id !== "") {
+						setNodes((nds) => [
+							...nds,
+							{
+								position: { x: 0, y: 0 },
+								...item,
+							},
+						]);
+					}
 				}
+				setIsStreaming(false);
 			}
 		}
 
 		loadNodeStream();
-	}, [initialNodesStream]);
+	}, [initialNodesStream, setNodes]);
 
 	return (
 		<div className="w-[800px] h-[400px] border p-2 rounded bg-orange-300 dark:bg-transparent">
@@ -83,6 +106,7 @@ export default function StreamableDatabaseWhiteboard({
 				}}
 				fitView
 				fitViewOptions={{ padding: 0.2 }}
+				inert={isStreaming}
 			>
 				<Controls showZoom={false} showInteractive={false} />
 				{/* <MiniMap /> */}
@@ -103,7 +127,7 @@ function DbTableNode({ data }) {
 	return (
 		<Card className="w-full max-w-2xl">
 			<CardHeader>
-				<CardTitle className="text-center">{data.name}</CardTitle>
+				<CardTitle className="text-center">{data?.name}</CardTitle>
 			</CardHeader>
 			<CardContent className="grid gap-4 border-y py-4">
 				{data?.columns?.map((col) => (
