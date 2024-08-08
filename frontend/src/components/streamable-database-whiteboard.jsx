@@ -32,6 +32,7 @@ import { IconKey, IconSpline } from "./ui/icons";
 import { useTheme } from "next-themes";
 import { Button } from "./ui/button";
 import { readStreamableValue } from "ai/rsc";
+import { generateId } from "ai";
 
 export default function StreamableDatabaseWhiteboard({
 	initialNodesStream,
@@ -54,6 +55,7 @@ export default function StreamableDatabaseWhiteboard({
 
 	const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		async function loadNodeStream() {
 			for await (const partialObject of readStreamableValue(
@@ -128,8 +130,9 @@ export default function StreamableDatabaseWhiteboard({
 function DbTableNode({ data }) {
 	const store = useStoreApi();
 	const { setCenter } = useReactFlow();
+	const id = generateId();
 	return (
-		<Card className="w-full max-w-2xl">
+		<Card key={id} className="w-full max-w-2xl">
 			<CardHeader>
 				<CardTitle className="text-center">{data?.name}</CardTitle>
 			</CardHeader>
