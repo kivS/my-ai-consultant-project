@@ -477,6 +477,8 @@ function ImportRailsSchema({ chatId, popoverIsOpen, setPopoverOpen }) {
 										for await (const partialObject of readStreamableValue(
 											result?.initialNodes,
 										)) {
+											setPopoverOpen(false);
+											setAlertOpen(false);
 											console.debug({ partialObject });
 										}
 
@@ -509,9 +511,6 @@ function ImportRailsSchema({ chatId, popoverIsOpen, setPopoverOpen }) {
 										// 		),
 										// 	},
 										// ]);
-
-										setPopoverOpen(false);
-										setAlertOpen(false);
 									});
 								};
 
