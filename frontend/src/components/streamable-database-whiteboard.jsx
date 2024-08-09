@@ -37,7 +37,7 @@ import { generateId } from "ai";
 export default function StreamableDatabaseWhiteboard({
 	initialNodesStream,
 	initialEdges,
-	setIsStreaming,
+	setIsStreaming = null,
 }) {
 	const nodeTypes = useMemo(() => ({ dbTableNode: DbTableNode }), []);
 
@@ -91,7 +91,7 @@ export default function StreamableDatabaseWhiteboard({
 						]);
 					}
 				}
-				setIsStreaming(false);
+				if (setIsStreaming) setIsStreaming(false);
 			}
 		}
 

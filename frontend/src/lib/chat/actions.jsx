@@ -39,6 +39,7 @@ import {
 	saveChatMessages,
 	updateChatDatabaseWhiteboard,
 } from "@/app/actions";
+import StreamableDatabaseWhiteboard from "@/components/streamable-database-whiteboard";
 
 const groq = createGroq({
 	baseURL: "https://api.groq.com/openai/v1",
@@ -191,7 +192,8 @@ async function submitUserMessage(userInput) {
 					update_database_whiteboard: {
 						description:
 							"Manipulate the database whiteboard, aka, the representation of the database architecture",
-						parameters: database_whiteboard_output_schema,
+						// parameters: database_whiteboard_output_schema,
+						parameters: z.object({}),
 					},
 
 					show_database_whiteboard: {
@@ -259,49 +261,96 @@ async function submitUserMessage(userInput) {
 					const { toolName, args } = delta;
 
 					if (toolName === "update_database_whiteboard") {
-						const { initialNodes } = args;
+						const resultId = generateId();
+
+						const nodeStream = createStreamableValue();
+
+						(async () => {
+							const { partialObjectStream } = await streamObject({
+								model: MODEL_FOR_SCHEMA_IMPORT,
+								mode: "auto",
+								schema: database_whiteboard_output_schema,
+								temperature: 0,
+								system: `\
+You are a bot that  given the current conversation with the user and the current database structure, you generate a new one according with the intention result between you and user.
+`,
+								messages: [
+									...aiState
+										.get()
+										.messages.filter(
+											(message) =>
+												!(message.role === "assistant" && message.display),
+										),
+									{
+										role: "system",
+										content: `current database_whiteboard: ${JSON.stringify(chat.database_whiteboard.whiteboard)}`,
+									},
+								],
+								onFinish: async (event) => {
+									// console.debug({
+									// 	streamObject_onFinish: JSON.stringify(event, null, 2),
+									// });
+
+									const update_whiteboard_respone =
+										await updateChatDatabaseWhiteboard(
+											aiState.get().chatId,
+											event.object.initialNodes,
+										);
+									console.debug({ update_whiteboard_respone });
+
+									aiState.update({
+										...aiState.get(),
+										messages: [
+											...aiState.get().messages,
+											{
+												id: resultId,
+												role: "assistant",
+												timestamp: new Date().toISOString(),
+												content: "here's the updated database whiteboard",
+												display: {
+													name: "update_database_whiteboard",
+													props: {
+														messageId: resultId,
+														initialNodes: event.object.initialNodes,
+													},
+												},
+											},
+										],
+									});
+
+									console.debug(
+										`[update_database_whiteboard] - ${Date.now() - timeStart} ms`,
+									);
+								},
+							});
+
+							console.debug(
+								`[update_database_whiteboard:start_streamObject] - ${Date.now() - timeStart} ms`,
+							);
+
+							for await (const partialObject of partialObjectStream) {
+								nodeStream.update(partialObject);
+
+								// console.debug({ partialObject });
+							}
+
+							nodeStream.done();
+
+							console.debug(
+								`[update_database_whiteboard:end_streamObject] - ${Date.now() - timeStart} ms`,
+							);
+						})();
 
 						spinnerStream.update(null);
 
-						const resultId = generateId();
-
-						aiState.update({
-							...aiState.get(),
-							messages: [
-								...aiState.get().messages,
-								{
-									id: resultId,
-									role: "assistant",
-									timestamp: new Date().toISOString(),
-									content: "here's the updated database whiteboard",
-									display: {
-										name: "update_database_whiteboard",
-										props: {
-											messageId: resultId,
-											initialNodes,
-										},
-									},
-								},
-							],
-						});
-
 						uiStream.update(
 							<AssistantMessage>
-								<DatabaseWhiteboard
-									initialNodes={initialNodes}
+								<StreamableDatabaseWhiteboard
+									initialNodesStream={nodeStream.value}
 									initialEdges={[]}
 								/>
 								<ExportToPopUp toolResultId={resultId} />
 							</AssistantMessage>,
-						);
-
-						const updateWhiteboardResult = await updateChatDatabaseWhiteboard(
-							aiState.get().chatId,
-							initialNodes,
-						);
-
-						console.debug(
-							`[submitUserMessage:update_database_whiteboard] - ${Date.now() - timeStart} ms`,
 						);
 					}
 
