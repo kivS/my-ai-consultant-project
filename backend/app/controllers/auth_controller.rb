@@ -16,6 +16,12 @@ class AuthController < ApplicationController
 
   def login
     @user = User.find_by_email(params[:email])
+
+    if @user.nil?
+      render json: { error: 'User not found' }, status: :not_found
+      return
+    end
+
     if @user&.authenticate(params[:password])
       token = encode_token({ user_id: @user.id })
       render json: { token: token }, status: :ok

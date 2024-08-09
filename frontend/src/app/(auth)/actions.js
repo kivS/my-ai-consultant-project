@@ -4,7 +4,6 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 export async function login(prevState, formData) {
-
 	console.debug({ prevState });
 	console.debug({ formData });
 
@@ -14,23 +13,22 @@ export async function login(prevState, formData) {
 			method: "POST",
 			body: formData,
 		},
-	)
+	);
 
-	const response = await request.json()
-	console.log({ response });
+	const response = await request.json();
+	console.debug({ response });
 
 	if (response?.token) {
 		await saveSessionData(response.token);
 		return redirect("/");
 	}
 
-	return response
+	return response;
 }
 
 export async function register(prevState, formData) {
-	
-	console.debug({prevState})
-	console.debug({formData});
+	console.debug({ prevState });
+	console.debug({ formData });
 
 	const response = await fetch(
 		`${process.env.BACKEND_API_ENDPOINT}/auth/register`,
@@ -38,9 +36,9 @@ export async function register(prevState, formData) {
 			method: "POST",
 			body: formData,
 		},
-	)
-	
-	const json_response = await response.json()
+	);
+
+	const json_response = await response.json();
 
 	console.debug({ response });
 
@@ -49,9 +47,7 @@ export async function register(prevState, formData) {
 		return redirect("/");
 	}
 
-	return json_response
-	
-
+	return json_response;
 }
 
 // ------------------------------------------------------------------------------
