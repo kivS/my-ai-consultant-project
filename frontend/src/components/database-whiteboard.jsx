@@ -50,7 +50,7 @@ export default function DatabaseWhiteboard({ initialNodes, initialEdges }) {
 	// const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
 	return (
-		<div className="w-[800px] h-[400px] border p-2 rounded bg-orange-300 dark:bg-transparent">
+		<div className="w-[800px] h-[400px] border p-2 rounded bg-orange-300 dark:bg-[#172554]">
 			<ReactFlow
 				colorMode="system"
 				nodes={nodes}
@@ -71,7 +71,7 @@ export default function DatabaseWhiteboard({ initialNodes, initialEdges }) {
 				{resolvedTheme === "light" ? (
 					<Background bgColor="#fdba74" variant="dots" gap={12} size={1} />
 				) : (
-					<Background variant="dots" gap={12} size={1} />
+					<Background bgColor="#172554" variant="dots" gap={12} size={1} />
 				)}
 			</ReactFlow>
 		</div>
