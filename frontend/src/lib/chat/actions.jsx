@@ -588,6 +588,9 @@ the schema is in json.
 async function exportDatabaseWhiteboard(to, toolResultId) {
 	"use server";
 
+	console.debug({ to });
+	console.debug({ toolResultId });
+
 	const timeStart = Date.now();
 
 	const exportedUI = createStreamableUI();
@@ -600,9 +603,14 @@ async function exportDatabaseWhiteboard(to, toolResultId) {
 
 	const aiState = getMutableAIState().get();
 
+	console.debug({ aiState: JSON.stringify(aiState, "", null) });
+
 	const toolHistoryEntry = aiState.messages.find(
 		(entry) => entry.role === "assistant" && entry.id === toolResultId,
 	);
+
+	console.debug({ toolHistoryEntry: JSON.stringify(toolHistoryEntry, "", 2) });
+
 	console.log("Tool History Entry:", toolHistoryEntry);
 
 	if (!toolHistoryEntry) {

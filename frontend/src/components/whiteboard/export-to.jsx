@@ -53,7 +53,7 @@ export default function ExportToPopUp({ toolResultId }) {
 												tool_result_id,
 											);
 											setGeneratedRailsDialog(result);
-											console.log({ result });
+											console.debug({ result });
 										});
 									}}
 									disabled={isRailsPending}
